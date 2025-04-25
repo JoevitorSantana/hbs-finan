@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HbsfinanApplication {
 
     public static void main(String[] args) {
+        // System.out.println(POSTGRES_URL);
         SpringApplication.run(HbsfinanApplication.class, args);
     }
-
 }
