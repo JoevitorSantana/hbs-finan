@@ -1,0 +1,99 @@
+import React, { useState } from 'react';
+import { Row, Col, Alert, Button } from 'react-bootstrap';
+import * as Yup from 'yup';
+import { Formik } from 'formik';
+import { useAuth } from 'contexts/AuthProvider';
+import { useNavigate } from 'react-router-dom';
+
+const JWTLogin = () => {
+  const navigate = useNavigate();
+  const { user, loginAction } = useAuth();
+
+  if (user) navigate("/");
+
+  return (
+    <Formik
+      initialValues={{
+        email: '',
+        senha: '',
+        submit: null
+      }}
+      validationSchema={Yup.object().shape({
+        email: Yup.string().email('Email inválido!').max(255).required('Email obrigatório'),
+        senha: Yup.string().max(255).required('Senha obrigatória!')
+      })}
+      onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+        try {
+          await loginAction(values.email, values.senha);
+        } catch (error) {
+          console.error(error);
+          setStatus({ success: false });
+          setErrors({ submit: error.response?.data?.message || 'Erro ao realizar login' });
+        } finally {
+          setSubmitting(false);
+        }
+      }}
+    >
+      {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        <form noValidate onSubmit={handleSubmit}>
+          <div className="form-group mb-3">
+            <input
+              className="form-control"
+              label="Email"
+              name="email"
+              placeholder="Email"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              type="email"
+              value={values.email}
+            />
+            {touched.email && errors.email && <small className="text-danger form-text">{errors.email}</small>}
+          </div>
+          <div className="form-group mb-4">
+            <input
+              className="form-control"
+              placeholder="Senha"
+              label="Senha"
+              name="senha"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              type="password"
+              value={values.senha}
+            />
+            {touched.senha && errors.senha && <small className="text-danger form-text">{errors.senha}</small>}
+          </div>
+
+          <div className="custom-control custom-checkbox  text-start mb-4 mt-2">
+            <input type="checkbox" className="custom-control-input mx-2" id="customCheck1" />
+            <label className="custom-control-label" htmlFor="customCheck1">
+              Lembrar
+            </label>
+          </div>
+
+          {errors.submit && (
+            <Col sm={12}>
+              <Alert>{errors.submit}</Alert>
+            </Col>
+          )}
+
+          <Row>
+            <Col mt={2}>
+              <Button
+                className="btn-block mb-4"
+                color="primary"
+                disabled={isSubmitting}
+                size="large"
+                 type="submit"
+                 variant="primary"
+              >
+                Login
+              </Button>
+            </Col>
+          </Row>
+        </form>
+      )}
+    </Formik>
+  );
+};
+
+export default JWTLogin;
