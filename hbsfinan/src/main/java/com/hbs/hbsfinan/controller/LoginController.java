@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.LoginDTO;
+import com.hbs.hbsfinan.dto.LoginResponseDTO;
 import com.hbs.hbsfinan.infra.security.TokenService;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.service.LoginService;
@@ -25,13 +26,16 @@ public class LoginController {
     private TokenService tokenService;
 
     @PostMapping
-    public ResponseEntity<String> login(@RequestBody LoginDTO usuario) {
-
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO usuario) {
+        System.out.println(usuario.email() + " " + usuario.senha());
         var emailSenha = new UsernamePasswordAuthenticationToken(usuario.email(), usuario.senha());
         var login = this.authenticationManager.authenticate(emailSenha);
-
         var token = tokenService.generateToken((Usuario) login.getPrincipal());
 
-        return ResponseEntity.ok(token);
+        Usuario objUsuario = loginService.loadUsuarioByEmail(usuario.email());
+
+        LoginResponseDTO response = new LoginResponseDTO(objUsuario.getNome(), objUsuario.getUltimoNome(), objUsuario.getEmail(), objUsuario.getRole(), token);
+
+        return ResponseEntity.ok(response);
     }
 }
