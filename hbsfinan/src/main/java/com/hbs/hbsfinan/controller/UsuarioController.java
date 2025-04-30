@@ -1,5 +1,7 @@
 package com.hbs.hbsfinan.controller;
 
+import com.hbs.hbsfinan.dto.UsuarioEditResponseDTO;
+import com.hbs.hbsfinan.dto.UsuarioResponseDTO;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +30,12 @@ public class UsuarioController {
     }
 
     @GetMapping("/listar")
-    public ResponseEntity<List<Usuario>> findAll() {
-        try
-        {
+    public ResponseEntity<List<UsuarioResponseDTO>> findAll() {
+        try {
             return ResponseEntity.ok(usuarioService.findAll());
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        return ResponseEntity.badRequest().build();
+        } return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/editar/{id}")
@@ -72,9 +72,10 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> findById(@PathVariable int id) {
+    public ResponseEntity<UsuarioEditResponseDTO> findById(@PathVariable int id) {
         Usuario usuario = usuarioService.findById(id);
-        return ResponseEntity.ok(usuario);
+        UsuarioEditResponseDTO response = usuarioService.convertToUsuarioEditDTO(usuario);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/excluir/{id}")

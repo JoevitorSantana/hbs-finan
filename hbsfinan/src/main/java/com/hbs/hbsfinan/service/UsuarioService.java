@@ -1,11 +1,14 @@
 package com.hbs.hbsfinan.service;
 
+import com.hbs.hbsfinan.dto.UsuarioEditResponseDTO;
+import com.hbs.hbsfinan.dto.UsuarioResponseDTO;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.repository.implementation.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,8 +31,12 @@ public class UsuarioService {
         }
     }
 
-    public List<Usuario> findAll() {
-        return usuarioRepository.findAll();
+    public List<UsuarioResponseDTO> findAll() {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<UsuarioResponseDTO> usuariosRetorno = new ArrayList<>();
+        for (Usuario usuario : usuarios)
+            usuariosRetorno.add(convertToDTO(usuario));
+        return usuariosRetorno;
     }
 
     public void delete(int id) {
@@ -42,5 +49,13 @@ public class UsuarioService {
 
     public Usuario findById(int id) {
         return usuarioRepository.findById(id);
+    }
+
+    public UsuarioResponseDTO convertToDTO(Usuario usuario) {
+        return new UsuarioResponseDTO(usuario.getId(), usuario.getNome(), usuario.getUltimoNome(), usuario.getEmail());
+    }
+
+    public UsuarioEditResponseDTO convertToUsuarioEditDTO(Usuario usuario) {
+        return new UsuarioEditResponseDTO(usuario.getId(), usuario.getNome(), usuario.getUltimoNome(), usuario.getEmail(), usuario.getPassword(), usuario.getRole().getRole().toUpperCase());
     }
 }
