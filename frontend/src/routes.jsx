@@ -77,6 +77,16 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/usuarios/novo',
+        element: lazy(() => import('./views/usuarios/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/usuarios/editar/*',
+        element: lazy(() => import('./views/usuarios/editar'))
+      },
+      {
+        exact: 'true',
         path: '/caixa',
         element: lazy(() => import('./views/caixa'))
       },
