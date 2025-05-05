@@ -1,9 +1,15 @@
 package com.hbs.hbsfinan.controller;
 
+import com.hbs.hbsfinan.dto.RestResponseMessage;
+import com.hbs.hbsfinan.dto.UsuarioCreateDTO;
 import com.hbs.hbsfinan.dto.UsuarioEditResponseDTO;
 import com.hbs.hbsfinan.dto.UsuarioResponseDTO;
+import com.hbs.hbsfinan.exceptions.EmailExistenteException;
+import com.hbs.hbsfinan.exceptions.RoleInvalidaException;
+import com.hbs.hbsfinan.exceptions.UsuarioNotFoundException;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +24,18 @@ public class UsuarioController {
     UsuarioService usuarioService;
 
     @PostMapping("/novo")
-    public ResponseEntity save(@RequestBody Usuario usuario) {
+    public ResponseEntity save(@Valid @RequestBody UsuarioCreateDTO usuario) {
         try {
             // validar campos vindos do body
+            // validar email
             usuarioService.save(usuario);
-            return new ResponseEntity(HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.CREATED, "Usuário inserido com sucesso!");
+            return new ResponseEntity<>(message, HttpStatus.CREATED);
+        } catch (EmailExistenteException e){
+            throw new EmailExistenteException(e.getMessage());
+        } catch (RoleInvalidaException e) {
+            throw new RoleInvalidaException(e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @GetMapping("/listar")
@@ -39,12 +48,9 @@ public class UsuarioController {
     }
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity<String> update(@PathVariable int id, @RequestBody Usuario usuario) {
+    public ResponseEntity update(@PathVariable int id, @RequestBody Usuario usuario) {
         try {
             Usuario oldUsuario = usuarioService.findById(id);
-
-            if (oldUsuario == null)
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
 
             if (usuario.getNome() != null && !usuario.getNome().equals(oldUsuario.getNome()))
                 oldUsuario.setNome(usuario.getNome());
@@ -61,30 +67,34 @@ public class UsuarioController {
             if (usuario.getSenha() != null && !usuario.getSenha().equals(oldUsuario.getSenha()))
                 oldUsuario.setSenha(usuario.getSenha());
 
-            // adicionar atualização de role também
-
             usuarioService.update(oldUsuario);
-            return ResponseEntity.ok("Editado com sucesso!");
-        } catch (Exception e) {
-            e.printStackTrace();
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Usuário atualizado com sucesso!");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (UsuarioNotFoundException e) {
+            throw new UsuarioNotFoundException(e.getMessage());
         }
-        return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioEditResponseDTO> findById(@PathVariable int id) {
-        Usuario usuario = usuarioService.findById(id);
-        UsuarioEditResponseDTO response = usuarioService.convertToUsuarioEditDTO(usuario);
-        return ResponseEntity.ok(response);
+        try {
+            Usuario usuario = usuarioService.findById(id);
+            UsuarioEditResponseDTO response = usuarioService.convertToUsuarioEditDTO(usuario);
+            return ResponseEntity.ok(response);
+        } catch (UsuarioNotFoundException e) {
+            throw new UsuarioNotFoundException(e.getMessage());
+        }
     }
 
     @DeleteMapping("/excluir/{id}")
-    public ResponseEntity<String> delete(@PathVariable int id) {
-        // refatorar validação
-        if (usuarioService.findById(id) != null) {
+    public ResponseEntity delete(@PathVariable int id) {
+        try {
+            usuarioService.findById(id);
             usuarioService.delete(id);
-            return ResponseEntity.ok("Deletado com sucesso!");
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Usuário excluído com sucesso!");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (UsuarioNotFoundException e) {
+            throw new UsuarioNotFoundException(e.getMessage());
         }
-        return ResponseEntity.badRequest().build();
     }
 }
