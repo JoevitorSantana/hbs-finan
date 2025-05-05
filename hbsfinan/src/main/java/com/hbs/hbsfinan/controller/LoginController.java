@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
     @Autowired
     private LoginService loginService;
-
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -27,7 +26,6 @@ public class LoginController {
 
     @PostMapping
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO usuario) {
-        System.out.println(usuario.email() + " " + usuario.senha());
         var emailSenha = new UsernamePasswordAuthenticationToken(usuario.email(), usuario.senha());
         var login = this.authenticationManager.authenticate(emailSenha);
         var token = tokenService.generateToken((Usuario) login.getPrincipal());
