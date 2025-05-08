@@ -51,9 +51,6 @@ public class FuncionarioController {
             if (funcionario.getCpf() != null && !funcionario.getCpf().equals(oldFuncionario.getCpf()))
                 oldFuncionario.setCpf(funcionario.getCpf());
 
-            if (funcionario.getFuncao() != null && !funcionario.getFuncao().equals(oldFuncionario.getFuncao()))
-                oldFuncionario.setFuncao(funcionario.getFuncao());
-
             if (funcionario.getDataNascimento() != null && !funcionario.getDataNascimento().equals(oldFuncionario.getDataNascimento()))
                 oldFuncionario.setDataNascimento(funcionario.getDataNascimento());
 

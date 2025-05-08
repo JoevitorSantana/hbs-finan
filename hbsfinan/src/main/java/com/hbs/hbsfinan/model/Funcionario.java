@@ -9,46 +9,89 @@ import java.util.Date;
 public class Funcionario {
     @Id
     private int id;
-    private String cpf;
-    private String funcao;
+    private String nome;
+    private String email;
     private Date dataNascimento;
+    private String fone;
+    private String endereco;
+    private String sexo;
+    private String cpf;
+
 
     public Funcionario() {}
 
-    public Funcionario(String cpf, String funcao, Date dataNascimento) {
-        this.cpf = cpf;
-        this.funcao = funcao;
+    public Funcionario(int id, String nome, String email, Date dataNascimento, String fone, String endereco, String sexo, String cpf) {
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
         this.dataNascimento = dataNascimento;
+        this.fone = fone;
+        this.endereco = endereco;
+        this.sexo = sexo;
+        this.cpf = cpf;
     }
 
-    // getters
     public int getId() {
         return id;
     }
 
-    public String getCpf() {
-        return cpf;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getFuncao() {
-        return funcao;
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Date getDataNascimento() {
         return dataNascimento;
     }
 
-    // setters
-    public void setId(int id) {
-        this.id = id;
-    }
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-    public void setFuncao(String funcao) {
-        this.funcao = funcao;
-    }
     public void setDataNascimento(Date dataNascimento) {
         this.dataNascimento = dataNascimento;
+    }
+
+    public String getFone() {
+        return fone;
+    }
+
+    public void setFone(String fone) {
+        this.fone = fone;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public String getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -18,15 +19,29 @@ public class FuncionarioRepository implements IFuncionarioRepository {
     private RowMapper<Funcionario> rowMapper = (rs, rowNum) -> {
         Funcionario funcionario = new Funcionario();
         funcionario.setId(rs.getInt("id"));
-        funcionario.setCpf(rs.getString("cpf"));
-        funcionario.setFuncao(rs.getString("funcao"));
+        funcionario.setNome(rs.getString("nome"));
+        funcionario.setEmail(rs.getString("email"));
         funcionario.setDataNascimento(rs.getDate("data_nascimento"));
+        funcionario.setFone(rs.getString("fone"));
+        funcionario.setEndereco(rs.getString("endereco"));
+        funcionario.setSexo(rs.getString("sexo"));
+        funcionario.setCpf(rs.getString("cpf"));
+
         return funcionario;
     };
 
+    private int id;
+    private String nome;
+    private String email;
+    private Date dataNascimento;
+    private String fone;
+    private String endereco;
+    private String sexo;
+    private String cpf;
+
     @Override
     public void save(Funcionario funcionario) {
-        dbConn.update("INSERT INTO funcionario (cpf, funcao, data_nascimento) VALUES (?,?,?)", funcionario.getCpf(), funcionario.getFuncao(), funcionario.getDataNascimento());
+        dbConn.update("INSERT INTO funcionario (nome,email,data_nascimento,fone,endereco,sexo,cpf) VALUES (?,?,?,?,?,?,?)",funcionario.getNome(),funcionario.getEmail(),funcionario.getDataNascimento(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getSexo(), funcionario.getCpf());
     }
 
     @Override
@@ -46,7 +61,7 @@ public class FuncionarioRepository implements IFuncionarioRepository {
 
     @Override
     public void update(Funcionario funcionario) {
-        dbConn.update("UPDATE funcionario SET cpf = ?, funcao = ?, data_nascimento = ? WHERE id = ?", funcionario.getCpf(), funcionario.getFuncao(), funcionario.getDataNascimento(), funcionario.getId());
+        dbConn.update("UPDATE funcionario SET nome = ?, email = ?,data_nascimento = ?,fone = ?, endereco = ?, sexo = ?, cpf = ? WHERE id = ?", funcionario.getNome(),funcionario.getEmail(),funcionario.getDataNascimento(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getSexo(), funcionario.getCpf(), funcionario.getId());
     }
 
     @Override
