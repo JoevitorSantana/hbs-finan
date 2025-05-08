@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan.infra.security;
 
+import com.hbs.hbsfinan.exceptions.CustomAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,9 @@ public class SecurityConfiguration {
     @Autowired
     SecurityFilter securityFilter;
 
+    @Autowired
+    CustomAccessDeniedHandler accessDeniedHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
@@ -35,11 +39,12 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                                     .requestMatchers(HttpMethod.POST, "/login").permitAll()
                                     .requestMatchers(HttpMethod.POST, "/usuarios/novo").permitAll()
-                                    .requestMatchers(HttpMethod.POST, "/usuarios/listar").hasRole("ADMIN")
+                                    .requestMatchers(HttpMethod.GET, "/usuarios/listar").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.PUT, "/usuarios/editar/**").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.DELETE, "/usuarios/excluir/**").hasRole("ADMIN")
                                     .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
