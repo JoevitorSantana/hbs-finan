@@ -9,17 +9,37 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Registra o ParametrizacaoInterceptor para todas as rotas da aplicação.
  */
+//@Configuration
+//public class WebConfig implements WebMvcConfigurer {
+//
+//    @Autowired
+//    private ParametrizacaoService parametrizacaoService;
+//
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new ParametrizacaoInterceptor(parametrizacaoService))
+//                .addPathPatterns("/**")
+//                // opcional: excluir estáticos se quiser
+//                .excludePathPatterns("/css/**", "/js/**", "/images/**", "/webjars/**");
+//    }
+//}
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
-    private ParametrizacaoService parametrizacaoService;
+    private ParametrizacaoInterceptor piInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ParametrizacaoInterceptor(parametrizacaoService))
+        registry.addInterceptor(piInterceptor)
                 .addPathPatterns("/**")
-                // opcional: excluir estáticos se quiser
-                .excludePathPatterns("/css/**", "/js/**", "/images/**", "/webjars/**");
+                .excludePathPatterns(
+                        "/login",
+                        "/api/parametrizacao",    // <<< libera tudo em /parametrizacao
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/webjars/**"
+                );
     }
 }
