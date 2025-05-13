@@ -29,8 +29,11 @@ public class ParametrizacaoService {
      * Recupera a configuração existente ou lança exceção se não existir.
      */
     public Parametrizacao get() {
-        return repo.findFirst()
-                .orElseThrow(() -> new ParametrizacaoNaoEncontradaException("Parametrização não encontrada."));
+        Parametrizacao response = repo.findFirst();
+        if (response == null)
+            new ParametrizacaoNaoEncontradaException("Parametrização não encontrada.");
+
+        return response;
     }
 
     /**
@@ -42,7 +45,7 @@ public class ParametrizacaoService {
             throw new ParametrizacaoJaCadastradaException("Já existe uma parametrização cadastrada.");
         }
         repo.save(dto);
-        return repo.findFirst().get();
+        return repo.findFirst();
     }
 
     /**
@@ -50,8 +53,10 @@ public class ParametrizacaoService {
      */
     @Transactional
     public Parametrizacao update(Parametrizacao dto) {
-        Parametrizacao atual = repo.findFirst()
-                .orElseThrow(() -> new ParametrizacaoNaoEncontradaException("Parametrização não encontrada para atualização."));
+
+        Parametrizacao atual = repo.findFirst();
+        if (atual == null)
+            new ParametrizacaoNaoEncontradaException("Parametrização não encontrada para atualização.");
         // Copia cada campo do DTO para a entidade existente
         atual.setNomeEmpresa(dto.getNomeEmpresa());
         atual.setRazaoSocial(dto.getRazaoSocial());

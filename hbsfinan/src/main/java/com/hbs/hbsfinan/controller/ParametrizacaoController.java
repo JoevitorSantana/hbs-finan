@@ -45,13 +45,14 @@ public class ParametrizacaoController {
      */
     @PostMapping
     public ResponseEntity<Parametrizacao> create(
-            @Valid @RequestBody Parametrizacao dto,
-            UriComponentsBuilder uriBuilder) {
+            @Valid @RequestBody Parametrizacao dto /*,
+            UriComponentsBuilder uriBuilder*/) {
         try {
             Parametrizacao criada = service.create(dto);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(uriBuilder.path("/api/parametrizacao").build().toUri());
-            return new ResponseEntity<>(criada, headers, HttpStatus.CREATED);
+            return ResponseEntity.ok(criada);
+            //HttpHeaders headers = new HttpHeaders();
+            // headers.setLocation(uriBuilder.path("/api/parametrizacao").build().toUri());
+            // return new ResponseEntity<>(criada, headers, HttpStatus.CREATED);
         } catch (ParametrizacaoJaCadastradaException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
