@@ -6,9 +6,10 @@ import com.hbs.hbsfinan.repository.interfaces.IApoiadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public class ApoiadorRepository implements IApoiadorRepository {
     @Autowired
     private JdbcTemplate dbConn;

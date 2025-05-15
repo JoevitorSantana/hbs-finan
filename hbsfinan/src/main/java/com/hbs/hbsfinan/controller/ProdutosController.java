@@ -46,6 +46,22 @@ public class ProdutosController {
         } return ResponseEntity.badRequest().build();
     }
 
+    @PutMapping("/editar/{id}")
+    public ResponseEntity update(@PathVariable int id, @RequestBody Produtos produtos){
+        try{
+            Produtos oldProdutos = produtosService.findById(id);
+            if(produtos.getNome() != null && !produtos.getNome().equals(oldProdutos.getNome()))
+                oldProdutos.setNome(produtos.getNome());
+            if(produtos.getQtd() != 0 && produtos.getQtd() != oldProdutos.getQtd())
+                oldProdutos.setQtd(produtos.getQtd());
+            produtosService.update(oldProdutos);
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Grupo atualizado com sucesso!");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }catch (Exception e){
+            throw new RuntimeException();
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Produtos> findById(@PathVariable int id) {
