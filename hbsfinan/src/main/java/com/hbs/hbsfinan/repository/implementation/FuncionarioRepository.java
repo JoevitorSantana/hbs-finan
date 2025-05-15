@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan.repository.implementation;
 
+import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.interfaces.IFuncionarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +41,8 @@ public class FuncionarioRepository implements IFuncionarioRepository {
     private String cpf;
 
     @Override
-    public void save(Funcionario funcionario) {
-        dbConn.update("INSERT INTO funcionario (nome,email,data_nascimento,fone,endereco,sexo,cpf) VALUES (?,?,?,?,?,?,?)",funcionario.getNome(),funcionario.getEmail(),funcionario.getDataNascimento(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getSexo(), funcionario.getCpf());
+    public void save(FuncionarioCreateDTO funcionario) {
+        dbConn.update("INSERT INTO funcionario (nome,email,fone,endereco,data_nascimento,sexo,cpf) VALUES (?,?,?,?,?,?,?)",funcionario.getNome(),funcionario.getEmail(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getDataNascimento(),funcionario.getSexo(), funcionario.getCpf());
     }
 
     @Override
@@ -61,7 +62,7 @@ public class FuncionarioRepository implements IFuncionarioRepository {
 
     @Override
     public void update(Funcionario funcionario) {
-        dbConn.update("UPDATE funcionario SET nome = ?, email = ?,data_nascimento = ?,fone = ?, endereco = ?, sexo = ?, cpf = ? WHERE id = ?", funcionario.getNome(),funcionario.getEmail(),funcionario.getDataNascimento(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getSexo(), funcionario.getCpf(), funcionario.getId());
+        dbConn.update("UPDATE funcionario SET nome = ?, email = ?,fone = ?,endereco = ?,data_nascimento = ?, sexo = ?,  cpf = ? WHERE id = ?", funcionario.getNome(),funcionario.getEmail(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getDataNascimento(),funcionario.getSexo(), funcionario.getCpf(), funcionario.getId());
     }
 
     @Override

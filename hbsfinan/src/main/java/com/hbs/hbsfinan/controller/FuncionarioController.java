@@ -1,10 +1,18 @@
 package com.hbs.hbsfinan.controller;
 
+import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
+import com.hbs.hbsfinan.dto.RestResponseMessage;
+import com.hbs.hbsfinan.dto.UsuarioCreateDTO;
 import com.hbs.hbsfinan.model.Funcionario;
+import com.hbs.hbsfinan.model.Usuario;
+import com.hbs.hbsfinan.repository.interfaces.IUsuarioRepository;
 import com.hbs.hbsfinan.service.FuncionarioService;
+import com.hbs.hbsfinan.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,17 +25,58 @@ public class FuncionarioController {
     @Autowired
     private FuncionarioService funcionarioService;
 
+    @Autowired
+    private IUsuarioRepository usuarioRepository;
+
+    //@Autowired
+    //private BCryptPasswordEncoder encoder; // para criptografar senha
+
     @PostMapping("/novo")
-    public Funcionario save(@RequestBody Funcionario funcionario) {
-        // Implementações à Fazer
-        // 1 - validar campos vindos do body
-        // 2 - Criar lógica de inserção
-        //  Se o funcionário inserido, não for um usuário,
-        //      Inserir registro de usuário depois inserir o registro de funcionário com id do usuario inserido
-        //  Se o funcionário inserido já for um usuário, utilizar seu id para cadastrar o funcionário
-        funcionarioService.save(funcionario);
-        return null;
+    public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
+
+        Usuario usuario = usuarioRepository.findByEmail(funcionariodto.getEmail());
+        if (usuario != null) {
+            return ResponseEntity.badRequest().body("Email já cadastrado para outro usuário.");
+        }
+        // Cria DTO para salvar Usuario
+        UsuarioCreateDTO usuarioDTO = new UsuarioCreateDTO();
+        usuarioDTO.setNome(funcionariodto.getNome());
+        usuarioDTO.setUltimoNome(""); // se quiser setar, ou deixar vazio
+        usuarioDTO.setEmail(funcionariodto.getEmail());
+        //usuarioDTO.setSenha(encoder.encode("123456"));  // senha padrão já criptografada
+        usuarioDTO.setRole("USER");
+
+        // Salva usuário diretamente no repositório
+        usuarioRepository.save(usuarioDTO);
+
+        // Recupera o usuário salvo para associar ao funcionário
+        Usuario usuarioSalvo = usuarioRepository.findByEmail(funcionariodto.getEmail());
+
+        // Cria e salva funcionário associando o usuário
+        Funcionario funcionario = new Funcionario();
+        funcionario.setNome(funcionariodto.getNome());
+        funcionario.setEmail(funcionariodto.getEmail());
+        funcionario.setFone(funcionariodto.getFone());
+        funcionario.setEndereco(funcionariodto.getEndereco());
+        funcionario.setDataNascimento(funcionariodto.getDataNascimento());
+        funcionario.setSexo(funcionariodto.getSexo());
+        funcionario.setCpf(funcionariodto.getCpf());
+        //funcionario.setUsuario(usuarioSalvo);
+
+        funcionarioService.save(funcionariodto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
+
+
     }
+
+    // Implementações à Fazer
+    // 1 - validar campos vindos do body
+    // 2 - Criar lógica de inserção
+    //  Se o funcionário inserido, não for um usuário,
+    //      Inserir registro de usuário depois inserir o registro de funcionário com id do usuario inserido
+    //  Se o funcionário inserido já for um usuário, utilizar seu id para cadastrar o funcionário
+
 
     @GetMapping("/listar")
     public ResponseEntity<List<Funcionario>> findAll() {
