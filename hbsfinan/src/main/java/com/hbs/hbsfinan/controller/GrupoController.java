@@ -59,7 +59,7 @@ public class GrupoController {
         }
     }
 
-    @GetMapping("/buscarId/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Grupo>findById(@PathVariable int id){
         try{
             Grupo grupo = grupoService.findById(id);
@@ -69,8 +69,8 @@ public class GrupoController {
         }
     }
 
-    @GetMapping("/buscarNome/{nome}")
-    public ResponseEntity<Grupo>findByNome(@PathVariable String nome){
+    @GetMapping
+    public ResponseEntity<Grupo>findByNome(@RequestParam("nome") String nome){
         try{
             Grupo grupo = grupoService.findByNome(nome);
             return ResponseEntity.ok(grupo);

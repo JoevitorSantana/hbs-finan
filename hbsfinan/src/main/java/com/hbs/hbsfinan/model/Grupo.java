@@ -1,7 +1,7 @@
 package com.hbs.hbsfinan.model;
 
 import jakarta.persistence.*;
-
+//
 @Entity
 public class Grupo
 {

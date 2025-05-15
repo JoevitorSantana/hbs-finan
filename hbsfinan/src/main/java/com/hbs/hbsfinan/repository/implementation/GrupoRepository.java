@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+//
 @Repository
 public class GrupoRepository implements IGrupoRepository {
 

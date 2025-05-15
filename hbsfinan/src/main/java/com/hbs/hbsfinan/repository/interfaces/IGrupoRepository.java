@@ -3,7 +3,7 @@ package com.hbs.hbsfinan.repository.interfaces;
 import com.hbs.hbsfinan.model.Grupo;
 
 import java.util.List;
-
+//
 
 public interface IGrupoRepository
 {
