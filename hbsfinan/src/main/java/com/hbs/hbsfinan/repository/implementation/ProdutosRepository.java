@@ -30,7 +30,7 @@ public class ProdutosRepository implements IProdutosRepository {
 
     @Override
     public Produtos findById(int id) {
-        return dbConn.queryForObject("SELECT * FROM produtos WHERE ", rowMapper, id);
+        return dbConn.queryForObject("SELECT * FROM produtos WHERE id = ?", rowMapper, id);
     }
 
     @Override
