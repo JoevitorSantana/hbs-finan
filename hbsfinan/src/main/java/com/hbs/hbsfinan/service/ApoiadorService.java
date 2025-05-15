@@ -16,10 +16,21 @@ public class ApoiadorService {
 
     @Autowired
     private ApoiadorRepository apoiadorRepository;
-
-    public void save(ApoiadorDTO apoiador) {
-        apoiadorRepository.save(apoiador);
+ //service
+    public void save(ApoiadorDTO dto) {
+        Apoiador apoiador = new Apoiador(
+                dto.getNome(),
+                dto.getEmail(),
+                dto.getFone(),
+                dto.getEndereco(),
+                dto.getSexo(),
+                dto.getCpf(),
+                dto.getDataNasc(),
+                dto.getId()
+        );
+        apoiadorRepository.save(apoiador);  // Aqui passa a entidade
     }
+
 
     public List<Apoiador> findAll() {
         return apoiadorRepository.findAll();

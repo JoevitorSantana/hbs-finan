@@ -33,11 +33,12 @@ public class ApoiadorRepository implements IApoiadorRepository {
     };
 
 
-
+    //repository
     @Override
-    public void save(ApoiadorDTO apoiador) {
-        dbConn.update("INSERT INTO apoiador (id, nome, endereco, sexo, telefone, cpf, email , data_nascimento) VALUES (?,?,?,?,?,?,?,?)", apoiador.getId(), apoiador.getNome(), apoiador.getEndereco(),apoiador.getSexo(), apoiador.getFone(), apoiador.getCpf(),apoiador.getEmail(),apoiador.getCpf());
+    public void save(Apoiador apoiadorDTO) {
+        dbConn.update("INSERT INTO apoiador (id, nome, endereco, sexo, telefone, cpf, email , data_nascimento) VALUES (?,?,?,?,?,?,?,?)", apoiadorDTO.getId(), apoiadorDTO.getNome(), apoiadorDTO.getEndereco(),apoiadorDTO.getSexo(), apoiadorDTO.getFone(), apoiadorDTO.getCpf(),apoiadorDTO.getEmail(),apoiadorDTO.getDataNasc());
     }
+
 
     @Override
     public Apoiador findById(int id) {
@@ -56,7 +57,17 @@ public class ApoiadorRepository implements IApoiadorRepository {
 
     @Override
     public void update(Apoiador apoiador) {
-        dbConn.update("UPDATE apoiador SET nome = ?, endereco = ?, sexo = ?, telefone=?, cpf=? WHERE id = ?",apoiador.getNome(), apoiador.getEndereco(),apoiador.getSexo(), apoiador.getFone(), apoiador.getCpf(),apoiador.getEmail(),apoiador.getCpf(),apoiador.getId());
+        dbConn.update(
+                "UPDATE apoiador SET nome = ?, endereco = ?, sexo = ?, telefone = ?, cpf = ?, email = ?, data_nascimento = ? WHERE id = ?",
+                apoiador.getNome(),
+                apoiador.getEndereco(),
+                apoiador.getSexo(),
+                apoiador.getFone(),
+                apoiador.getCpf(),
+                apoiador.getEmail(),
+                apoiador.getDataNasc(),
+                apoiador.getId()
+        );
     }
 
     @Override

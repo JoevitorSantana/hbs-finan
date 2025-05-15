@@ -1,15 +1,15 @@
 package com.hbs.hbsfinan.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
 public class ApoiadorDTO {
 
-
-    private int Id;
     @NotBlank(message = "O usuário deve possuir nome!")
     private String nome;
 
@@ -24,8 +24,10 @@ public class ApoiadorDTO {
     @NotBlank(message = "O usuário deve possuir endereco!")
     private String endereco;
 
-    @NotBlank(message = "Data nascimento incorreta!")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dataNasc;
+
 
 
     private String sexo;
@@ -61,9 +63,7 @@ public class ApoiadorDTO {
         return cpf;
     }
 
-    public int getId(){
-        return Id;
-    }
+
     public void setSexo(String sexo) {
         this.sexo = sexo;
     }
