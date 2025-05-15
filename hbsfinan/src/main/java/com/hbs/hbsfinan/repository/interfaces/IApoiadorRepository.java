@@ -1,13 +1,15 @@
 package com.hbs.hbsfinan.repository.interfaces;
 
+import com.hbs.hbsfinan.dto.ApoiadorDTO;
 import com.hbs.hbsfinan.model.Apoiador;
 import com.hbs.hbsfinan.model.Funcionario;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface IApoiadorRepository {
 
-    void save(Apoiador apoiador);
+    void save(ApoiadorDTO apoiador);
     Apoiador findById(int id);
     List<Apoiador> findAll();
     void delete(int id);

@@ -8,9 +8,9 @@ import jakarta.persistence.OneToOne;
 import java.net.DatagramSocket;
 import java.util.Date;
 
-@Entity
+//@Entity
 public class Despesas {
-
+/*
     @Id
     private int id;
     private Date Data_Lancamento;
@@ -86,5 +86,5 @@ public class Despesas {
 
     public void setData_Quitacao(Date data_Quitacao) {
         Data_Quitacao = data_Quitacao;
-    }
+    }*/
 }

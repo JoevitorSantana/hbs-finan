@@ -2,6 +2,8 @@ package com.hbs.hbsfinan.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 import java.util.Date;
 
@@ -9,7 +11,7 @@ import java.util.Date;
 public class Apoiador {
 
     @Id
-    private int Id;
+    private Long Id;
 
     private String nome;
     private String email;
@@ -19,10 +21,9 @@ public class Apoiador {
     private String sexo;
     private String cpf;
 
-
     public Apoiador(){}
 
-    public Apoiador(String nome, String email, String fone, String endereco, String sexo, String cpf, Date dataNasc, int Id)
+    public Apoiador(String nome, String email, String fone, String endereco, String sexo, String cpf, Date dataNasc, Long Id)
     {
         this.cpf=cpf;
         this.dataNasc=dataNasc;
@@ -58,7 +59,7 @@ public class Apoiador {
         this.fone = fone;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         Id = id;
     }
 
@@ -75,7 +76,7 @@ public class Apoiador {
         return dataNasc;
     }
 
-    public int getId() {
+    public Long getId() {
         return Id;
     }
 
