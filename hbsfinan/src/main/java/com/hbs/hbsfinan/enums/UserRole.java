@@ -1,8 +1,8 @@
 package com.hbs.hbsfinan.enums;
 
 public enum UserRole {
-    ADMIN("admin"),
-    USER("user");
+    USER("user"),
+    ADMIN("admin");
 
     private String role;
 

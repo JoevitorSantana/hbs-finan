@@ -12,6 +12,7 @@ public class Apoiador {
 
     @Id
     private int Id;
+
     private String nome;
     private String email;
     private String fone;
