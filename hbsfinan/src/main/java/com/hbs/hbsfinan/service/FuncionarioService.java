@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan.service;
 
+import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.implementation.FuncionarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ public class FuncionarioService {
     @Autowired
     private FuncionarioRepository funcionarioRepository;
 
-    public void save(Funcionario funcionario) {
+    public void save(FuncionarioCreateDTO funcionario) {
         funcionarioRepository.save(funcionario);
     }
 
