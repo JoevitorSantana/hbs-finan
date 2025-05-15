@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.RestResponseMessage;
+import com.hbs.hbsfinan.exceptions.GrupoNotFoundException;
 import com.hbs.hbsfinan.model.Grupo;
 import com.hbs.hbsfinan.service.GrupoService;
 import jakarta.validation.Valid;
@@ -42,5 +43,19 @@ public class GrupoController {
         {
             e.printStackTrace();
         }return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/editar/{id}")
+    public ResponseEntity update(@PathVariable int id, @RequestBody Grupo grupo){
+        try{
+            Grupo oldGrupo = grupoService.findById(id);
+            if(grupo.getNome() != null && !grupo.getNome().equals(oldGrupo.getNome()))
+                oldGrupo.setNome(grupo.getNome());
+            grupoService.update(oldGrupo);
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Grupo atualizado com sucesso!");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }catch (GrupoNotFoundException e){
+            throw new GrupoNotFoundException(e.getMessage());
+        }
     }
 }
