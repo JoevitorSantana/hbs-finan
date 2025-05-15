@@ -58,4 +58,36 @@ public class GrupoController {
             throw new GrupoNotFoundException(e.getMessage());
         }
     }
+
+    @GetMapping("/buscarId/{id}")
+    public ResponseEntity<Grupo>findById(@PathVariable int id){
+        try{
+            Grupo grupo = grupoService.findById(id);
+            return ResponseEntity.ok(grupo);
+        } catch (GrupoNotFoundException e) {
+            throw new GrupoNotFoundException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/buscarNome/{nome}")
+    public ResponseEntity<Grupo>findByNome(@PathVariable String nome){
+        try{
+            Grupo grupo = grupoService.findByNome(nome);
+            return ResponseEntity.ok(grupo);
+        } catch (GrupoNotFoundException e) {
+            throw new GrupoNotFoundException(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/excluir/{id}")
+    public ResponseEntity delete(@PathVariable int id){
+        try{
+            grupoService.findById(id);
+            grupoService.delete(id);
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Grupo excluido com sucesso!");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }catch (GrupoNotFoundException e){
+            throw new GrupoNotFoundException(e.getMessage());
+        }
+    }
 }
