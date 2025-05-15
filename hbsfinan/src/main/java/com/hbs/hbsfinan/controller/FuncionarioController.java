@@ -28,48 +28,6 @@ public class FuncionarioController {
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
-    //@Autowired
-    //private BCryptPasswordEncoder encoder; // para criptografar senha
-
-//    @PostMapping("/novo")
-//    public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
-//
-//        Usuario usuario = usuarioRepository.findByEmail(funcionariodto.getEmail());
-//        if (usuario != null) {
-//            return ResponseEntity.badRequest().body("Email já cadastrado para outro usuário.");
-//        }
-//        // Cria DTO para salvar Usuario
-//        UsuarioCreateDTO usuarioDTO = new UsuarioCreateDTO();
-//        usuarioDTO.setNome(funcionariodto.getNome());
-//        usuarioDTO.setUltimoNome(""); // se quiser setar, ou deixar vazio
-//        usuarioDTO.setEmail(funcionariodto.getEmail());
-//        //usuarioDTO.setSenha(encoder.encode("123456"));  // senha padrão já criptografada
-//        usuarioDTO.setRole("USER");
-//
-//        // Salva usuário diretamente no repositório
-//        usuarioRepository.save(usuarioDTO);
-//
-//        // Recupera o usuário salvo para associar ao funcionário
-//        Usuario usuarioSalvo = usuarioRepository.findByEmail(funcionariodto.getEmail());
-//
-//        // Cria e salva funcionário associando o usuário
-//        FuncionarioCreateDTO funcionario = new FuncionarioCreateDTO();
-//        funcionario.setNome(funcionariodto.getNome());
-//        funcionario.setEmail(funcionariodto.getEmail());
-//        funcionario.setFone(funcionariodto.getFone());
-//        funcionario.setEndereco(funcionariodto.getEndereco());
-//        funcionario.setDataNascimento(funcionariodto.getDataNascimento());
-//        funcionario.setSexo(funcionariodto.getSexo());
-//        funcionario.setCpf(funcionariodto.getCpf());
-//        //funcionario.setUsuario(usuarioSalvo);
-//
-//        funcionarioService.save(funcionario);
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
-//
-//
-//    }
-
     @PostMapping("/novo")
     public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
         try {
@@ -81,13 +39,6 @@ public class FuncionarioController {
         }
     }
 
-
-    // Implementações à Fazer
-    // 1 - validar campos vindos do body
-    // 2 - Criar lógica de inserção
-    //  Se o funcionário inserido, não for um usuário,
-    //      Inserir registro de usuário depois inserir o registro de funcionário com id do usuario inserido
-    //  Se o funcionário inserido já for um usuário, utilizar seu id para cadastrar o funcionário
 
 
     @GetMapping("/listar")
