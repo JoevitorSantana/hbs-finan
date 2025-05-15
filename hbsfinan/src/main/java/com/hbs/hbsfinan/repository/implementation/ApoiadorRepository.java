@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan.repository.implementation;
 
+import com.hbs.hbsfinan.dto.ApoiadorDTO;
 import com.hbs.hbsfinan.model.Apoiador;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.interfaces.IApoiadorRepository;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.util.List;
 
 public class ApoiadorRepository implements IApoiadorRepository {
+
     @Autowired
     private JdbcTemplate dbConn;
 
@@ -18,20 +20,20 @@ public class ApoiadorRepository implements IApoiadorRepository {
     private RowMapper<Apoiador> rowMapper = (rs, rowNum) -> {
        Apoiador apoiador = new Apoiador();
         apoiador.setId(rs.getInt("id"));
+        apoiador.setNome(rs.getString("nome"));
         apoiador.setCpf(rs.getString("cpf"));
-        apoiador.setId(rs.getInt("id"));
-        apoiador.setCpf(rs.getString("cpf"));
-        apoiador.setId(rs.getInt("id"));
-        apoiador.setCpf(rs.getString("cpf"));
-        apoiador.setId(rs.getInt("id"));
-        apoiador.setCpf(rs.getString("cpf"));
+        apoiador.setEmail(rs.getString("email"));
+        apoiador.setFone(rs.getString("fone"));
+        apoiador.setDataNasc(rs.getDate("data"));
+        apoiador.setSexo(rs.getString("sexo"));
+        apoiador.setEndereco(rs.getString("endereco"));
         return apoiador;
     };
 
 
 
     @Override
-    public void save(Apoiador apoiador) {
+    public void save(ApoiadorDTO apoiador) {
         dbConn.update("INSERT INTO apoiador (id, nome, endereco, sexo, telefone, cpf, email , data_nascimento) VALUES (?,?,?,?,?,?,?,?)", apoiador.getId(), apoiador.getNome(), apoiador.getEndereco(),apoiador.getSexo(), apoiador.getFone(), apoiador.getCpf(),apoiador.getEmail(),apoiador.getCpf());
     }
 

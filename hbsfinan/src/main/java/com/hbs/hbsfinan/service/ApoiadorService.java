@@ -1,8 +1,10 @@
 package com.hbs.hbsfinan.service;
 
+import com.hbs.hbsfinan.dto.ApoiadorDTO;
 import com.hbs.hbsfinan.model.Apoiador;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.implementation.ApoiadorRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +13,11 @@ import java.util.List;
 @Service
 public class ApoiadorService {
 
+
     @Autowired
     private ApoiadorRepository apoiadorRepository;
 
-    public void save(Apoiador apoiador) {
+    public void save(ApoiadorDTO apoiador) {
         apoiadorRepository.save(apoiador);
     }
 

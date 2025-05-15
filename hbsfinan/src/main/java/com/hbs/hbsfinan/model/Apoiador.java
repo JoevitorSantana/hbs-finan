@@ -2,6 +2,8 @@ package com.hbs.hbsfinan.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 import java.util.Date;
 
@@ -10,7 +12,6 @@ public class Apoiador {
 
     @Id
     private int Id;
-
     private String nome;
     private String email;
     private String fone;
@@ -18,7 +19,6 @@ public class Apoiador {
     private Date dataNasc;
     private String sexo;
     private String cpf;
-
 
     public Apoiador(){}
 
