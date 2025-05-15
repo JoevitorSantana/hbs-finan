@@ -21,7 +21,7 @@ public class ApoiadorRepository implements IApoiadorRepository {
     //conferir no banco
     private RowMapper<Apoiador> rowMapper = (rs, rowNum) -> {
        Apoiador apoiador = new Apoiador();
-        apoiador.setId(rs.getInt("id"));
+        apoiador.setId(rs.getLong("id"));
         apoiador.setNome(rs.getString("nome"));
         apoiador.setCpf(rs.getString("cpf"));
         apoiador.setEmail(rs.getString("email"));
@@ -33,12 +33,11 @@ public class ApoiadorRepository implements IApoiadorRepository {
     };
 
 
-    //repository
+
     @Override
-    public void save(Apoiador apoiadorDTO) {
+    public void save(ApoiadorDTO apoiadorDTO) {
         dbConn.update("INSERT INTO apoiador (id, nome, endereco, sexo, telefone, cpf, email , data_nascimento) VALUES (?,?,?,?,?,?,?,?)", apoiadorDTO.getId(), apoiadorDTO.getNome(), apoiadorDTO.getEndereco(),apoiadorDTO.getSexo(), apoiadorDTO.getFone(), apoiadorDTO.getCpf(),apoiadorDTO.getEmail(),apoiadorDTO.getDataNasc());
     }
-
 
     @Override
     public Apoiador findById(int id) {

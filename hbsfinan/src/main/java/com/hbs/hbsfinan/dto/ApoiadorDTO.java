@@ -10,6 +10,9 @@ import java.util.Date;
 
 public class ApoiadorDTO {
 
+
+    private Long id;
+
     @NotBlank(message = "O usuário deve possuir nome!")
     private String nome;
 
@@ -90,5 +93,13 @@ public class ApoiadorDTO {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IApoiadorRepository {
 
-    void save(Apoiador apoiador);
+    void save(ApoiadorDTO apoiador);
     Apoiador findById(int id);
     List<Apoiador> findAll();
     void delete(int id);
