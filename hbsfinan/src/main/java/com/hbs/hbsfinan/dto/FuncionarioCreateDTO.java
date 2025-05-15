@@ -8,6 +8,16 @@ import java.util.Date;
 
 public class FuncionarioCreateDTO {
 
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @NotBlank(message = "O nome é obrigatório")
     private String nome;
 

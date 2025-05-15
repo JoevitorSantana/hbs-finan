@@ -31,44 +31,56 @@ public class FuncionarioController {
     //@Autowired
     //private BCryptPasswordEncoder encoder; // para criptografar senha
 
+//    @PostMapping("/novo")
+//    public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
+//
+//        Usuario usuario = usuarioRepository.findByEmail(funcionariodto.getEmail());
+//        if (usuario != null) {
+//            return ResponseEntity.badRequest().body("Email já cadastrado para outro usuário.");
+//        }
+//        // Cria DTO para salvar Usuario
+//        UsuarioCreateDTO usuarioDTO = new UsuarioCreateDTO();
+//        usuarioDTO.setNome(funcionariodto.getNome());
+//        usuarioDTO.setUltimoNome(""); // se quiser setar, ou deixar vazio
+//        usuarioDTO.setEmail(funcionariodto.getEmail());
+//        //usuarioDTO.setSenha(encoder.encode("123456"));  // senha padrão já criptografada
+//        usuarioDTO.setRole("USER");
+//
+//        // Salva usuário diretamente no repositório
+//        usuarioRepository.save(usuarioDTO);
+//
+//        // Recupera o usuário salvo para associar ao funcionário
+//        Usuario usuarioSalvo = usuarioRepository.findByEmail(funcionariodto.getEmail());
+//
+//        // Cria e salva funcionário associando o usuário
+//        FuncionarioCreateDTO funcionario = new FuncionarioCreateDTO();
+//        funcionario.setNome(funcionariodto.getNome());
+//        funcionario.setEmail(funcionariodto.getEmail());
+//        funcionario.setFone(funcionariodto.getFone());
+//        funcionario.setEndereco(funcionariodto.getEndereco());
+//        funcionario.setDataNascimento(funcionariodto.getDataNascimento());
+//        funcionario.setSexo(funcionariodto.getSexo());
+//        funcionario.setCpf(funcionariodto.getCpf());
+//        //funcionario.setUsuario(usuarioSalvo);
+//
+//        funcionarioService.save(funcionario);
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
+//
+//
+//    }
+
     @PostMapping("/novo")
     public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
-
-        Usuario usuario = usuarioRepository.findByEmail(funcionariodto.getEmail());
-        if (usuario != null) {
-            return ResponseEntity.badRequest().body("Email já cadastrado para outro usuário.");
+        try {
+            funcionarioService.save(funcionariodto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar funcionário: " + e.getMessage());
         }
-        // Cria DTO para salvar Usuario
-        UsuarioCreateDTO usuarioDTO = new UsuarioCreateDTO();
-        usuarioDTO.setNome(funcionariodto.getNome());
-        usuarioDTO.setUltimoNome(""); // se quiser setar, ou deixar vazio
-        usuarioDTO.setEmail(funcionariodto.getEmail());
-        //usuarioDTO.setSenha(encoder.encode("123456"));  // senha padrão já criptografada
-        usuarioDTO.setRole("USER");
-
-        // Salva usuário diretamente no repositório
-        usuarioRepository.save(usuarioDTO);
-
-        // Recupera o usuário salvo para associar ao funcionário
-        Usuario usuarioSalvo = usuarioRepository.findByEmail(funcionariodto.getEmail());
-
-        // Cria e salva funcionário associando o usuário
-        Funcionario funcionario = new Funcionario();
-        funcionario.setNome(funcionariodto.getNome());
-        funcionario.setEmail(funcionariodto.getEmail());
-        funcionario.setFone(funcionariodto.getFone());
-        funcionario.setEndereco(funcionariodto.getEndereco());
-        funcionario.setDataNascimento(funcionariodto.getDataNascimento());
-        funcionario.setSexo(funcionariodto.getSexo());
-        funcionario.setCpf(funcionariodto.getCpf());
-        //funcionario.setUsuario(usuarioSalvo);
-
-        funcionarioService.save(funcionariodto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
-
-
     }
+
 
     // Implementações à Fazer
     // 1 - validar campos vindos do body
@@ -94,6 +106,21 @@ public class FuncionarioController {
         try {
             Funcionario oldFuncionario = funcionarioService.findById(id);
 
+            if (funcionario.getNome() != null)
+                oldFuncionario.setNome(funcionario.getNome());
+
+            if (funcionario.getEmail() != null)
+                oldFuncionario.setEmail(funcionario.getEmail());
+
+            if (funcionario.getFone() != null)
+                oldFuncionario.setFone(funcionario.getFone());
+
+            if (funcionario.getEndereco() != null)
+                oldFuncionario.setEndereco(funcionario.getEndereco());
+
+            if (funcionario.getSexo() != null)
+                oldFuncionario.setSexo(funcionario.getSexo());
+
             if (oldFuncionario == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Funcionário não encontrado.");
 
@@ -110,6 +137,7 @@ public class FuncionarioController {
         }
         return ResponseEntity.badRequest().build();
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Funcionario> findById(@PathVariable int id) {
