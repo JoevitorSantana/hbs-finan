@@ -1,8 +1,12 @@
 package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.RestResponseMessage;
+import com.hbs.hbsfinan.dto.UsuarioEditResponseDTO;
 import com.hbs.hbsfinan.dto.UsuarioResponseDTO;
+import com.hbs.hbsfinan.exceptions.UsuarioNotFoundException;
+import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.model.Produtos;
+import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.service.ProdutosService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +44,22 @@ public class ProdutosController {
         } catch (Exception e) {
             e.printStackTrace();
         } return ResponseEntity.badRequest().build();
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Produtos> findById(@PathVariable int id) {
+        Produtos produtos = produtosService.findById(id);
+        return ResponseEntity.ok(produtos);
+    }
+
+    @DeleteMapping("/excluir/{id}")
+    public ResponseEntity<String> delete(@PathVariable int id) {
+
+        if (produtosService.findById(id) != null) {
+            produtosService.delete(id);
+            return ResponseEntity.ok("Deletado com sucesso!");
+        }
+        return ResponseEntity.badRequest().build();
     }
 }
