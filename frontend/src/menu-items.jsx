@@ -80,6 +80,13 @@ const menuItems = {
           type: 'item',
           icon: 'feather icon-users',
           url: '/usuarios'
+        },
+        {
+          id: 'grupos',
+          title: 'Grupos',
+          type: 'item',
+          icon: 'feather icon-users',
+          url: '/grupos'
         }
       ]
     },
