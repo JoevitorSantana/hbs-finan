@@ -65,7 +65,7 @@ const NovoFuncionario = () => {
                             <Row>
                                 <Col md={6}>
 
-                                <Form.Group className="mb-3" controlId="nome:">
+                                <Form.Group className="mb-3" controlId="nome">
                                         <Form.Label>Nome</Form.Label>
                                         <Form.Control
                                             type="text"
@@ -86,17 +86,16 @@ const NovoFuncionario = () => {
                                         />
                                     </Form.Group>
 
-                                    <Form.Group className="mb-3" controlId="data_nascimento:">
+                                    <Form.Group className="mb-3" controlId="data_nascimento">
                                         <Form.Label>Data Nascimento</Form.Label>
                                         <Form.Control
                                             type="date"
-                                            name="data_nascimento:"
+                                            name="data_nascimento"
                                             placeholder="data_nascimento"
                                             value={formData.data_nascimento}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
-
                                     
 
                                     <Form.Group className="mb-3" controlId="fone">

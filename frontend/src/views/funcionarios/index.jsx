@@ -4,7 +4,7 @@ import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
-import { useFuncionario, useFuncionarios } from "hooks/useFuncionario";
+import { useFuncionarios } from "hooks/useFuncionario";
 
 
 const Funcionarios = () => {
@@ -68,7 +68,7 @@ const Funcionarios = () => {
                                         <td>{funcionario.email}</td>
                                         <td>{funcionario.fone}</td>
                                         <td>{funcionario.endereco}</td>
-                                        <td>{funcionario.datanascimento}</td>
+                                        <td>{funcionario.data_nascimento}</td>
                                         <td>{funcionario.sexo}</td>
                                         <td>{funcionario.cpf}</td>
                                         

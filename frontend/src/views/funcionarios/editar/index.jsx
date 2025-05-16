@@ -1,4 +1,4 @@
-import { useFuncionario } from "hooks/useFuncionario";
+import { useFuncionario} from "hooks/useFuncionario";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
