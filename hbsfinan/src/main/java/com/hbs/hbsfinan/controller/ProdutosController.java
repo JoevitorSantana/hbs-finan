@@ -27,7 +27,7 @@ public class ProdutosController {
         try
         {
             produtosService.save(produtos);
-            RestResponseMessage message = new RestResponseMessage(HttpStatus.CREATED, "Grupo inserudo com sucesso!");
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.CREATED, "Produto inserudo com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.CREATED);
         }
         catch (Exception e)
@@ -55,7 +55,7 @@ public class ProdutosController {
             if(produtos.getQtd() != 0 && produtos.getQtd() != oldProdutos.getQtd())
                 oldProdutos.setQtd(produtos.getQtd());
             produtosService.update(oldProdutos);
-            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Grupo atualizado com sucesso!");
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Produto atualizado com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.OK);
         }catch (Exception e){
             throw new RuntimeException();
