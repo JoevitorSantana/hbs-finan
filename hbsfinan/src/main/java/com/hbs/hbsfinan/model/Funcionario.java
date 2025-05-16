@@ -16,26 +16,6 @@ public class Funcionario {
     private String sexo;
     private String cpf;
 
-    //@ManyToOne
-    //@JoinColumn(name = "usu_id", nullable = false);
-    //private Usuario usuario;
-
-
-//@JoinColumn(name = "cx_id", nullable = false);
-    //private Caixa caixa;
-
-    //@JoinColumn(name = "event_id", nullable = false);
-    //private Evento evento;
-
-    //@JoinColumn(name = "dm_id", nullable = false);
-    //private Doacao_Material doacaoMaterial;
-
-    //@JoinColumn(name = "da_id", nullable = false);
-    //private Doacao_Alimenticia doacaoAlimenticia;
-
-    //@JoinColumn(name = "di_id", nullable = false);
-    //private Doacao_Instituicao doacaoInstituicao;
-
 
     public Funcionario() {}
 
@@ -114,10 +94,5 @@ public class Funcionario {
         this.cpf = cpf;
     }
 
-//    public Usuario getUsuario() {
-//        return usuario;
-//    }
-//    public void setUsuario(Usuario usuario) {
-//        this.usuario = usuario;
-//    }
+
 }

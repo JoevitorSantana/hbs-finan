@@ -39,8 +39,6 @@ public class FuncionarioController {
         }
     }
 
-
-
     @GetMapping("/listar")
     public ResponseEntity<List<Funcionario>> findAll() {
         try
