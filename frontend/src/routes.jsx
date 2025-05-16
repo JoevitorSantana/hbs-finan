@@ -137,6 +137,16 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/produtos/novo',
+        element: lazy(() => import('./views/produtos/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/produtos/editar/*',
+        element: lazy(() => import('./views/produtos/editar'))
+      },
+      {
+        exact: 'true',
         path: '/grupos',
         element: lazy(() => import('./views/grupos'))
       },
