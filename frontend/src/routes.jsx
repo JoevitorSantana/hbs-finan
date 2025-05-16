@@ -136,6 +136,21 @@ const routes = [
         element: lazy(() => import('./views/produtos'))
       },
       {
+        exact: 'true',
+        path: '/grupos',
+        element: lazy(() => import('./views/grupos'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos/novo',
+        element: lazy(() => import('./views/grupos/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos/editar/*',
+        element: lazy(() => import('./views/grupos/editar'))
+      },
+      {
         path: '*',
         exact: 'true',
         element: () => <Navigate to={BASE_URL} />
