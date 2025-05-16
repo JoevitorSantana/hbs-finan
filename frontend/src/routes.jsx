@@ -122,6 +122,16 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/funcionarios/novo',
+        element: lazy(() => import('./views/funcionarios/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/funcionarios/editar/*',
+        element: lazy(() => import('./views/funcionarios/editar'))
+      },
+      {
+        exact: 'true',
         path: '/produtos',
         element: lazy(() => import('./views/produtos'))
       },
