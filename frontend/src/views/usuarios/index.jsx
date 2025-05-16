@@ -1,14 +1,23 @@
 import { useUsuarios } from "hooks/useUsers";
 import React from "react";
 import { Button, Card, Col, Row, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
+
 
 
 const Usuarios = () => {
     const { usuarios } = useUsuarios();
     const token = localStorage.getItem("site");
+
+    const raw = localStorage.getItem("user");
+    const usuarioAtual = raw ? JSON.parse(raw) : null;
+    const isAdmin = usuarioAtual?.role === "ADMIN";
+
+    if (!isAdmin) {
+    return <Navigate to="/" replace />; // redireciona para o dashboard
+    }
 
     const handleDeleteUsuario = async (id) => {
         const confirm = window.confirm("Tem certeza que deseja excluir este usuário?");
@@ -29,6 +38,7 @@ const Usuarios = () => {
             alert("Erro ao excluir usuário.");
         }
     };
+    
 
     return (
         <React.Fragment>
@@ -43,6 +53,7 @@ const Usuarios = () => {
                                 </Link>
                             </div>
                         </Card.Header>
+                        
                         <Card.Body>
                             <Table responsive hover>
                                 <thead>

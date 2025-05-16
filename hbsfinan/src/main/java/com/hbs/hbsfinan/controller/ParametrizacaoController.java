@@ -13,9 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
 
-/**
- * Controller REST para gerenciar a parametrização da empresa.
- */
+/**Controller REST para gerenciar a parametrização da empresa.*/
 @RestController
 @RequestMapping("/api/parametrizacao")
 @Validated
@@ -27,22 +25,14 @@ public class ParametrizacaoController {
         this.service = service;
     }
 
-    /**
-     * Retorna a parametrização existente.
-     * @return 200 OK com o objeto, ou 404 se não existir.
-     */
+    /**Retorna a parametrização existente.*/
     @GetMapping
     public ResponseEntity<Parametrizacao> get() {
         Parametrizacao p = service.get();
         return ResponseEntity.ok(p);
     }
 
-    /**
-     * Cria a parametrização. Só permite se não existir.
-     * @param dto dados da parametrização.
-     * @param uriBuilder para montar cabeçalho Location.
-     * @return 201 Created com header Location, ou 409 Conflict.
-     */
+    /**Cria a parametrização. Só permite se não existir.*/
     @PostMapping
     public ResponseEntity<Parametrizacao> create(
             @Valid @RequestBody Parametrizacao dto /*,
@@ -58,11 +48,7 @@ public class ParametrizacaoController {
         }
     }
 
-    /**
-     * Atualiza a parametrização existente.
-     * @param dto dados atualizados.
-     * @return 200 OK com o objeto alterado, ou 404 Not Found.
-     */
+    /**Atualiza a parametrização existente.*/
     @PutMapping
     public ResponseEntity<Parametrizacao> update(@Valid @RequestBody Parametrizacao dto) {
         try {

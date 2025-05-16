@@ -14,6 +14,13 @@ const menuItems = {
           url: '/'
         },
         {
+          id: 'apoiador',
+          title: 'Apoiador',
+          type: 'item',
+          icon: 'feather icon-home',
+          url: '/apoiador'
+        },
+        {
           id: 'caixa',
           title: 'Caixa',
           type: 'item',
@@ -80,6 +87,13 @@ const menuItems = {
           type: 'item',
           icon: 'feather icon-users',
           url: '/usuarios'
+        },
+        {
+          id: 'parametrizacao',
+          title: 'Parametrização',
+          type: 'item',
+          icon: 'feather icon-users',
+          url: '/parametrizacao'
         }
       ]
     },

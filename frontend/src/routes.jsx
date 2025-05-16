@@ -126,6 +126,21 @@ const routes = [
         element: lazy(() => import('./views/produtos'))
       },
       {
+        exact: 'true',
+        path: '/apoiador',
+        element: lazy(() => import('./views/apoiador'))
+      },
+      {
+        exact: 'true',
+        path: '/parametrizacao',
+        element: lazy(() => import('./views/parametrizacao'))
+      },
+      {
+        exact: 'true',
+        path: '/parametrizacao/editar/*',
+        element: lazy(() => import('./views/parametrizacao/editar'))
+      },
+      {
         path: '*',
         exact: 'true',
         element: () => <Navigate to={BASE_URL} />
