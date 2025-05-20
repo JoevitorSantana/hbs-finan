@@ -1,9 +1,11 @@
 package com.hbs.hbsfinan.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class FuncionarioCreateDTO {
@@ -32,7 +34,8 @@ public class FuncionarioCreateDTO {
     private String endereco;
 
     @NotNull(message = "A data de nascimento é obrigatória")
-    private Date dataNascimento;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate data_nascimento;
 
     @NotBlank(message = "O sexo é obrigatório")
     private String sexo;
@@ -72,12 +75,12 @@ public class FuncionarioCreateDTO {
         this.endereco = endereco;
     }
 
-    public Date getDataNascimento() {
-        return dataNascimento;
+    public LocalDate getDataNascimento() {
+        return data_nascimento;
     }
 
-    public void setDataNascimento(Date dataNascimento) {
-        this.dataNascimento = dataNascimento;
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.data_nascimento = data_nascimento;
     }
 
     public String getSexo() {

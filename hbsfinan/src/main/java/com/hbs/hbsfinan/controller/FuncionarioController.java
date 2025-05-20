@@ -99,7 +99,7 @@ public class FuncionarioController {
 
     @DeleteMapping("/excluir/{id}")
     public ResponseEntity<String> delete(@PathVariable int id) {
-        // refatorar validação
+
         if (funcionarioService.findById(id) != null) {
             funcionarioService.delete(id);
             return ResponseEntity.ok("Deletado com sucesso!");

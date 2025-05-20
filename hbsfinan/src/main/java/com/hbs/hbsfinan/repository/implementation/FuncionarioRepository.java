@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class FuncionarioRepository implements IFuncionarioRepository {
         funcionario.setId(rs.getInt("id"));
         funcionario.setNome(rs.getString("nome"));
         funcionario.setEmail(rs.getString("email"));
-        funcionario.setDataNascimento(rs.getDate("data_nascimento"));
+        funcionario.setDataNascimento(rs.getDate("data_nascimento").toLocalDate());
         funcionario.setFone(rs.getString("fone"));
         funcionario.setEndereco(rs.getString("endereco"));
         funcionario.setSexo(rs.getString("sexo"));
@@ -34,7 +35,7 @@ public class FuncionarioRepository implements IFuncionarioRepository {
     private int id;
     private String nome;
     private String email;
-    private Date dataNascimento;
+    private LocalDate dataNascimento;
     private String fone;
     private String endereco;
     private String sexo;
