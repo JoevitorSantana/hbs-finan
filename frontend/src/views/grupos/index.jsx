@@ -1,31 +1,31 @@
-import { useProdutos } from "hooks/useProdutos";
+import { useGrupos } from "hooks/useGrupos";
 import React from "react";
 import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
 
-const Produtos = () => {
-    const { produtos } = useProdutos();
+const Grupos = () => {
+    const { grupos } = useGrupos();
     const token = localStorage.getItem("site");
 
-    const handleDeleteProduto = async (id) => {
-        const confirm = window.confirm("Tem certeza que deseja excluir este produto?");
+    const handleDeleteGrupo = async (id) => {
+        const confirm = window.confirm("Tem certeza que deseja excluir este grupo?");
         if (!confirm) return;
 
         try {
-            await fetch(`http://localhost:8080/produtos/excluir/${id}`, {
+            await fetch(`http://localhost:8080/grupos/excluir/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type' : 'application/json',
                     'Authorization' : 'Bearer ' + token
                 }
             });
-            alert("Produto excluído com sucesso!");
+            alert("Grupo excluído com sucesso!");
             window.location.reload();
         } catch (error) {
-            console.error("Erro ao excluir produto:", error);
-            alert("Erro ao excluir produto.");
+            console.error("Erro ao excluir grupo:", error);
+            alert("Erro ao excluir grupo.");
         }
     };
 
@@ -36,8 +36,8 @@ const Produtos = () => {
                     <Card>
                         <Card.Header>
                             <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                                <Card.Title as="h5">Produtos</Card.Title>
-                                <Link to="/produtos/novo">
+                                <Card.Title as="h5">Grupos</Card.Title>
+                                <Link to="/grupos/novo">
                                     <Button variant="primary"><IoPersonAdd /> Novo</Button>
                                 </Link>
                             </div>
@@ -48,19 +48,16 @@ const Produtos = () => {
                                     <tr>
                                         <th>#</th>
                                         <th>Nome</th>
-                                        <th>Quantidade</th>
                                         <th>Ações</th>
-
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {produtos && produtos.map((produto) => (
-                                        <tr key={produto.id}>
-                                            <th scope="row">{produto.id}</th>
-                                            <td>{produto.nome}</td>
-                                            <td>{produto.qtd}</td>
+                                    {grupos && grupos.map((grupo) => (
+                                        <tr key={grupo.id}>
+                                            <th scope="row">{grupo.id}</th>
+                                            <td>{grupo.nome}</td>
                                             <td style={{ justifyContent: 'center' }} >
-                                                <Link to={ "/produtos/editar/" + produto.id }>
+                                                <Link to={ "/grupos/editar/" + grupo.id }>
                                                     <Button
                                                         size="sm"
                                                         className="label theme-bg text-white f-12"
@@ -71,7 +68,7 @@ const Produtos = () => {
                                                 <Button
                                                     size="sm"
                                                     className="label theme-bg2 text-white f-12"
-                                                    onClick={() => handleDeleteProduto(produto.id)}
+                                                    onClick={() => handleDeleteGrupo(grupo.id)}
                                                 >
                                                     <FaRegTrashAlt />
                                                 </Button>
@@ -88,4 +85,4 @@ const Produtos = () => {
     );
 }
 
-export default Produtos;
+export default Grupos;

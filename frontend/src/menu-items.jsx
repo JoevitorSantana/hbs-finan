@@ -94,6 +94,13 @@ const menuItems = {
           type: 'item',
           icon: 'feather icon-users',
           url: '/parametrizacao'
+        },
+        {
+          id: 'grupos',
+          title: 'Grupos',
+          type: 'item',
+          icon: 'feather icon-users',
+          url: '/grupos'
         }
       ]
     },

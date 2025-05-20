@@ -1,10 +1,18 @@
 package com.hbs.hbsfinan.controller;
 
+import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
+import com.hbs.hbsfinan.dto.RestResponseMessage;
+import com.hbs.hbsfinan.dto.UsuarioCreateDTO;
 import com.hbs.hbsfinan.model.Funcionario;
+import com.hbs.hbsfinan.model.Usuario;
+import com.hbs.hbsfinan.repository.interfaces.IUsuarioRepository;
 import com.hbs.hbsfinan.service.FuncionarioService;
+import com.hbs.hbsfinan.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,16 +25,18 @@ public class FuncionarioController {
     @Autowired
     private FuncionarioService funcionarioService;
 
+    @Autowired
+    private IUsuarioRepository usuarioRepository;
+
     @PostMapping("/novo")
-    public Funcionario save(@RequestBody Funcionario funcionario) {
-        // Implementações à Fazer
-        // 1 - validar campos vindos do body
-        // 2 - Criar lógica de inserção
-        //  Se o funcionário inserido, não for um usuário,
-        //      Inserir registro de usuário depois inserir o registro de funcionário com id do usuario inserido
-        //  Se o funcionário inserido já for um usuário, utilizar seu id para cadastrar o funcionário
-        funcionarioService.save(funcionario);
-        return null;
+    public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
+        try {
+            funcionarioService.save(funcionariodto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar funcionário: " + e.getMessage());
+        }
     }
 
     @GetMapping("/listar")
@@ -45,6 +55,21 @@ public class FuncionarioController {
         try {
             Funcionario oldFuncionario = funcionarioService.findById(id);
 
+            if (funcionario.getNome() != null)
+                oldFuncionario.setNome(funcionario.getNome());
+
+            if (funcionario.getEmail() != null)
+                oldFuncionario.setEmail(funcionario.getEmail());
+
+            if (funcionario.getFone() != null)
+                oldFuncionario.setFone(funcionario.getFone());
+
+            if (funcionario.getEndereco() != null)
+                oldFuncionario.setEndereco(funcionario.getEndereco());
+
+            if (funcionario.getSexo() != null)
+                oldFuncionario.setSexo(funcionario.getSexo());
+
             if (oldFuncionario == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Funcionário não encontrado.");
 
@@ -61,6 +86,7 @@ public class FuncionarioController {
         }
         return ResponseEntity.badRequest().build();
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Funcionario> findById(@PathVariable int id) {

@@ -1,8 +1,6 @@
 package com.hbs.hbsfinan.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 
 import java.util.Date;
 
@@ -17,24 +15,6 @@ public class Funcionario {
     private Date dataNascimento;
     private String sexo;
     private String cpf;
-
-    //@JoinColumn(name = "usu_id", nullable = false);
-    //private Usuario usuario;
-
-    //@JoinColumn(name = "cx_id", nullable = false);
-    //private Caixa caixa;
-
-    //@JoinColumn(name = "event_id", nullable = false);
-    //private Evento evento;
-
-    //@JoinColumn(name = "dm_id", nullable = false);
-    //private Doacao_Material doacaoMaterial;
-
-    //@JoinColumn(name = "da_id", nullable = false);
-    //private Doacao_Alimenticia doacaoAlimenticia;
-
-    //@JoinColumn(name = "di_id", nullable = false);
-    //private Doacao_Instituicao doacaoInstituicao;
 
 
     public Funcionario() {}
@@ -113,4 +93,6 @@ public class Funcionario {
     public void setCpf(String cpf) {
         this.cpf = cpf;
     }
+
+
 }

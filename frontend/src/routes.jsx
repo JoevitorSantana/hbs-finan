@@ -122,6 +122,16 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/funcionarios/novo',
+        element: lazy(() => import('./views/funcionarios/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/funcionarios/editar/*',
+        element: lazy(() => import('./views/funcionarios/editar'))
+      },
+      {
+        exact: 'true',
         path: '/produtos',
         element: lazy(() => import('./views/produtos'))
       },
@@ -139,6 +149,31 @@ const routes = [
         exact: 'true',
         path: '/parametrizacao/editar/*',
         element: lazy(() => import('./views/parametrizacao/editar'))
+      },
+      {
+        exact: 'true',
+        path: '/produtos/novo',
+        element: lazy(() => import('./views/produtos/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/produtos/editar/*',
+        element: lazy(() => import('./views/produtos/editar'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos',
+        element: lazy(() => import('./views/grupos'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos/novo',
+        element: lazy(() => import('./views/grupos/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos/editar/*',
+        element: lazy(() => import('./views/grupos/editar'))
       },
       {
         path: '*',
