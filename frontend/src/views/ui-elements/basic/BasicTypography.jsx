@@ -1,3 +1,4 @@
+/*
 import React from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 
@@ -235,3 +236,4 @@ const BasicTypography = () => {
 };
 
 export default BasicTypography;
+*/
