@@ -43,7 +43,7 @@ public class FuncionarioRepository implements IFuncionarioRepository {
 
     @Override
     public void save(FuncionarioCreateDTO funcionario) {
-        dbConn.update("INSERT INTO funcionario (id,nome,email,fone,endereco,data_nascimento,sexo,cpf) VALUES (?,?,?,?,?,?,?,?)",funcionario.getId(),funcionario.getNome(),funcionario.getEmail(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getDataNascimento(),funcionario.getSexo(), funcionario.getCpf());
+        dbConn.update("INSERT INTO funcionario (nome,email,fone,endereco,data_nascimento,sexo,cpf) VALUES (?,?,?,?,?,?,?)",funcionario.getNome(),funcionario.getEmail(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getDataNascimento(),funcionario.getSexo(), funcionario.getCpf());
     }
 
     @Override

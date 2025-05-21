@@ -10,16 +10,6 @@ import java.util.Date;
 
 public class FuncionarioCreateDTO {
 
-    private Long id;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @NotBlank(message = "O nome é obrigatório")
     private String nome;
 
@@ -30,14 +20,14 @@ public class FuncionarioCreateDTO {
     @NotBlank(message = "O telefone é obrigatório")
     private String fone;
 
-    @NotBlank(message = "O endereço é obrigatório")
+
     private String endereco;
 
     @NotNull(message = "A data de nascimento é obrigatória")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate data_nascimento;
 
-    @NotBlank(message = "O sexo é obrigatório")
+
     private String sexo;
 
     @NotBlank(message = "O CPF é obrigatório")
