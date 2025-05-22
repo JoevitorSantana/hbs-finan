@@ -18,7 +18,7 @@ public class Evento {
 
     private String materiais;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "func_id")//ver se esta certo
     private Funcionario funcionario;
 
