@@ -24,7 +24,7 @@ const AuthProvider = ({ children }) => {
 
             const res = await response.json();
 
-            if (res) {
+            if (res.token) {
                 let user = {
                     nome: res.nome,
                     ultimoNome: res.ultimoNome,
@@ -36,9 +36,10 @@ const AuthProvider = ({ children }) => {
                 localStorage.setItem("user", JSON.stringify(user));
                 localStorage.setItem("site", res.token);
                 navigate("/");
-                return;
+                return res;
             }
-            throw new Error("Erro ao autenticar!");
+            return res;
+            // throw new Error("Erro ao autenticar!");
         } catch (err) {
             console.error(err);
         }
