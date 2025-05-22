@@ -1,7 +1,7 @@
 import React from "react";
 import { Col, Row } from "react-bootstrap";
 
-const Eventos = () => {
+const Apoiador = () => {
     return (
         <React.Fragment>
             <Row>
@@ -13,4 +13,4 @@ const Eventos = () => {
     );
 }
 
-export default Eventos;
+export default Apoiador;

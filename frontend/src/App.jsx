@@ -13,3 +13,6 @@ const App = () => {
 };
 
 export default App;
+
+
+/*APP É A CABEÇA DE TUDO */

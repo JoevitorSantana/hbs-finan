@@ -1,37 +1,68 @@
 import { useUsuarios } from "hooks/useUsers";
-import React from "react";
-import { Button, Card, Col, Row, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Button, Card, Col, Row, Table, Modal } from "react-bootstrap";
+import { Link, Navigate } from "react-router-dom";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
+import { ToastContainer, toast } from 'react-toastify';
 
 
 const Usuarios = () => {
     const { usuarios } = useUsuarios();
     const token = localStorage.getItem("site");
 
-    const handleDeleteUsuario = async (id) => {
-        const confirm = window.confirm("Tem certeza que deseja excluir este usuário?");
-        if (!confirm) return;
+    const raw = localStorage.getItem("user");
+    const usuarioAtual = raw ? JSON.parse(raw) : null;
+    const isAdmin = usuarioAtual?.role === "ADMIN";
 
+    const [showModal, setShowModal] = useState(false);
+    const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+
+    if (!isAdmin) {
+    return <Navigate to="/" replace />; // redireciona para o dashboard
+    }
+
+    const handleShowModal = (usuario) => {
+        setUsuarioSelecionado(usuario);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setUsuarioSelecionado(null);
+    };
+
+    const handleConfirmDelete = async () => {
         try {
-            await fetch(`http://localhost:8080/usuarios/excluir/${id}`, {
-                method: 'DELETE',
+            const response = await fetch(`http://localhost:8080/usuarios/excluir/${usuarioSelecionado.id}`, {
+            method: 'DELETE',
                 headers: {
-                    'Content-Type' : 'application/json',
-                    'Authorization' : 'Bearer ' + token
-                }
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
             });
-            alert("Usuário excluído com sucesso!");
-            window.location.reload();
+
+            if (response.ok) {
+                toast.success("Usuário excluído com sucesso!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                const errorData = await response.json();
+                toast.error(errorData.message || 'Erro ao excluir usuário.');
+            }
         } catch (error) {
-            console.error("Erro ao excluir usuário:", error);
-            alert("Erro ao excluir usuário.");
+            console.error('Erro ao excluir usuário:', error);
+            toast.error('Erro na comunicação com o servidor.');
+        } finally {
+            handleCloseModal();
         }
     };
+    
 
     return (
         <React.Fragment>
+            <ToastContainer position="top-right" autoClose={3000} />
             <Row>
                 <Col sm={12}>
                     <Card>
@@ -43,6 +74,7 @@ const Usuarios = () => {
                                 </Link>
                             </div>
                         </Card.Header>
+                        
                         <Card.Body>
                             <Table responsive hover>
                                 <thead>
@@ -71,7 +103,7 @@ const Usuarios = () => {
                                                 <Button
                                                     size="sm"
                                                     className="label theme-bg2 text-white f-12"
-                                                    onClick={() => handleDeleteUsuario(usuario.id)}
+                                                    onClick={() => handleShowModal(usuario)}
                                                 >
                                                     <FaRegTrashAlt />
                                                 </Button>
@@ -84,8 +116,36 @@ const Usuarios = () => {
                     </Card>
                 </Col>
             </Row>
+            {/* Modal de Confirmação */}
+            <DeleteConfirmationModal
+                show={showModal}
+                onHide={handleCloseModal}
+                onConfirm={handleConfirmDelete}
+                user={usuarioSelecionado}
+            />
         </React.Fragment>
     );
 }
 
 export default Usuarios;
+
+const DeleteConfirmationModal = ({ show, onHide, onConfirm, user }) => {
+  return (
+    <Modal show={show} onHide={onHide} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Confirmar Exclusão</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Tem certeza que deseja excluir o usuário <strong>{user?.nome} {user?.ultimoNome}</strong>?
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>
+          Cancelar
+        </Button>
+        <Button variant="danger" onClick={onConfirm}>
+          Excluir
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};

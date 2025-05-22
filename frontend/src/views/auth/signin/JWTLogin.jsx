@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import { Row, Col, Alert, Button } from 'react-bootstrap';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -12,23 +13,33 @@ const JWTLogin = () => {
   if (user) navigate("/");
 
   return (
+    <React.Fragment>
+      <ToastContainer position="top-right" autoClose={3000} />
     <Formik
       initialValues={{
         email: '',
         senha: '',
         submit: null
       }}
-      validationSchema={Yup.object().shape({
+
+      validationSchema={Yup.object().shape({ //isso aqui só verifica formato, tamanho e se está vazio.
         email: Yup.string().email('Email inválido!').max(255).required('Email obrigatório'),
         senha: Yup.string().max(255).required('Senha obrigatória!')
       })}
-      onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+
+      onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => { //isso aqui que faz a validação no banco de dados
         try {
-          await loginAction(values.email, values.senha);
+          const response = await loginAction(values.email, values.senha); //backend consulta o banco de dados para conferir as credenciais.
+          console.log(response);
+          if (response.token)
+            toast.success('Login realizado com sucesso!');
+          else
+            toast.error(response.message || "Erro desconhecido!");
         } catch (error) {
           console.error(error);
           setStatus({ success: false });
           setErrors({ submit: error.response?.data?.message || 'Erro ao realizar login' });
+          toast.error(errorMessage);
         } finally {
           setSubmitting(false);
         }
@@ -36,6 +47,7 @@ const JWTLogin = () => {
     >
       {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
         <form noValidate onSubmit={handleSubmit}>
+          
           <div className="form-group mb-3">
             <input
               className="form-control"
@@ -49,6 +61,8 @@ const JWTLogin = () => {
             />
             {touched.email && errors.email && <small className="text-danger form-text">{errors.email}</small>}
           </div>
+
+          
           <div className="form-group mb-4">
             <input
               className="form-control"
@@ -90,9 +104,11 @@ const JWTLogin = () => {
               </Button>
             </Col>
           </Row>
+
         </form>
       )}
     </Formik>
+    </React.Fragment>
   );
 };
 

@@ -13,6 +13,15 @@ const dashSalesData = [
 ];
 
 const DashDefault = () => {
+
+  const usuario = localStorage.getItem("user");
+
+  const jsonUsuario = JSON.parse(usuario)
+
+  console.log(jsonUsuario.role);
+
+  console.log(jsonUsuario.nome);
+  
   
   const tabContent = (
     <React.Fragment>
@@ -136,6 +145,7 @@ const DashDefault = () => {
             </Col>
           );
         })}
+      
         <Col md={6} xl={8}>
           <Card className="Recent-Users widget-focus-lg">
             <Card.Header>
@@ -263,6 +273,7 @@ const DashDefault = () => {
             </Card.Body>
           </Card>
         </Col>
+        
         <Col md={6} xl={4}>
           <Card className="card-event">
             <Card.Body>

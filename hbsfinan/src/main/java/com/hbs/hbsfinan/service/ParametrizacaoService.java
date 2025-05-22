@@ -18,27 +18,20 @@ public class ParametrizacaoService {
         this.repo = repo;
     }
 
-    /**
-     * Verifica se já existe configuração cadastrada.
-     */
+    /**Verifica se já existe configuração cadastrada.*/
     public boolean exists() {
         return repo.exists();
     }
 
-    /**
-     * Recupera a configuração existente ou lança exceção se não existir.
-     */
+    /**Recupera a configuração existente ou lança exceção se não existir.*/
     public Parametrizacao get() {
         Parametrizacao response = repo.findFirst();
         if (response == null)
             new ParametrizacaoNaoEncontradaException("Parametrização não encontrada.");
-
         return response;
     }
 
-    /**
-     * Cria uma nova parametrização. Só permite se não houver registro.
-     */
+    /**Cria uma nova parametrização. Só permite se não houver registro.*/
     @Transactional
     public Parametrizacao create(Parametrizacao dto) {
         if (repo.exists()) {
@@ -48,9 +41,7 @@ public class ParametrizacaoService {
         return repo.findFirst();
     }
 
-    /**
-     * Atualiza a parametrização existente com os dados fornecidos.
-     */
+    /**Atualiza a parametrização existente com os dados fornecidos.*/
     @Transactional
     public Parametrizacao update(Parametrizacao dto) {
 

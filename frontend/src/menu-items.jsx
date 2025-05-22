@@ -14,6 +14,13 @@ const menuItems = {
           url: '/'
         },
         {
+          id: 'apoiador',
+          title: 'Apoiador',
+          type: 'item',
+          icon: 'feather icon-home',
+          url: '/apoiador'
+        },
+        {
           id: 'caixa',
           title: 'Caixa',
           type: 'item',
@@ -56,9 +63,22 @@ const menuItems = {
         {
           id: 'eventos',
           title: 'Eventos',
-          type: 'item',
-          icon: 'feather icon-flag',
-          url: '/eventos'
+          type: 'collapse',
+          icon: 'feather icon-box',
+          children: [
+            {
+              id: 'criar',
+              title: 'Criar evento',
+              type: 'item',
+              url: '/eventos/criar'
+            },
+            {
+              id: 'inscrever',
+              title: 'Inscrever-se Evento',
+              type: 'item',
+              url: '/eventos/inscrever'
+            },
+          ],
         },
         {
           id: 'funcionarios',
@@ -80,6 +100,20 @@ const menuItems = {
           type: 'item',
           icon: 'feather icon-users',
           url: '/usuarios'
+        },
+        {
+          id: 'parametrizacao',
+          title: 'Parametrização',
+          type: 'item',
+          icon: 'feather icon-users',
+          url: '/parametrizacao'
+        },
+        {
+          id: 'grupos',
+          title: 'Grupos',
+          type: 'item',
+          icon: 'feather icon-users',
+          url: '/grupos'
         }
       ]
     },

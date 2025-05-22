@@ -112,8 +112,13 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/eventos',
-        element: lazy(() => import('./views/eventos'))
+        path: '/eventos/criar',
+        element: lazy(() => import('./views/eventos/criar'))
+      },
+      {
+        exact: 'true',
+        path: '/eventos/inscrever',
+        element: lazy(() => import('./views/eventos/inscrever'))
       },
       {
         exact: 'true',
@@ -134,6 +139,46 @@ const routes = [
         exact: 'true',
         path: '/produtos',
         element: lazy(() => import('./views/produtos'))
+      },
+      {
+        exact: 'true',
+        path: '/apoiador',
+        element: lazy(() => import('./views/apoiador'))
+      },
+      {
+        exact: 'true',
+        path: '/parametrizacao',
+        element: lazy(() => import('./views/parametrizacao'))
+      },
+      {
+        exact: 'true',
+        path: '/parametrizacao/editar/*',
+        element: lazy(() => import('./views/parametrizacao/editar'))
+      },
+      {
+        exact: 'true',
+        path: '/produtos/novo',
+        element: lazy(() => import('./views/produtos/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/produtos/editar/*',
+        element: lazy(() => import('./views/produtos/editar'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos',
+        element: lazy(() => import('./views/grupos'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos/novo',
+        element: lazy(() => import('./views/grupos/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/grupos/editar/*',
+        element: lazy(() => import('./views/grupos/editar'))
       },
       {
         path: '*',
