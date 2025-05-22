@@ -1,12 +1,9 @@
 import React, { useState } from "react";
-
 import { Link } from "react-router-dom";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
 import { useFuncionarios } from "hooks/useFuncionarios";
 import { Button, Card, Col, Row, Table, Modal, Form } from "react-bootstrap";
-
-
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -16,6 +13,9 @@ const Funcionarios = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [funcionarioParaExcluir, setFuncionarioParaExcluir] = useState(null);
+
+  const [filtroNome, setFiltroNome] = useState("");
+  const [filtroCpf, setFiltroCpf] = useState("");
 
   const handleAbrirModalExcluir = (funcionario) => {
     setFuncionarioParaExcluir(funcionario);
@@ -80,11 +80,25 @@ const Funcionarios = () => {
               </div>
             </Card.Header>
             <Card.Body>
-              <Form.Control
-                type="text"
-                placeholder="Pesquisar funcionário..."
-                className="mb-3"
-              />
+              <Row className="mb-3">
+                <Col md={6}>
+                  <Form.Control
+                    type="text"
+                    placeholder="Buscar por nome..."
+                    value={filtroNome}
+                    onChange={(e) => setFiltroNome(e.target.value)}
+                  />
+                </Col>
+                <Col md={6}>
+                  <Form.Control
+                    type="text"
+                    placeholder="Buscar por CPF..."
+                    value={filtroCpf}
+                    onChange={(e) => setFiltroCpf(e.target.value)}
+                  />
+                </Col>
+              </Row>
+
               <Table responsive hover>
                 <thead>
                   <tr>
@@ -101,40 +115,49 @@ const Funcionarios = () => {
                 </thead>
                 <tbody>
                   {funcionarios &&
-                    funcionarios.map((funcionario) => (
-                      <tr key={funcionario.id}>
-                        <th scope="row">{funcionario.id}</th>
-                        <td>{funcionario.nome}</td>
-                        <td>{funcionario.email}</td>
-                        <td>{funcionario.fone}</td>
-                        <td>{funcionario.endereco}</td>
-                        <td>
-                          {funcionario.dataNascimento
-                            ? new Date(funcionario.dataNascimento).toLocaleDateString("pt-BR")
-                            : ""}
-                        </td>
-                        <td>{funcionario.sexo}</td>
-                        <td>{funcionario.cpf}</td>
-                        <td>
-                          <Link to={`/funcionarios/editar/${funcionario.id}`}>
+                    funcionarios
+                      .filter(
+                        (func) =>
+                          func.nome
+                            .toLowerCase()
+                            .includes(filtroNome.toLowerCase()) &&
+                          func.cpf
+                            .replace(/\D/g, "")
+                            .includes(filtroCpf.replace(/\D/g, ""))
+                      )
+                      .map((funcionario) => (
+                        <tr key={funcionario.id}>
+                          <th scope="row">{funcionario.id}</th>
+                          <td>{funcionario.nome}</td>
+                          <td>{funcionario.email}</td>
+                          <td>{funcionario.fone}</td>
+                          <td>{funcionario.endereco}</td>
+                          <td>
+                            {funcionario.dataNascimento
+                              ? new Date(funcionario.dataNascimento).toLocaleDateString("pt-BR")
+                              : ""}
+                          </td>
+                          <td>{funcionario.sexo}</td>
+                          <td>{funcionario.cpf}</td>
+                          <td>
+                            <Link to={`/funcionarios/editar/${funcionario.id}`}>
+                              <Button
+                                size="sm"
+                                className="label theme-bg text-white f-12"
+                              >
+                                <FaEdit />
+                              </Button>
+                            </Link>
                             <Button
                               size="sm"
-                              className="label theme-bg text-white f-12"
+                              className="label theme-bg2 text-white f-12"
+                              onClick={() => handleAbrirModalExcluir(funcionario)}
                             >
-                              <FaEdit />
+                              <FaRegTrashAlt />
                             </Button>
-                          </Link>
-                          <Button
-                            size="sm"
-      
-                      className="label theme-bg2 text-white f-12"
-                            onClick={() => handleAbrirModalExcluir(funcionario)}
-                          >
-                            <FaRegTrashAlt />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      ))}
                 </tbody>
               </Table>
             </Card.Body>

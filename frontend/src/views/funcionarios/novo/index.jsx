@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button, Card, Col, Form, Row, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,7 +17,7 @@ const NovoFuncionario = () => {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
-    data_nascimento: '',
+    dataNascimento: '',
     fone: '',
     endereco: '',
     sexo: '',
@@ -29,18 +28,24 @@ const NovoFuncionario = () => {
   const [telefoneErro, setTelefoneErro] = useState("");
   const [erroServidor, setErroServidor] = useState("");
 
+  // Formata data para o input type="date"
+  const formatarData = (dataCompleta) => {
+    if (!dataCompleta) return '';
+    return new Date(dataCompleta).toISOString().split('T')[0];
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let novoValor = value;
 
     if (name === "cpf") {
       novoValor = aplicarMascaraCPF(value);
-      setCpfErro(validarCPF(novoValor) ? "" : "CPF inválido");
+      setCpfErro(validarCPF(novoValor.replace(/\D/g, '')) ? "" : "CPF inválido");
     }
 
     if (name === "fone") {
       novoValor = aplicarMascaraTelefone(value);
-      setTelefoneErro(validarTelefone(novoValor) ? "" : "Telefone inválido");
+      setTelefoneErro(validarTelefone(novoValor.replace(/\D/g, '')) ? "" : "Telefone inválido");
     }
 
     setFormData(prev => ({
@@ -50,39 +55,38 @@ const NovoFuncionario = () => {
   };
 
   const handleSubmit = async (e) => {
-  
-
     e.preventDefault();
     setErroServidor("");
 
     const cpfLimpo = formData.cpf.replace(/\D/g, '');
     const foneLimpo = formData.fone.replace(/\D/g, '');
 
-
     // Validação da data de nascimento
-      const dataNascimento = new Date(formData.dataNascimento);
-      const hoje = new Date();
-      const idade = hoje.getFullYear() - dataNascimento.getFullYear();
-      const aniversarioPassou =
+    // Note que o campo no estado é dataNascimento, igual no EditarFuncionario
+    const dataNascimento = new Date(formData.dataNascimento);
+    const hoje = new Date();
+
+    if (isNaN(dataNascimento.getTime())) {
+      setErroServidor("Data de nascimento inválida.");
+      return;
+    }
+
+    if (dataNascimento > hoje) {
+      setErroServidor("A data de nascimento não pode ser no futuro.");
+      return;
+    }
+
+    const idade = hoje.getFullYear() - dataNascimento.getFullYear();
+    const aniversarioPassou =
       hoje.getMonth() > dataNascimento.getMonth() ||
       (hoje.getMonth() === dataNascimento.getMonth() && hoje.getDate() >= dataNascimento.getDate());
 
-      const idadeFinal = aniversarioPassou ? idade : idade - 1;
+    const idadeFinal = aniversarioPassou ? idade : idade - 1;
 
-      if (isNaN(dataNascimento.getTime())) {
-        setErroServidor("Data de nascimento inválida.");
-        return;
-      }
-
-      if (dataNascimento > hoje) {
-        setErroServidor("A data de nascimento inválida");
-        return;
-      }
-
-      if (idadeFinal < 18) {
-        setErroServidor("O funcionário deve ter no mínimo 18 anos.");
-        return;
-      }
+    if (idadeFinal < 18) {
+      setErroServidor("O funcionário deve ter no mínimo 18 anos.");
+      return;
+    }
 
     if (!validarCPF(cpfLimpo)) {
       setErroServidor("CPF inválido. Corrija antes de enviar.");
@@ -100,31 +104,35 @@ const NovoFuncionario = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/funcionarios/novo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({
-          ...formData,
-          cpf: cpfLimpo,
-          fone: foneLimpo
-        })
-      });
+        const response = await fetch('http://localhost:8080/funcionarios/novo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            ...formData,
+            cpf: cpfLimpo,
+            fone: foneLimpo,
+            dataNascimento: formData.dataNascimento
+          })
+        });
 
-      if (response.ok) {
-        toast.success("Funcionário cadastrado com sucesso!");
-        setTimeout(() => {
-          navigate('/funcionarios');
-        }, 1500);
-      } else {
-        const errorData = await response.json();
-        setErroServidor(errorData.message || 'Erro desconhecido ao cadastrar funcionário.');
+        if (response.ok) {
+          toast.success("Funcionário cadastrado com sucesso!");
+          setTimeout(() => {
+            navigate('/funcionarios');
+          }, 1500);
+        } else {
+          const errorData = await response.json();
+          console.log("Erro do backend:", errorData);
+          setErroServidor(errorData.message || 'Erro desconhecido ao cadastrar funcionário.');
+        }
+      } catch (error) {
+        console.error("Erro na comunicação:", error);
+        setErroServidor('Erro na comunicação com o servidor.');
       }
-    } catch (error) {
-      setErroServidor('Erro na comunicação com o servidor.');
-    }
+    
   };
 
   return (
@@ -159,12 +167,12 @@ const NovoFuncionario = () => {
                       required
                     />
                   </Form.Group>
-                  <Form.Group className="mb-3" controlId="data_nascimento">
+                  <Form.Group className="mb-3" controlId="dataNascimento">
                     <Form.Label>Data de Nascimento <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
                       type="date"
-                      name="data_nascimento"
-                      value={formData.data_nascimento}
+                      name="dataNascimento"
+                      value={formData.dataNascimento}
                       onChange={handleChange}
                       required
                     />

@@ -75,7 +75,7 @@ const EditarFuncionario = () => {
     const cpfSemMascara = formData.cpf.replace(/[^\d]+/g, '');
     const foneSemMascara = formData.fone.replace(/[^\d]+/g, '');
 
-    // Validação da data de nascimento
+    // Validação da data de naascimento
       const dataNascimento = new Date(formData.dataNascimento);
       const hoje = new Date();
       const idade = hoje.getFullYear() - dataNascimento.getFullYear();
