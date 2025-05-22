@@ -63,9 +63,22 @@ const menuItems = {
         {
           id: 'eventos',
           title: 'Eventos',
-          type: 'item',
-          icon: 'feather icon-flag',
-          url: '/eventos'
+          type: 'collapse',
+          icon: 'feather icon-box',
+          children: [
+            {
+              id: 'criar',
+              title: 'Criar evento',
+              type: 'item',
+              url: '/eventos/criar'
+            },
+            {
+              id: 'inscrever',
+              title: 'Inscrever-se Evento',
+              type: 'item',
+              url: '/eventos/inscrever'
+            },
+          ],
         },
         {
           id: 'funcionarios',
