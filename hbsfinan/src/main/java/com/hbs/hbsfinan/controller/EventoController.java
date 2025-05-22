@@ -48,7 +48,8 @@ public class EventoController {
     }
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity update(@PathVariable int id, @RequestBody Evento evento ){
+    public ResponseEntity update(@PathVariable int id, @RequestBody Evento evento )//Pq a data esta 1 dia a menos?
+    {
         try
         {
             Evento oldEvento = eventoService.findById(id);

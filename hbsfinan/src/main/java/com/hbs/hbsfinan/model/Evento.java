@@ -1,6 +1,8 @@
 package com.hbs.hbsfinan.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class Evento {
@@ -20,6 +22,7 @@ public class Evento {
 
     @ManyToOne
     @JoinColumn(name = "func_id")//ver se esta certo
+    @JsonIgnore
     private Funcionario funcionario;
 
     public Evento() {}
@@ -88,5 +91,16 @@ public class Evento {
 
     public void setFuncionario(Funcionario funcionario) {
         this.funcionario = funcionario;
+    }
+    @JsonProperty("func_id")
+    public int getFuncId() {
+        if (funcionario != null)
+        {
+            return funcionario.getId();
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
