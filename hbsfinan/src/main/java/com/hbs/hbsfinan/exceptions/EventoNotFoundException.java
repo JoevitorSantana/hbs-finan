@@ -1,5 +1,5 @@
 package com.hbs.hbsfinan.exceptions;
-
+//
 public class EventoNotFoundException extends RuntimeException {
   public EventoNotFoundException() {
     super("Evento não encontrado!");
