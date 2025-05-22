@@ -19,7 +19,7 @@ public class Evento {
     private String materiais;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "id")//ver se esta certo
+    @JoinColumn(name = "func_id")//ver se esta certo
     private Funcionario funcionario;
 
     public Evento() {}
