@@ -2,11 +2,23 @@ import { useUsuario } from "hooks/useUsers";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
 
 const EditarUsuario = () => {
     const idUsuario = window.location.pathname.split('/').pop();
 
     const token = localStorage.getItem("site");
+
+    const [errors, setErrors] = useState({});
+    
+    const validateFields = () => {
+        const newErrors = {};
+        if (!formData.nome) newErrors.nome = 'Nome é obrigatório.';
+        if (!formData.ultimoNome) newErrors.ultimoNome = 'Último nome é obrigatório.';
+        if (!formData.email) newErrors.email = 'Email é obrigatório.';
+        if (!formData.senha) newErrors.senha = 'Senha é obrigatória.';
+        return newErrors;
+    };
 
     const { usuario } = useUsuario(idUsuario);
 
@@ -46,6 +58,13 @@ const EditarUsuario = () => {
         try {
             const { nome, ultimoNome, email, role } = formData;
 
+            const validationErrors = validateFields();
+            if (Object.keys(validationErrors).length > 0) {
+                setErrors(validationErrors);
+                toast.error('Por favor, corrija os erros no formulário.');
+                return;
+            }
+
             const response = await fetch(`http://localhost:8080/usuarios/editar/${idUsuario}`, {
                 method: 'PUT',
                 headers: {
@@ -60,16 +79,18 @@ const EditarUsuario = () => {
                 })
             });
 
-            if (response.status === 200) {
-                alert('Usuário alterado com sucesso!');
-                navigate('/usuarios'); // redireciona para lista de usuários
+            if (response.ok) {
+                toast.success('Usuário alterado com sucesso!');
+                setTimeout(() => {
+                    navigate('/usuarios');
+                }, 2000);
             } else {
                 const errorData = await response.json();
-                alert('Erro ao alterar usuário: ' + (errorData.message || 'Erro desconhecido'));
+                toast.error('Erro ao alterar usuário: ' + (errorData.message || 'Erro desconhecido'));
             }
         } catch (error) {
             console.error('Erro ao alterar usuário:', error);
-            alert('Erro na comunicação com o servidor.');
+            toast.error('Erro na comunicação com o servidor.');
         }
     }
 
@@ -93,7 +114,12 @@ const EditarUsuario = () => {
                                                 value={formData.nome}
                                                 placeholder="Nome"
                                                 onChange={handleChange}
+                                                isInvalid={!!errors.nome}
+                                                isValid={formData.nome && !errors.nome}
                                             />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.nome}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
@@ -105,7 +131,12 @@ const EditarUsuario = () => {
                                                 placeholder="Último Nome"
                                                 value={formData.ultimoNome}
                                                 onChange={handleChange}
+                                                isInvalid={!!errors.ultimoNome}
+                                                isValid={formData.ultimoNome && !errors.ultimoNome}
                                             />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.ultimoNome}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
                                     <Col md={6}>
@@ -117,7 +148,12 @@ const EditarUsuario = () => {
                                                 placeholder="Email"
                                                 value={formData.email}
                                                 onChange={handleChange}
+                                                isInvalid={!!errors.email}
+                                                isValid={formData.email && !errors.email}
                                             />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.email}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
 
                                         <Form.Group className="mb-3" controlId="role">

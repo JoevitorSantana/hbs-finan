@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 import { Row, Col, Alert, Button } from 'react-bootstrap';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -12,7 +13,8 @@ const JWTLogin = () => {
   if (user) navigate("/");
 
   return (
-
+    <React.Fragment>
+      <ToastContainer position="top-right" autoClose={3000} />
     <Formik
       initialValues={{
         email: '',
@@ -27,18 +29,22 @@ const JWTLogin = () => {
 
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => { //isso aqui que faz a validação no banco de dados
         try {
-          await loginAction(values.email, values.senha); //backend consulta o banco de dados para conferir as credenciais.
+          const response = await loginAction(values.email, values.senha); //backend consulta o banco de dados para conferir as credenciais.
+          console.log(response);
+          if (response.token)
+            toast.success('Login realizado com sucesso!');
+          else
+            toast.error(response.message || "Erro desconhecido!");
         } catch (error) {
           console.error(error);
           setStatus({ success: false });
           setErrors({ submit: error.response?.data?.message || 'Erro ao realizar login' });
+          toast.error(errorMessage);
         } finally {
           setSubmitting(false);
         }
       }}
     >
-
-      
       {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
         <form noValidate onSubmit={handleSubmit}>
           
@@ -102,6 +108,7 @@ const JWTLogin = () => {
         </form>
       )}
     </Formik>
+    </React.Fragment>
   );
 };
 
