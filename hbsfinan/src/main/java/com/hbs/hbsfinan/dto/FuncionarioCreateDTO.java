@@ -25,7 +25,7 @@ public class FuncionarioCreateDTO {
 
     @NotNull(message = "A data de nascimento é obrigatória")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate data_nascimento;
+    private LocalDate dataNascimento;
 
 
     private String sexo;
@@ -66,11 +66,11 @@ public class FuncionarioCreateDTO {
     }
 
     public LocalDate getDataNascimento() {
-        return data_nascimento;
+        return dataNascimento;
     }
 
     public void setDataNascimento(LocalDate dataNascimento) {
-        this.data_nascimento = data_nascimento;
+        this.dataNascimento = dataNascimento;
     }
 
     public String getSexo() {

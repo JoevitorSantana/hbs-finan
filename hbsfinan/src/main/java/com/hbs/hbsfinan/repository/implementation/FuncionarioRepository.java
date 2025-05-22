@@ -75,4 +75,14 @@ public class FuncionarioRepository implements IFuncionarioRepository {
         }
         return null;
     }
+
+    @Override
+    public Funcionario findByCpf(String cpf) {
+        try {
+            return dbConn.queryForObject("SELECT * FROM funcionario WHERE cpf = ?", rowMapper, cpf);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

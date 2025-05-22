@@ -15,9 +15,15 @@ public class FuncionarioService {
     @Autowired
     private FuncionarioRepository funcionarioRepository;
 
+
     public void save(FuncionarioCreateDTO funcionario) {
+        Funcionario existente = funcionarioRepository.findByCpf(funcionario.getCpf());
+        if (existente != null) {
+            throw new IllegalArgumentException("Já existe um funcionário com este CPF.");
+        }
         funcionarioRepository.save(funcionario);
     }
+
 
     public List<Funcionario> findAll() {
         return funcionarioRepository.findAll();

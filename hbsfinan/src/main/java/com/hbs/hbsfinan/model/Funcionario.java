@@ -15,6 +15,8 @@ public class Funcionario {
     private String endereco;
     private LocalDate dataNascimento;
     private String sexo;
+
+    @Column(unique = true, nullable = false)
     private String cpf;
 
     @ManyToOne

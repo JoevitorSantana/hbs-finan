@@ -12,4 +12,6 @@ public interface IFuncionarioRepository {
     void delete(int id);
     void update(Funcionario funcionario);
     Funcionario findByEmail(String email);
+    Funcionario findByCpf(String cpf);
+
 }

@@ -34,12 +34,13 @@ public class FuncionarioController {
         try {
             funcionarioService.save(funcionariodto);
             return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao criar funcionário: " + e.getMessage());
         }
     }
-
 
 
     @GetMapping("/listar")
@@ -106,4 +107,6 @@ public class FuncionarioController {
         }
         return ResponseEntity.badRequest().build();
     }
+
+
 }
