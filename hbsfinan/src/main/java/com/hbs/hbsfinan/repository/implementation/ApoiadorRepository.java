@@ -2,7 +2,6 @@ package com.hbs.hbsfinan.repository.implementation;
 
 import com.hbs.hbsfinan.dto.ApoiadorDTO;
 import com.hbs.hbsfinan.model.Apoiador;
-import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.interfaces.IApoiadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,7 +25,7 @@ public class ApoiadorRepository implements IApoiadorRepository {
         apoiador.setCpf(rs.getString("cpf"));
         apoiador.setEmail(rs.getString("email"));
         apoiador.setFone(rs.getString("fone"));
-        apoiador.setDataNasc(rs.getDate("data"));
+        apoiador.setDataNasc(rs.getDate("data_nasc"));
         apoiador.setSexo(rs.getString("sexo"));
         apoiador.setEndereco(rs.getString("endereco"));
         return apoiador;
@@ -36,7 +35,7 @@ public class ApoiadorRepository implements IApoiadorRepository {
 
     @Override
     public void save(ApoiadorDTO apoiadorDTO) {
-        dbConn.update("INSERT INTO apoiador (id, nome, endereco, sexo, telefone, cpf, email , data_nascimento) VALUES (?,?,?,?,?,?,?,?)", apoiadorDTO.getId(), apoiadorDTO.getNome(), apoiadorDTO.getEndereco(),apoiadorDTO.getSexo(), apoiadorDTO.getFone(), apoiadorDTO.getCpf(),apoiadorDTO.getEmail(),apoiadorDTO.getDataNasc());
+        dbConn.update("INSERT INTO apoiador (nome, endereco, sexo, fone, cpf, email , data_nasc) VALUES (?,?,?,?,?,?,?)",apoiadorDTO.getNome(), apoiadorDTO.getEndereco(),apoiadorDTO.getSexo(), apoiadorDTO.getFone(), apoiadorDTO.getCpf(),apoiadorDTO.getEmail(),apoiadorDTO.getDataNasc());
     }
 
     @Override
@@ -51,13 +50,13 @@ public class ApoiadorRepository implements IApoiadorRepository {
 
     @Override
     public void delete(int id) {
-
+        dbConn.update("DELETE FROM apoiador WHERE id = ?", id);
     }
 
     @Override
     public void update(Apoiador apoiador) {
         dbConn.update(
-                "UPDATE apoiador SET nome = ?, endereco = ?, sexo = ?, telefone = ?, cpf = ?, email = ?, data_nascimento = ? WHERE id = ?",
+                "UPDATE apoiador SET nome = ?, endereco = ?, sexo = ?, fone = ?, cpf = ?, email = ?, data_nasc = ? WHERE id = ?",
                 apoiador.getNome(),
                 apoiador.getEndereco(),
                 apoiador.getSexo(),
@@ -78,4 +77,6 @@ public class ApoiadorRepository implements IApoiadorRepository {
         }
         return null;
     }
+
+
 }

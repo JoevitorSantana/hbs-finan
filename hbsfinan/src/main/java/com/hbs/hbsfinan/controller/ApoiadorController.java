@@ -32,10 +32,10 @@ public class ApoiadorController {
             apoiadorService.save(apoiadorDTO);
             RestResponseMessage message = new RestResponseMessage(HttpStatus.CREATED, "Apoiador inserido com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.CREATED);
-        } catch (EmailExistenteException e){
-            throw new EmailExistenteException(e.getMessage());
-        } catch (RoleInvalidaException e) {
-            throw new RoleInvalidaException(e.getMessage());
+        } catch (Exception e)
+        {
+            System.err.println("Erro ao salvar apoiador: " + e.getMessage());
+            throw new RuntimeException();
         }
     }
 
@@ -66,6 +66,24 @@ public class ApoiadorController {
             if (apoiador.getDataNasc() != null && !apoiador.getDataNasc().equals(oldApoiador.getDataNasc()))
                 oldApoiador.setDataNasc(apoiador.getDataNasc());
 
+            if(apoiador.getEmail() != null && !apoiador.getEmail().equals(oldApoiador.getEmail()))
+                oldApoiador.setEmail(apoiador.getEmail());
+
+            if(apoiador.getFone() != null && !apoiador.getFone().equals(oldApoiador.getFone()))
+                oldApoiador.setFone(apoiador.getFone());
+
+            if (apoiador.getNome()!= null && !apoiador.getNome().equals(oldApoiador.getNome()))
+                oldApoiador.setNome(apoiador.getNome());
+
+            if (apoiador.getSexo()!= null && !apoiador.getSexo().equals(oldApoiador.getSexo()))
+                oldApoiador.setSexo(apoiador.getSexo());
+
+            if (apoiador.getDataNasc()!= null && !apoiador.getSexo().equals(oldApoiador.getDataNasc()))
+                oldApoiador.setDataNasc(apoiador.getDataNasc());
+
+            if (apoiador.getEndereco() != null && !apoiador.getEndereco().equals(oldApoiador.getEndereco()))
+                oldApoiador.setEndereco(apoiador.getEndereco());
+
             apoiadorService.update(oldApoiador);
             return ResponseEntity.ok("Editado com sucesso!");
         } catch (Exception e) {
@@ -83,7 +101,6 @@ public class ApoiadorController {
 
     @DeleteMapping("/excluir/{id}")
     public ResponseEntity<String> delete(@PathVariable int id) {
-        // refatorar validação
         if (apoiadorService.findById(id) != null) {
             apoiadorService.delete(id);
             return ResponseEntity.ok("Deletado com sucesso!");

@@ -1,16 +1,22 @@
 package com.hbs.hbsfinan.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
+
 
 import java.util.Date;
 
 public class ApoiadorDTO {
 
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "O usuário deve possuir nome!")
@@ -29,14 +35,17 @@ public class ApoiadorDTO {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date dataNasc;
+    private Date data_nasc;
+
+
+    @NotBlank(message = "CPF inválido")
+    private String cpf;
+
 
 
 
     private String sexo;
 
-    @NotBlank(message = "CPF incompleto!")
-    private String cpf;
 
 
     public String getEndereco() {
@@ -56,7 +65,7 @@ public class ApoiadorDTO {
     }
 
     public Date getDataNasc() {
-        return dataNasc;
+        return data_nasc;
     }
 
     public String getNome() {
@@ -88,7 +97,7 @@ public class ApoiadorDTO {
     }
 
     public void setDataNasc(Date dataNasc) {
-        this.dataNasc = dataNasc;
+        this.data_nasc = dataNasc;
     }
 
     public void setCpf(String cpf) {
