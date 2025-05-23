@@ -1,17 +1,20 @@
 package com.hbs.hbsfinan.repository.implementation;
 
-import com.hbs.hbsfinan.dto.ApoiadorDTO;
-import com.hbs.hbsfinan.model.Apoiador;
-import com.hbs.hbsfinan.model.DoacaoAlimenticia;
-import com.hbs.hbsfinan.repository.interfaces.IDoacaoAlimenticia;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import com.hbs.hbsfinan.model.DoacaoAlimenticia;
+import com.hbs.hbsfinan.repository.interfaces.IDoacaoAlimenticia;
+
 
 import java.util.List;
 
 @Repository
-public class DoacaoAlimenticiaRepository extends IDoacaoAlimenticia {
-
+public class DoacaoAlimenticiaRepository implements IDoacaoAlimenticia {
+    @Autowired
+    private JdbcTemplate dbConn;
 
     private RowMapper<DoacaoAlimenticia> rowMapper = (rs, rowNum) -> {
         DoacaoAlimenticia doacaoAlimenticia = new DoacaoAlimenticia();
@@ -24,28 +27,28 @@ public class DoacaoAlimenticiaRepository extends IDoacaoAlimenticia {
 
     @Override
     public void save(DoacaoAlimenticia doacaoAlimenticia) {
-        dbConn.update("INSERT INTO apoiador (id, nome, endereco, sexo, telefone, cpf, email , data_nascimento) VALUES (?,?,?,?,?,?,?,?)", apoiadorDTO.getId(), apoiadorDTO.getNome(), apoiadorDTO.getEndereco(),apoiadorDTO.getSexo(), apoiadorDTO.getFone(), apoiadorDTO.getCpf(),apoiadorDTO.getEmail(),apoiadorDTO.getDataNasc());
+        dbConn.update("INSERT INTO apoiador (Id_doacao,Data_Doacao) VALUES (?,?)", doacaoAlimenticia.getId_doacao(), doacaoAlimenticia.getData_Doacao());
     }
 
     @Override
     public DoacaoAlimenticia findById(int id) {
-        return dbConn.queryForObject("SELECT * FROM apoiador WHERE id = ?", rowMapper, id);
+        return dbConn.queryForObject("SELECT * FROM doacaoAlimenticia WHERE Id_doacao = ?", rowMapper, id);
     }
 
     @Override
     public List<DoacaoAlimenticia> findAll() {
-        return dbConn.query("SELECT * FROM apoiador", rowMapper);
+        return dbConn.query("SELECT * FROM doacaoAlimenticia", rowMapper);
     }
 
     @Override
     public void delete(int id) {
-
+        dbConn.update("DELETE FROM doacaoAlimenticia WHERE Id_doacao = ?", id);
     }
 
     @Override
     public void update(DoacaoAlimenticia doacaoAlimenticia) {
         dbConn.update(
-                "UPDATE apoiador SET Data_Doacao = ? WHERE Id_doacao = ?",
+                "UPDATE doacaoAlimenticia SET Data_Doacao = ? WHERE Id_doacao = ?",
                 doacaoAlimenticia.getId_doacao(),
                 doacaoAlimenticia.getData_Doacao()
         );

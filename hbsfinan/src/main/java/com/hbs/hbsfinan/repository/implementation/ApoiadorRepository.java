@@ -2,7 +2,6 @@ package com.hbs.hbsfinan.repository.implementation;
 
 import com.hbs.hbsfinan.dto.ApoiadorDTO;
 import com.hbs.hbsfinan.model.Apoiador;
-import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.interfaces.IApoiadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
