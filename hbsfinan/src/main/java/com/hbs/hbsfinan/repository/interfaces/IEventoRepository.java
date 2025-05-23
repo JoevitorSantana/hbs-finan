@@ -4,7 +4,7 @@ import java.util.List;
 //
 public interface IEventoRepository {
     void save(Evento evento);
-    void delete(int id);
+    boolean delete(int id);
     void update(Evento evento);
     Evento findById(int id);
     Evento findByNome(String nome);
