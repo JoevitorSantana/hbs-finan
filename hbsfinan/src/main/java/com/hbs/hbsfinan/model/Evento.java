@@ -85,13 +85,16 @@ public class Evento {
         this.materiais = materiais;
     }
 
+    @JsonIgnore
     public Funcionario getFuncionario() {
         return funcionario;
     }
 
+    @JsonProperty
     public void setFuncionario(Funcionario funcionario) {
         this.funcionario = funcionario;
     }
+
     @JsonProperty("func_id")
     public int getFuncId() {
         if (funcionario != null)
