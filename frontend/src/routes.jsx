@@ -112,8 +112,18 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/eventos/criar',
-        element: lazy(() => import('./views/eventos/criar'))
+        path: '/eventos',
+        element: lazy(() => import('./views/eventos'))
+      },
+      {
+        exact: 'true',
+        path: '/eventos/novo',
+        element: lazy(() => import('./views/eventos/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/eventos/editar/*',
+        element: lazy(() => import('./views/eventos/editar'))
       },
       {
         exact: 'true',
