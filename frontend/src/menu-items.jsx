@@ -67,10 +67,10 @@ const menuItems = {
           icon: 'feather icon-box',
           children: [
             {
-              id: 'criar',
-              title: 'Criar evento',
+              id: 'ver',
+              title: 'Ver Eventos',
               type: 'item',
-              url: '/eventos/criar'
+              url: '/eventos'
             },
             {
               id: 'inscrever',
