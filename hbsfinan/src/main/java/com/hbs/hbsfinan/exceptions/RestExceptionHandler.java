@@ -45,4 +45,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         RestErrorMessage restErrorMessage = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restErrorMessage);
     }
+
+    @ExceptionHandler(ErroExclusaoException.class)
+    public ResponseEntity<RestErrorMessage> erroExclusaoHanler(ErroExclusaoException exception) {
+        RestErrorMessage restErrorMessage = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restErrorMessage);
+    }
 }
