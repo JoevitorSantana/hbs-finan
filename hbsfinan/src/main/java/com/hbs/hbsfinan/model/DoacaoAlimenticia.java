@@ -1,8 +1,7 @@
 package com.hbs.hbsfinan.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -16,12 +15,21 @@ public class DoacaoAlimenticia {
     private Date Data_Doacao;
 
 
+
+    @ManyToOne
+    @JoinColumn(name = "id")//ver se esta certo
+    @JsonIgnore
+    private Funcionario funcionario;
+
+
+
     public DoacaoAlimenticia(){}
 
-    public DoacaoAlimenticia (Long Id_Doacao, Date Data_Doacao)
+    public DoacaoAlimenticia (Long Id_Doacao, Date Data_Doacao, Funcionario funcionario)
     {
         this.Data_Doacao=Data_Doacao;
         this.Id_doacao=Id_Doacao;
+        this.funcionario= funcionario;
     }
 
 
