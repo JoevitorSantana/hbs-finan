@@ -11,7 +11,7 @@ public interface IProdutosRepository {
 
     List<Produtos> findAll();
 
-    void delete(int id);
+    boolean delete(int id);
 
     void update(Produtos produtos);
 }

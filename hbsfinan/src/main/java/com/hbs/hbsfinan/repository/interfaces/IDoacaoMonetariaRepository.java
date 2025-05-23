@@ -7,7 +7,7 @@ import java.util.List;
 public interface IDoacaoMonetariaRepository {
     void save(DoacaoMonetaria doacaoMonetaria);
 
-    void delete(int id);
+    boolean delete(int id);
 
     void update(DoacaoMonetaria doacaoMonetaria);
 
