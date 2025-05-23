@@ -8,11 +8,11 @@ import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
 
 import java.time.LocalDate;
 
-@Entity
+// @Entity
 public class Despesa {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private LocalDate dataLancamento;

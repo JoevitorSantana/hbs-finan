@@ -8,6 +8,7 @@ import com.hbs.hbsfinan.exceptions.EmailExistenteException;
 import com.hbs.hbsfinan.exceptions.ErroExclusaoException;
 import com.hbs.hbsfinan.exceptions.RoleInvalidaException;
 import com.hbs.hbsfinan.exceptions.UsuarioNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.repository.implementation.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,14 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private Conexao dbConnFactory;
+
+    public UsuarioService() {}
+
+    public UsuarioService(Conexao dbConnFactory) {
+        this.dbConnFactory = dbConnFactory;
+        this.usuarioRepository = new UsuarioRepository(dbConnFactory);
+    }
 
     public void save(UsuarioCreateDTO usuario) {
             // validar role
