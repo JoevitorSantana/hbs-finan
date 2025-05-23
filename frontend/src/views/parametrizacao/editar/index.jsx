@@ -2,8 +2,11 @@ import { useParametros } from "hooks/useParametros";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row, Spinner, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-//Funções para formatar os campos antes de enviar ao backend
+// ... [as funções auxiliares continuam iguais]
+
 function formatCNPJ(value) {
   value = value.replace(/\D/g, "");
   return value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, "$1.$2.$3/$4-$5");
@@ -25,13 +28,10 @@ function formatCEP(value) {
   return value.replace(/^(\d{5})(\d{3}).*/, "$1-$2");
 }
 
-//Valida CNPJ pelo cálculo dos dígitos verificadores
 function isValidCNPJ(value) {
   value = value.replace(/\D/g, "");
-  if (value.length !== 14) 
-    return false;
-  if (/^(\d)\1{13}$/.test(value)) 
-    return false;
+  if (value.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(value)) return false;
   const digits = value.split("").map((d) => +d);
   const calc = (slice, weights) => {
     const sum = slice.reduce((acc, num, idx) => acc + num * weights[idx], 0);
@@ -69,25 +69,12 @@ const EditarParametrizacao = () => {
   });
 
   const requiredFields = [
-    "nomeEmpresa",
-    "razaoSocial",
-    "email",
-    "telefone",
-    "celular",
-    "nomeProprietario",
-    "cnpj",
-    "enderecoRua",
-    "enderecoBairro",
-    "enderecoCidade",
-    "enderecoEstado",
-    "enderecoCep",
-    "logoPequenaUrl",
-    "logoGrandeUrl",
+    "nomeEmpresa", "razaoSocial", "email", "telefone", "celular", "nomeProprietario", "cnpj",
+    "enderecoRua", "enderecoBairro", "enderecoCidade", "enderecoEstado", "enderecoCep",
+    "logoPequenaUrl", "logoGrandeUrl",
   ];
 
   const [errors, setErrors] = useState({});
-  
-  //Função parta colocar mascaras
   const examplePlaceholders = {
     telefone: "Exemplo: (00) 0000-0000",
     celular: "Exemplo: (00) 00000-0000",
@@ -130,21 +117,20 @@ const EditarParametrizacao = () => {
     e.preventDefault();
     const newErrors = {};
 
-    // Campos obrigatórios
     requiredFields.forEach((field) => {
       if (!formData[field] || formData[field].toString().trim() === "") {
         newErrors[field] = true;
       }
     });
 
-    // Validação de CNPJ
     if (!newErrors.cnpj && !isValidCNPJ(formData.cnpj)) {
       newErrors.cnpj = true;
-      alert("CNPJ inválido. Verifique os dígitos verificadores.");
+      toast.error("CNPJ inválido. Verifique os dígitos verificadores.");
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      toast.error("Preencha todos os campos obrigatórios corretamente!");
       return;
     }
 
@@ -168,19 +154,19 @@ const EditarParametrizacao = () => {
       });
 
       if (response.ok) {
-        alert("Parametrização atualizada com sucesso!");
-        navigate("/parametrizacao");
+        toast.success("Parametrização atualizada com sucesso!");
+        setTimeout(() => navigate("/parametrizacao"), 1800);
       } else if (response.status === 401) {
-        alert("Sessão expirada. Faça login novamente.");
+        toast.error("Sessão expirada. Faça login novamente.");
         localStorage.removeItem("site");
-        navigate("/login");
+        setTimeout(() => navigate("/login"), 1500);
       } else {
         const text = await response.text();
-        alert(`Erro (${response.status}): ${text || "desconhecido"}`);
+        toast.error(`Erro (${response.status}): ${text || "desconhecido"}`);
       }
     } catch (err) {
       console.error("Erro ao atualizar parametrização:", err);
-      alert("Erro na comunicação com o servidor.");
+      toast.error("Erro na comunicação com o servidor.");
     }
   };
 
@@ -221,6 +207,7 @@ const EditarParametrizacao = () => {
 
   return (
     <Row>
+      <ToastContainer position="top-right" autoClose={2500} />
       <Col sm={12}>
         <Card>
           <Card.Header>
