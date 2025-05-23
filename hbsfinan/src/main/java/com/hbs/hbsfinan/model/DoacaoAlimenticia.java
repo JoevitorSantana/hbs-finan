@@ -22,8 +22,6 @@ public class DoacaoAlimenticia {
     @JsonIgnore
     private Funcionario funcionario;
 
-
-
     public DoacaoAlimenticia(){}
 
     public DoacaoAlimenticia (Long Id_Doacao, Date Data_Doacao, Funcionario funcionario)
