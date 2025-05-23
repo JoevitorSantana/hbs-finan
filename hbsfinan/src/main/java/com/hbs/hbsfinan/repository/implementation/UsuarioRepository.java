@@ -6,6 +6,7 @@ import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.infra.db.SingletonDB;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.repository.interfaces.IUsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -15,7 +16,11 @@ import java.util.List;
 @Repository
 public class UsuarioRepository implements IUsuarioRepository {
 
-    private Conexao dbConn = SingletonDB.getConexao();
+    private Conexao dbConn;// = SingletonDB.getConexao();
+
+    public UsuarioRepository(Conexao dbConn) {
+        this.dbConn = dbConn;
+    }
 
     @Override
     public void save(UsuarioCreateDTO usuario) {

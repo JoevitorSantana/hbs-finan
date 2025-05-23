@@ -2,6 +2,8 @@ package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.LoginDTO;
 import com.hbs.hbsfinan.dto.LoginResponseDTO;
+import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.infra.db.SingletonDB;
 import com.hbs.hbsfinan.infra.security.TokenService;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.service.LoginService;
@@ -17,12 +19,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/login")
 public class LoginController {
-    @Autowired
+    private Conexao dbConnFactory;
     private LoginService loginService;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private TokenService tokenService;
+
+    public LoginController() {
+        this.dbConnFactory = SingletonDB.getConexao();
+        this.loginService = new LoginService(dbConnFactory);
+    }
 
     @PostMapping
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO usuario) {

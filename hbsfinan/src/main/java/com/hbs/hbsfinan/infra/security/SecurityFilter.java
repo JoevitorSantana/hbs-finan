@@ -1,6 +1,8 @@
 package com.hbs.hbsfinan.infra.security;
 
 import com.hbs.hbsfinan.exceptions.*;
+import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.infra.db.SingletonDB;
 import com.hbs.hbsfinan.service.UsuarioService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,14 +20,16 @@ import java.io.IOException;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
+    private Conexao dbConnFactory;
 
     @Autowired
     TokenService tokenService;
 
-    @Autowired
     UsuarioService usuarioService;
 
     public SecurityFilter(TokenService tokenService) {
+        this.dbConnFactory = SingletonDB.getConexao();
+        this.usuarioService = new UsuarioService(dbConnFactory);
         this.tokenService = tokenService;
     }
 
