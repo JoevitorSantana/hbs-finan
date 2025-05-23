@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -60,11 +61,25 @@ public class DoacaoMonetaria {
         this.data = data;
     }
 
+    @JsonIgnore
     public Apoiador getApoiador() {
         return apoiador;
     }
 
+    @JsonProperty
     public void setApoiador(Apoiador apoiador) {
         this.apoiador = apoiador;
     }
+    @JsonProperty("id_ap")
+    public long getApoiadorId() {
+        if (apoiador != null)
+        {
+            return apoiador.getId();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 }
