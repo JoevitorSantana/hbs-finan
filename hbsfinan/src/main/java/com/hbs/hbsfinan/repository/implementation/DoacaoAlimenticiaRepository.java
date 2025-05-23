@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.repository.implementation;
 
 
+import com.hbs.hbsfinan.model.Funcionario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,6 +21,9 @@ public class DoacaoAlimenticiaRepository implements IDoacaoAlimenticia {
         DoacaoAlimenticia doacaoAlimenticia = new DoacaoAlimenticia();
         doacaoAlimenticia.setId_doacao(rs.getLong("Id_doacao"));
         doacaoAlimenticia.setData_Doacao(rs.getDate("Data_Doacao"));
+        Funcionario funcionario = new Funcionario();
+        funcionario.setId(rs.getInt("id"));
+        doacaoAlimenticia.setFuncionario(funcionario);
         return doacaoAlimenticia;
     };
 
@@ -27,7 +31,7 @@ public class DoacaoAlimenticiaRepository implements IDoacaoAlimenticia {
 
     @Override
     public void save(DoacaoAlimenticia doacaoAlimenticia) {
-        dbConn.update("INSERT INTO apoiador (Id_doacao,Data_Doacao) VALUES (?,?)", doacaoAlimenticia.getId_doacao(), doacaoAlimenticia.getData_Doacao());
+        dbConn.update("INSERT INTO apoiador (Id_doacao,Data_Doacao,id) VALUES (?,?,?)", doacaoAlimenticia.getId_doacao(), doacaoAlimenticia.getData_Doacao(),doacaoAlimenticia.getFuncId());
     }
 
     @Override

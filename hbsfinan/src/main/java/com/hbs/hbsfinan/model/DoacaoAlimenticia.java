@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -48,4 +49,25 @@ public class DoacaoAlimenticia {
     public Date getData_Doacao() {
         return Data_Doacao;
     }
+
+
+
+    @JsonProperty
+    public void setFuncionario(Funcionario funcionario) {
+        this.funcionario = funcionario;
+    }
+
+    @JsonProperty("func_id")
+    public int getFuncId() {
+        if (funcionario != null)
+        {
+            return funcionario.getId();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
 }
