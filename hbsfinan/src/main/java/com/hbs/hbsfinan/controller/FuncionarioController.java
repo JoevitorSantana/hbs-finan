@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -33,11 +34,22 @@ public class FuncionarioController {
         try {
             funcionarioService.save(funcionariodto);
             return ResponseEntity.status(HttpStatus.CREATED).body("Funcionário criado com sucesso.");
+        } catch (RuntimeException e) {
+            // Verifica se é CPF duplicado
+            if (e.getMessage().contains("CPF já está cadastrado")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Collections.singletonMap("message", "CPF já está cadastrado"));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao criar funcionário: " + e.getMessage());
+                    .body(Collections.singletonMap("message", "Erro ao criar funcionário: " + e.getMessage()));
         }
     }
+
+
+
 
     @GetMapping("/listar")
     public ResponseEntity<List<Funcionario>> findAll() {

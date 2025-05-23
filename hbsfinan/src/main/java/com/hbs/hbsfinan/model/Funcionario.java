@@ -13,6 +13,8 @@ public class Funcionario {
     private String fone;
     private String endereco;
     private Date dataNascimento;
+
+    @Column(unique = true, nullable = false)
     private String sexo;
     private String cpf;
 

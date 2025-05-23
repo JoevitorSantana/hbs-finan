@@ -15,8 +15,12 @@ public class FuncionarioService {
     @Autowired
     private FuncionarioRepository funcionarioRepository;
 
-    public void save(FuncionarioCreateDTO funcionario) {
-        funcionarioRepository.save(funcionario);
+    public void save(FuncionarioCreateDTO dto) {
+        if (funcionarioRepository.findByCpf(dto.getCpf()) != null) {
+            throw new RuntimeException("CPF já está cadastrado");
+        }
+
+        funcionarioRepository.save(dto);
     }
 
     public List<Funcionario> findAll() {
