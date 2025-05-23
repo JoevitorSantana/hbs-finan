@@ -1,6 +1,9 @@
 package com.hbs.hbsfinan.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 import java.util.Date;
 
@@ -8,23 +11,22 @@ import java.util.Date;
 public class Apoiador {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
     private String nome;
     private String email;
     private String fone;
     private String endereco;
-    private Date data_nasc;
+    private Date dataNasc;
     private String sexo;
     private String cpf;
 
     public Apoiador(){}
 
-    public Apoiador(String nome, String email, String fone, String endereco, String sexo, String cpf, Date data_nasc, Long Id)
+    public Apoiador(String nome, String email, String fone, String endereco, String sexo, String cpf, Date dataNasc, Long Id)
     {
         this.cpf=cpf;
-        this.data_nasc=data_nasc;
+        this.dataNasc=dataNasc;
         this.Id=Id;
         this.email=email;
         this.nome=nome;
@@ -33,8 +35,8 @@ public class Apoiador {
         this.endereco=endereco;
     }
 
-    public void setDataNasc(Date data_nasc) {
-        this.data_nasc = data_nasc;
+    public void setDataNasc(Date dataNasc) {
+        this.dataNasc = dataNasc;
     }
 
     public void setNome(String nome) {
@@ -71,7 +73,7 @@ public class Apoiador {
     }
 
     public Date getDataNasc() {
-        return data_nasc;
+        return dataNasc;
     }
 
     public Long getId() {
