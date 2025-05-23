@@ -8,7 +8,7 @@ import java.util.List;
 public interface IGrupoRepository
 {
     void save(Grupo grupo);
-    void delete(int id);
+    boolean delete(int id);
     void update(Grupo grupo);
     Grupo findById(int id);
     Grupo findByNome(String nome);
