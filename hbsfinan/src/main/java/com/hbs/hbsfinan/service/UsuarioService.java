@@ -5,6 +5,7 @@ import com.hbs.hbsfinan.dto.UsuarioEditResponseDTO;
 import com.hbs.hbsfinan.dto.UsuarioResponseDTO;
 import com.hbs.hbsfinan.enums.UserRole;
 import com.hbs.hbsfinan.exceptions.EmailExistenteException;
+import com.hbs.hbsfinan.exceptions.ErroExclusaoException;
 import com.hbs.hbsfinan.exceptions.RoleInvalidaException;
 import com.hbs.hbsfinan.exceptions.UsuarioNotFoundException;
 import com.hbs.hbsfinan.model.Usuario;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 public class UsuarioService {
@@ -49,7 +49,10 @@ public class UsuarioService {
     }
 
     public void delete(int id) {
-        usuarioRepository.delete(id);
+        if (usuarioRepository.findById(id) == null)
+            throw new UsuarioNotFoundException("Usuário não encontrado!");
+        if (!usuarioRepository.delete(id))
+            throw new ErroExclusaoException("Erro ao excluir usuário!");
     }
 
     public void update(Usuario usuario) {

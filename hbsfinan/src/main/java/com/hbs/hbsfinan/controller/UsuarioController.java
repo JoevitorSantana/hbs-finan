@@ -88,13 +88,9 @@ public class UsuarioController {
 
     @DeleteMapping("/excluir/{id}")
     public ResponseEntity delete(@PathVariable int id) {
-        try {
-            usuarioService.findById(id);
-            usuarioService.delete(id);
-            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Usuário excluído com sucesso!");
-            return new ResponseEntity<>(message, HttpStatus.OK);
-        } catch (UsuarioNotFoundException e) {
-            throw new UsuarioNotFoundException(e.getMessage());
-        }
+        usuarioService.findById(id);
+        usuarioService.delete(id);
+        RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Usuário excluído com sucesso!");
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

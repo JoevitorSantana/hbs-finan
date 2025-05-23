@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan;
 
+import com.hbs.hbsfinan.infra.db.SingletonDB;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class HbsfinanApplication {
 
     public static void main(String[] args) {
-        // System.out.println(POSTGRES_URL);
+        if (!SingletonDB.conectar()) {
+            System.out.println(SingletonDB.getConexao().getMensagemErro());
+        }
         SpringApplication.run(HbsfinanApplication.class, args);
     }
 

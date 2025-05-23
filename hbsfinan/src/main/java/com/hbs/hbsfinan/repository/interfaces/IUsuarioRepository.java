@@ -8,7 +8,7 @@ import java.util.List;
 public interface IUsuarioRepository {
     void save(UsuarioCreateDTO usuario);
     void update(Usuario usuario);
-    void delete(int id );
+    boolean delete(int id );
     Usuario findById(int id);
     Usuario findByEmail(String email);
     List<Usuario> findAll();
