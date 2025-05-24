@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 public class DoacaoMonetariaService {
-    @Autowired
+
     private DoacaoMonetariaRepository doacaoMonetariaRepository;
 
     public void save(DoacaoMonetaria doacaoMonetaria) {doacaoMonetariaRepository.save(doacaoMonetaria);};

@@ -17,20 +17,13 @@ import java.util.List;
 @Repository
 public class ProdutosRepository implements IProdutosRepository {
 
-    @Autowired
+
     private Conexao dbConn = SingletonDB.getConexao();
 
-    private RowMapper<Produtos> rowMapper = (rs, rowNum) -> {
-        Produtos produtos = new Produtos();
-        produtos.setId(rs.getInt("id"));
-        produtos.setNome(rs.getString("nome"));
-        produtos.setQtd(rs.getLong("qtd"));
 
-        return produtos;
-    };
     @Override
     public void save(Produtos produtos) {
-        String sql = "INSERT INTO produtos (nome, qtd) values ('#1', '#2')";
+        String sql = "INSERT INTO produtos (nome, qtd) VALUES ('#1', '#2')";
         sql = sql.replace("#1", produtos.getNome());
         sql = sql.replace("#2", "" + produtos.getQtd());
         dbConn.update(sql);
