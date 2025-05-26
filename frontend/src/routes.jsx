@@ -95,6 +95,16 @@ const routes = [
         path: '/despesas',
         element: lazy(() => import('./views/despesas'))
       },
+       {
+        exact: 'true',
+        path: '/despesas/novo',
+        element: lazy(() => import('./views/despesas/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/despesas/editar/*',
+        element: lazy(() => import('./views/despesas/editar'))
+      },
       {
         exact: 'true',
         path: '/doacao/alimenticia',
