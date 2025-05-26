@@ -31,10 +31,10 @@ public class LoginService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        if (!dbConnFactory.getEstadoConexao()) {
-            this.dbConnFactory = SingletonDB.getConexao();
-            usuarioRepository = new UsuarioRepository(dbConnFactory);
-        }
+        // if (Conexao.getInstance() == null) {
+        this.dbConnFactory = Conexao.getInstance();
+        usuarioRepository = new UsuarioRepository(dbConnFactory);
+        // }
         return usuarioRepository.findByEmail(email);
     }
 }

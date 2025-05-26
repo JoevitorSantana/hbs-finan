@@ -9,34 +9,52 @@ import java.sql.*;
 @Component
 public class Conexao
 {
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    private static Conexao instance = null;
+    private Connection connect = null;
+    private String erro = "";
 
-    private Connection connect;
-    private String erro;
+    private Conexao() { }
 
-    public Conexao()
-    {   erro="";
-        connect=null;
+    private boolean conectar()
+    {
+        boolean conectado = false;
+        try {
+            final String host = "jdbc:postgresql://localhost:5432/";
+            // private static final String CONNECTION_DATABASE = "neondb?sslmode=require";
+            final String banco = "hbsdb";
+            //private static final String CONNECTION_USERNAME = "neondb_owner";
+            final String usuario = "postgres";
+            //private static final String CONNECTION_PASSWORD = "npg_tmjQ74ZJDHaW";
+            final String senha = "postgres";
+
+            String url = host+banco;
+            connect = DriverManager.getConnection(url,usuario,senha);
+            conectado=true;
+        }
+        catch ( SQLException sqlex ) {
+            erro="Impossivel conectar com a base de dados: " + sqlex.toString();
+        } catch ( Exception ex ) {
+            erro="Outro erro: " + ex.toString();
+        }
+        return conectado;
     }
 
-    public Connection getConnect() {
+    public Connection getConnection()
+    {
         return connect;
     }
 
-    public boolean conectar(String local, String banco, String usuario, String senha)
-    {
-        boolean conectado=false;
+    public static Conexao getInstance() {
         try {
-            //Class.forName(driver); "org.postgresql.Driver");
-            String url = local+banco; //"jdbc:postgresql://localhost/"+banco;
-            connect = DriverManager.getConnection( url, usuario,senha);
-            conectado=true;
+            if (instance == null || instance.getConnection().isClosed()) {
+                instance = new Conexao();
+                instance.conectar();
+            }
+            return instance;
+        } catch (SQLException sqlex) {
+            sqlex.fillInStackTrace();
         }
-        catch ( SQLException sqlex )
-        { erro="Impossivel conectar com a base de dados: " + sqlex.toString(); }
-        catch ( Exception ex )
-        { erro="Outro erro: " + ex.toString(); }
-        return conectado;
+        return null;
     }
 
     public String getMensagemErro()
@@ -54,47 +72,28 @@ public class Conexao
         boolean executou=false;
         try {
             Statement statement = connect.createStatement();
-            int result = statement.executeUpdate( sql );
+            int result = statement.executeUpdate(sql);
             statement.close();
-            if(result>=1)
+            if(result >= 1)
                 executou = true;
         }
         catch ( SQLException sqlex )
-        {  erro="Erro: "+sqlex.toString(); }
+        {  erro = "Erro: " + sqlex.toString(); }
         return executou;
     }
+
     public ResultSet query(String sql)
     {
         ResultSet rs = null;
         try {
             Statement statement = connect.createStatement();
-            //ResultSet.TYPE_SCROLL_INSENSITIVE,
-            //ResultSet.CONCUR_READ_ONLY);
-            rs = statement.executeQuery( sql );
-            //statement.close();
+            rs = statement.executeQuery(sql);
         }
         catch ( SQLException sqlex )
-        { erro="Erro: "+sqlex.toString();
+        {
+            erro= "Erro: " + sqlex.toString();
             rs = null;
         }
         return rs;
-    }
-
-    public int getMaxPK(String tabela,String chave)
-    {
-        String sql="select max("+chave+") from "+tabela;
-        int max=0;
-        ResultSet rs= query(sql);
-        try
-        {
-            if(rs.next())
-                max=rs.getInt(1);
-        }
-        catch (SQLException sqlex)
-        {
-            erro="Erro: " + sqlex.toString();
-            max = -1;
-        }
-        return max;
     }
 }

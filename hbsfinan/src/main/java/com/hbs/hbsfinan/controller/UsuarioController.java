@@ -27,7 +27,7 @@ public class UsuarioController {
     UsuarioService usuarioService;
 
     public UsuarioController() {
-        this.dbConnFactory = SingletonDB.getConexao();
+        this.dbConnFactory = Conexao.getInstance();
         this.usuarioService = new UsuarioService(dbConnFactory);
     }
 

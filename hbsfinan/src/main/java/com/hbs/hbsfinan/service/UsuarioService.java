@@ -20,7 +20,7 @@ import java.util.List;
 
 @Service
 public class UsuarioService {
-    @Autowired
+    // @Autowired
     private UsuarioRepository usuarioRepository;
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     private Conexao dbConnFactory;
@@ -58,8 +58,12 @@ public class UsuarioService {
     }
 
     public void delete(int id) {
-        if (usuarioRepository.findById(id) == null)
+        // Validar quantos usuários admin existem
+        Usuario usuario = usuarioRepository.findById(id);
+        if (usuario == null)
             throw new UsuarioNotFoundException("Usuário não encontrado!");
+        if (usuario.getRole().getRole().equalsIgnoreCase("ADMIN") && quantidadeUsuariosAdmin() < 2)
+            throw new ErroExclusaoException("Não é possível excluir o último administrador!");
         if (!usuarioRepository.delete(id))
             throw new ErroExclusaoException("Erro ao excluir usuário!");
     }
@@ -90,5 +94,43 @@ public class UsuarioService {
 
     public UsuarioEditResponseDTO convertToUsuarioEditDTO(Usuario usuario) {
         return new UsuarioEditResponseDTO(usuario.getId(), usuario.getNome(), usuario.getUltimoNome(), usuario.getEmail(), usuario.getPassword(), usuario.getRole().getRole().toUpperCase());
+    }
+
+    private boolean validarExclusao()
+    {
+        if (quantidadeUsuariosAdmin() < 2)
+            return false;
+        return true;
+    }
+
+    private int quantidadeUsuariosAdmin() {
+        int quantidade = 0;
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        for (Usuario usuario : usuarios) {
+            if (usuario.getRole().getRole().equalsIgnoreCase("ADMIN"))
+                quantidade++;
+        }
+        return quantidade;
+    }
+
+    public int quantidadeUsuarios() {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        return usuarios.size();
+    }
+
+    private void criarUsuarioPrimeiroAcesso() {
+        UsuarioCreateDTO usuario = new UsuarioCreateDTO();
+        usuario.setNome("Administrador");
+        usuario.setUltimoNome("Administrador");
+        usuario.setEmail("admin@admin.com");
+        usuario.setSenha("admin123");
+        usuario.setRole("admin");
+        this.save(usuario);
+    }
+
+    public void validarUsuarioPrimeiroAcesso() {
+        if (this.quantidadeUsuarios() == 0) {
+            criarUsuarioPrimeiroAcesso();
+        }
     }
 }

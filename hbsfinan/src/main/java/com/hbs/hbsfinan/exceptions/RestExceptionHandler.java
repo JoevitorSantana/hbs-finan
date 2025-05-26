@@ -51,4 +51,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         RestErrorMessage restErrorMessage = new RestErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restErrorMessage);
     }
+
+    @ExceptionHandler(ParametrizacaoNaoEncontradaException.class)
+    public ResponseEntity<RestErrorMessage> parametrizacaoNaoEncontradaHandler(ParametrizacaoNaoEncontradaException exception) {
+        RestErrorMessage restErrorMessage = new RestErrorMessage(HttpStatus.NOT_FOUND, exception.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(restErrorMessage);
+    }
 }

@@ -1,13 +1,28 @@
-import React, { Suspense, Fragment, lazy, Component } from 'react';
+import React, {Suspense, Fragment, lazy, Component, useState, useEffect} from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 import Loader from './components/Loader/Loader';
 import AdminLayout from './layouts/AdminLayout';
 
-import { BASE_URL } from './config/constant';
+import { BASE_URL, CONFIG } from './config/constant';
 import AuthProvider, { useAuth } from 'contexts/AuthProvider';
+import { useParametros } from "./hooks/useParametros";
 
 export const PrivateRoute = () => {
+  const {user, token} = useAuth();
+  const { parametros } = useParametros();
+
+  if (!token) return <Navigate to="/login" />;
+
+  console.log(parametros);
+
+  if (!parametros && user.email == CONFIG.defaultAdminEmail)
+    return <Navigate to="/parametrizacao/primeiro-acesso" />;
+
+  return <Outlet />;
+};
+
+export const ParametrizacaoRoute = () => {
   const user = useAuth();
   if (!user.token) return <Navigate to="/login" />;
   return <Outlet />;
@@ -33,6 +48,19 @@ export const renderRoutes = (routes = []) => (
                   </Guard>
                 }
               />
+            );
+          } else if (route.visibility == 'parametrizacao') {
+            return (
+                <Route key={i} element={<ParametrizacaoRoute />}>
+                  <Route
+                      path={route.path}
+                      element={
+                        <Guard>
+                          <Layout>{route.routes ? renderRoutes(route.routes) : <Element props={true} />}</Layout>
+                        </Guard>
+                      }
+                  />
+                </Route>
             );
           } else {
             return (
@@ -60,6 +88,12 @@ const routes = [
     path: '/login',
     visibility: 'public',
     element: lazy(() => import('./views/auth/signin/SignIn1'))
+  },
+  {
+    exact: 'true',
+    visibility: 'parametrizacao',
+    path: '/parametrizacao/primeiro-acesso',
+    element: lazy(() => import('./views/parametrizacao/primeiro-acesso'))
   },
   {
     path: '*',
@@ -158,10 +192,12 @@ const routes = [
       {
         exact: 'true',
         path: '/parametrizacao',
+        visibility: 'parametrizacao',
         element: lazy(() => import('./views/parametrizacao'))
       },
       {
         exact: 'true',
+        visibility: 'parametrizacao',
         path: '/parametrizacao/editar/*',
         element: lazy(() => import('./views/parametrizacao/editar'))
       },
