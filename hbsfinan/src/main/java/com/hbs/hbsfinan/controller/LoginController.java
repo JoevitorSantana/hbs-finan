@@ -27,7 +27,7 @@ public class LoginController {
     private TokenService tokenService;
 
     public LoginController() {
-        this.dbConnFactory = SingletonDB.getConexao();
+        this.dbConnFactory = Conexao.getInstance();
         this.loginService = new LoginService(dbConnFactory);
     }
 

@@ -28,7 +28,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     UsuarioService usuarioService;
 
     public SecurityFilter(TokenService tokenService) {
-        this.dbConnFactory = SingletonDB.getConexao();
+        this.dbConnFactory = Conexao.getInstance();
         this.usuarioService = new UsuarioService(dbConnFactory);
         this.tokenService = tokenService;
     }
@@ -40,6 +40,8 @@ public class SecurityFilter extends OncePerRequestFilter {
     {
         try {
             String path = request.getRequestURI();
+
+            usuarioService.validarUsuarioPrimeiroAcesso();
 
             if (path.equals("/login")) {
                 filterChain.doFilter(request, response);

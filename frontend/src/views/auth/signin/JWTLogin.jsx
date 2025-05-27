@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { Row, Col, Alert, Button } from 'react-bootstrap';
 import * as Yup from 'yup';
@@ -10,7 +10,8 @@ const JWTLogin = () => {
   const navigate = useNavigate();
   const { user, loginAction } = useAuth();
 
-  if (user) navigate("/");
+  if (user)
+      navigate("/");
 
   return (
     <React.Fragment>
@@ -30,7 +31,6 @@ const JWTLogin = () => {
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => { //isso aqui que faz a validação no banco de dados
         try {
           const response = await loginAction(values.email, values.senha); //backend consulta o banco de dados para conferir as credenciais.
-          console.log(response);
           if (response.token)
             toast.success('Login realizado com sucesso!');
           else

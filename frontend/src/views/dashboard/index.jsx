@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import avatar1 from '../../assets/images/user/avatar-1.jpg';
 import avatar2 from '../../assets/images/user/avatar-2.jpg';
 import avatar3 from '../../assets/images/user/avatar-3.jpg';
+import {useParametros} from "../../hooks/useParametros";
 
 const dashSalesData = [
   { title: 'Daily Sales', amount: '$249.95', icon: 'icon-arrow-up text-c-green', value: 50, class: 'progress-c-theme' },
@@ -17,6 +18,9 @@ const DashDefault = () => {
   const usuario = localStorage.getItem("user");
 
   const jsonUsuario = JSON.parse(usuario)
+
+  const { parametros } = useParametros();
+  console.log("parametros: " + parametros);
 
   console.log(jsonUsuario.role);
 

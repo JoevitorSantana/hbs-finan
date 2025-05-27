@@ -22,10 +22,10 @@ public class DoacaoMonetaria {
     @JsonIgnore
     private Apoiador apoiador;
 
-//    @OneToOne
-//    @JoinColumn(name = "id_caixa")//ver se esta certo
-//    @JsonIgnore
-//    private Caixa caixa;
+    @ManyToOne
+    @JoinColumn(name = "id_caixa")//ver se esta certo
+    @JsonIgnore
+    private Caixa caixa;
 
     public DoacaoMonetaria() {
     }

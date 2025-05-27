@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan.controller;
 
+import com.hbs.hbsfinan.dto.DoacaoMonetariaCreateDTO;
 import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.exceptions.EventoNotFoundException;
 import com.hbs.hbsfinan.model.DoacaoMonetaria;
@@ -15,14 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(name = "doacao_monetaria")
+@RequestMapping("/doacao-monetaria")
 public class DoacaoMonetariaController {
 
     @Autowired
     DoacaoMonetariaService doacaoMonetariaService;
 
     @PostMapping("/novo")
-    public ResponseEntity save(@Valid @RequestBody DoacaoMonetaria doacaoMonetaria){
+    public ResponseEntity save(@Valid @RequestBody DoacaoMonetariaCreateDTO doacaoMonetaria){
         try
         {
             doacaoMonetariaService.save(doacaoMonetaria);
@@ -94,6 +95,20 @@ public class DoacaoMonetariaController {
         try
         {
             DoacaoMonetaria doacaoMonetaria = doacaoMonetariaService.findByApoiador(apoiador);
+            return ResponseEntity.ok(doacaoMonetaria);
+        }
+        catch (EventoNotFoundException e)
+        {
+            throw new EventoNotFoundException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/caixa/{id}")
+    public ResponseEntity<List<DoacaoMonetaria>>findByCaixa(@PathVariable int id)
+    {
+        try
+        {
+            List<DoacaoMonetaria> doacaoMonetaria = doacaoMonetariaService.findByCaixa(id);
             return ResponseEntity.ok(doacaoMonetaria);
         }
         catch (EventoNotFoundException e)

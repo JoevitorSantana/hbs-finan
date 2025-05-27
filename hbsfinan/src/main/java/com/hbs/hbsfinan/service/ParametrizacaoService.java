@@ -27,7 +27,7 @@ public class ParametrizacaoService {
     public Parametrizacao get() {
         Parametrizacao response = repo.findFirst();
         if (response == null)
-            new ParametrizacaoNaoEncontradaException("Parametrização não encontrada.");
+            throw new ParametrizacaoNaoEncontradaException("Parametrização não encontrada.");
         return response;
     }
 
