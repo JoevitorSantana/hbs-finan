@@ -1,12 +1,12 @@
 import { useParametros } from "hooks/useParametros";
 import React, { useEffect, useState } from "react";
-import {Button, Card, Col, Form, Row, Spinner, Alert, Nav, Tab} from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import {Button, Card, Col, Form, Row, Nav, Tab, Modal} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import NavBar from "../../../layouts/AdminLayout/NavBar";
-
-// ... [as funções auxiliares continuam iguais]
+import {GrLinkNext, GrLinkPrevious} from "react-icons/gr";
+import {useAuth} from "../../../contexts/AuthProvider";
 
 function formatCNPJ(value) {
     value = value.replace(/\D/g, "");
@@ -28,7 +28,6 @@ function formatCEP(value) {
     value = value.replace(/\D/g, "");
     return value.replace(/^(\d{5})(\d{3}).*/, "$1-$2");
 }
-
 function isValidCNPJ(value) {
     value = value.replace(/\D/g, "");
     if (value.length !== 14) return false;
@@ -47,9 +46,14 @@ function isValidCNPJ(value) {
 }
 
 const PrimeiroAcessoParametrizacao = () => {
-    const { parametros, loading, error } = useParametros();
+    const { parametros } = useParametros();
     const token = localStorage.getItem("site");
     const navigate = useNavigate();
+    const [abaAtiva, setAbaAtiva] = useState('parametrizacao');
+
+    const { logOut } = useAuth();
+
+    const [showModal, setShowModal] = useState(false);
 
     const [formData, setFormData] = useState({
         id: "",
@@ -73,7 +77,7 @@ const PrimeiroAcessoParametrizacao = () => {
         ultimoNome: '',
         email: '',
         senha: '',
-        role: 'USER'
+        role: 'ADMIN'
     });
 
     const requiredFields = [
@@ -88,6 +92,40 @@ const PrimeiroAcessoParametrizacao = () => {
         celular: "Exemplo: (00) 00000-0000",
         cnpj: "Exemplo: 00.000.000/0000-00",
         enderecoCep: "Exemplo: 00000-000",
+    };
+
+    const handleShowModal = () => {
+        const newErrors = {};
+
+        requiredFields.forEach((field) => {
+            if (!formData[field] || formData[field].toString().trim() === "") {
+                newErrors[field] = true;
+            }
+        });
+
+        if (!newErrors.cnpj && !isValidCNPJ(formData.cnpj)) {
+            newErrors.cnpj = true;
+            toast.error("CNPJ inválido. Verifique os dígitos verificadores.");
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            toast.error("Preencha todos os campos obrigatórios corretamente!");
+            return;
+        }
+
+        // Validação dos campos
+        const validationErrors = validateFields();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            toast.error('Por favor, corrija os erros no formulário.');
+            return;
+        }
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
     };
 
     useEffect(() => {
@@ -129,7 +167,7 @@ const PrimeiroAcessoParametrizacao = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleFinalizar = async (e) => {
         e.preventDefault();
         const newErrors = {};
 
@@ -150,6 +188,14 @@ const PrimeiroAcessoParametrizacao = () => {
             return;
         }
 
+        // Validação dos campos
+        const validationErrors = validateFields();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            toast.error('Por favor, corrija os erros no formulário.');
+            return;
+        }
+
         // Formata os campos antes de enviar
         const payload = {
             ...formData,
@@ -159,9 +205,10 @@ const PrimeiroAcessoParametrizacao = () => {
             enderecoCep: formatCEP(formData.enderecoCep),
         };
 
+        // Inserindo Parametrização
         try {
             const response = await fetch("http://localhost:8080/api/parametrizacao", {
-                method: "PUT",
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -184,27 +231,8 @@ const PrimeiroAcessoParametrizacao = () => {
             console.error("Erro ao atualizar parametrização:", err);
             toast.error("Erro na comunicação com o servidor.");
         }
-    };
 
-    const validateFields = () => {
-        const newErrors = {};
-        if (!formDataUsuario.nome) newErrors.nome = 'Nome é obrigatório.';
-        if (!formDataUsuario.ultimoNome) newErrors.ultimoNome = 'Último nome é obrigatório.';
-        if (!formDataUsuario.email) newErrors.email = 'Email é obrigatório.';
-        if (!formDataUsuario.senha) newErrors.senha = 'Senha é obrigatória.';
-        return newErrors;
-    };
-
-    const handleSubmitUsuario = async (e) => {
-        e.preventDefault();
-
-        // Validação dos campos
-        const validationErrors = validateFields();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            toast.error('Por favor, corrija os erros no formulário.');
-            return;
-        }
+        // Inserindo Usuário
         try {
             const response = await fetch('http://localhost:8080/usuarios/novo', {
                 method: 'POST',
@@ -216,7 +244,7 @@ const PrimeiroAcessoParametrizacao = () => {
             });
 
             if (response.ok) {
-                toast.success('Usuário cadastrado com sucesso!');
+                toast.success('Parametrização concluída com sucesso!');
                 /* setTimeout(() => {
                     navigate('/usuarios');
                 }, 2000); */
@@ -228,21 +256,78 @@ const PrimeiroAcessoParametrizacao = () => {
             console.error('Erro ao cadastrar usuário:', error);
             toast.error('Erro na comunicação com o servidor.');
         }
-    }
 
-    if (loading) {
-        return (
-            <div className="d-flex justify-content-center mt-5">
-                <Spinner animation="border" />
-            </div>
-        );
-    }
-    if (error) {
-        return (
-            <Alert variant="danger" className="mt-3">
-                Falha ao carregar parametrização: {error.message}
-            </Alert>
-        );
+        // desautenticando
+        logOut();
+
+        // Excluindo Usuário Admin Padrão
+        /* try {
+            const response = await fetch(`http://localhost:8080/usuarios/excluir/${usuarioSelecionado.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
+            });
+
+            if (response.ok) {
+                toast.success("Usuário excluído com sucesso!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                const errorData = await response.json();
+                toast.error(errorData.message || 'Erro ao excluir usuário.');
+            }
+        } catch (error) {
+            console.error('Erro ao excluir usuário:', error);
+            toast.error('Erro na comunicação com o servidor.');
+        } finally {
+            handleCloseModal();
+        } */
+    };
+
+    const validateFields = () => {
+        const newErrors = {};
+        if (!formDataUsuario.nome) newErrors.nome = 'Nome é obrigatório.';
+        if (!formDataUsuario.ultimoNome) newErrors.ultimoNome = 'Último nome é obrigatório.';
+        if (!formDataUsuario.email) newErrors.email = 'Email é obrigatório.';
+        if (!formDataUsuario.senha) newErrors.senha = 'Senha é obrigatória.';
+        return newErrors;
+    };
+
+    const validarEAlterarAba = (aba) => {
+        if (aba == 'usuario'){
+            const validationErrors = validateFields();
+            if (Object.keys(validationErrors).length > 0) {
+                setErrors(validationErrors);
+                toast.error('Por favor, corrija os erros no formulário.');
+                return;
+            }
+            setAbaAtiva('parametrizacao');
+        }
+
+        if (aba == 'parametrizacao') {
+            const newErrors = {};
+
+            requiredFields.forEach((field) => {
+                if (!formData[field] || formData[field].toString().trim() === "") {
+                    newErrors[field] = true;
+                }
+            });
+
+            if (!newErrors.cnpj && !isValidCNPJ(formData.cnpj)) {
+                newErrors.cnpj = true;
+                toast.error("CNPJ inválido. Verifique os dígitos verificadores.");
+            }
+
+            if (Object.keys(newErrors).length > 0) {
+                setErrors(newErrors);
+                toast.error("Preencha todos os campos obrigatórios corretamente!");
+                return;
+            }
+            setAbaAtiva('usuario');
+        }
     }
 
     const column1Fields = [
@@ -271,7 +356,7 @@ const PrimeiroAcessoParametrizacao = () => {
             <ToastContainer position="top-right" autoClose={2500} />
             <Row>
                 <Col>
-                    <Tab.Container defaultActiveKey="parametrizacao">
+                    <Tab.Container activeKey={abaAtiva} onSelect={(k) => setAbaAtiva(k)} defaultActiveKey="parametrizacao">
                         <Row style={{display: "flex", justifyContent: "center"}}>
                             <Col sm={3}>
                                 <Nav variant="pills" className="flex-column">
@@ -286,12 +371,8 @@ const PrimeiroAcessoParametrizacao = () => {
                             <Col sm={7}>
                                 <Tab.Content>
                                     <Tab.Pane eventKey="parametrizacao">
-                                        {/*<Card>*/}
-                                        {/*    <Card.Header>*/}
-                                        {/*        <Card.Title as="h5">Primeiro Acesso - Parametrização</Card.Title>*/}
-                                        {/*    </Card.Header>*/}
                                             <Card.Body>
-                                                <Form noValidate onSubmit={handleSubmit}>
+                                                <Form>
                                                     <Row>
                                                         {/* Coluna 1 */}
                                                         <Col md={6}>
@@ -348,22 +429,17 @@ const PrimeiroAcessoParametrizacao = () => {
                                                             ))}
                                                         </Col>
                                                     </Row>
-
                                                     <div className="d-flex justify-content-end gap-2">
-                                                        <Link to="/parametrizacao">
-                                                            <Button variant="secondary">Cancelar</Button>
-                                                        </Link>
-                                                        <Button variant="primary" type="submit">
-                                                            Salvar
+                                                        <Button variant="primary" onClick={() => validarEAlterarAba('parametrizacao')}>
+                                                            Avançar <GrLinkNext />
                                                         </Button>
                                                     </div>
                                                 </Form>
                                             </Card.Body>
-                                        {/*</Card>*/}
                                     </Tab.Pane>
                                     <Tab.Pane eventKey="usuario">
                                         <Card.Body>
-                                            <Form onSubmit={handleSubmitUsuario}>
+                                            <Form>
                                                 <Row>
                                                     <Col md={6}>
                                                         <Form.Group className="mb-3" controlId="nome">
@@ -415,24 +491,6 @@ const PrimeiroAcessoParametrizacao = () => {
                                                                 {errors.email}
                                                             </Form.Control.Feedback>
                                                         </Form.Group>
-
-                                                        {/*<Form.Group className="mb-3" controlId="role">*/}
-                                                        {/*    <Form.Label>Nível</Form.Label>*/}
-                                                        {/*    <Form.Control*/}
-                                                        {/*        as="select"*/}
-                                                        {/*        name="role"*/}
-                                                        {/*        value={formDataUsuario.nivel}*/}
-                                                        {/*        onChange={handleChangeUsuario}*/}
-                                                        {/*    >*/}
-                                                        {/*        <option value="ADMIN">Administrador</option>*/}
-                                                        {/*        <option value="USER">Usuário</option>*/}
-                                                        {/*    </Form.Control>*/}
-                                                        {/*</Form.Group>*/}
-
-                                                        <Link to="/usuarios">
-                                                            <Button variant="secondary">Cancelar</Button>
-                                                        </Link>
-                                                        <Button variant="primary" type="submit">Salvar</Button>
                                                     </Col>
                                                     <Col md={6}>
                                                         <Form.Group className="mb-3" controlId="senha">
@@ -442,7 +500,7 @@ const PrimeiroAcessoParametrizacao = () => {
                                                                 name="senha"
                                                                 placeholder="Senha"
                                                                 value={formDataUsuario.senha}
-                                                                onChange={handleChange}
+                                                                onChange={handleChangeUsuario}
                                                                 isInvalid={!!errors.senha}
                                                                 isValid={formDataUsuario.senha && !errors.senha}
                                                             />
@@ -452,6 +510,14 @@ const PrimeiroAcessoParametrizacao = () => {
                                                         </Form.Group>
                                                     </Col>
                                                 </Row>
+                                                <div className="d-flex justify-content-end gap-2">
+                                                    <Button variant="secondary" onClick={() => validarEAlterarAba('usuario')}>
+                                                        <GrLinkPrevious /> Anterior
+                                                    </Button>
+                                                    <Button variant="success" onClick={() => handleShowModal()}>
+                                                        Salvar
+                                                    </Button>
+                                                </div>
                                             </Form>
                                         </Card.Body>
                                     </Tab.Pane>
@@ -461,8 +527,36 @@ const PrimeiroAcessoParametrizacao = () => {
                     </Tab.Container>
                 </Col>
             </Row>
+            {/* Modal de Confirmação */}
+            <ModalPrimeiroAcessoConfirmacao
+                show={showModal}
+                onHide={handleCloseModal}
+                onConfirm={handleFinalizar}
+            />
         </React.Fragment>
     );
 };
 
 export default PrimeiroAcessoParametrizacao;
+
+
+const ModalPrimeiroAcessoConfirmacao = ({ show, onHide, onConfirm }) => {
+    return (
+        <Modal show={show} onHide={onHide} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Confirmar Alterações</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Você será deslogado, e o usuário de primeiro acesso admin@admin será excluído!
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onHide}>
+                    Cancelar
+                </Button>
+                <Button variant="success" onClick={onConfirm}>
+                    Confirmar
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+};

@@ -13,9 +13,6 @@ export const PrivateRoute = () => {
   const { parametros } = useParametros();
 
   if (!token) return <Navigate to="/login" />;
-
-  console.log(parametros);
-
   if (!parametros && user.email == CONFIG.defaultAdminEmail)
     return <Navigate to="/parametrizacao/primeiro-acesso" />;
 
