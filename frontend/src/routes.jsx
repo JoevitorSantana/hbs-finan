@@ -123,6 +123,11 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/caixa/gerenciar/*',
+        element: lazy(() => import('./views/caixa/gerenciar'))
+      },
+      {
+        exact: 'true',
         path: '/despesas',
         element: lazy(() => import('./views/despesas'))
       },

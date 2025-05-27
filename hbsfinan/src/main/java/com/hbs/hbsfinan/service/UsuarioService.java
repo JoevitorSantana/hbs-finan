@@ -10,7 +10,9 @@ import com.hbs.hbsfinan.exceptions.RoleInvalidaException;
 import com.hbs.hbsfinan.exceptions.UsuarioNotFoundException;
 import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Usuario;
+import com.hbs.hbsfinan.repository.implementation.ParametrizacaoRepository;
 import com.hbs.hbsfinan.repository.implementation.UsuarioRepository;
+import com.hbs.hbsfinan.repository.interfaces.IParametrizacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -131,6 +133,15 @@ public class UsuarioService {
     public void validarUsuarioPrimeiroAcesso() {
         if (this.quantidadeUsuarios() == 0) {
             criarUsuarioPrimeiroAcesso();
+        } else {
+//            ParametrizacaoRepository parametroRepository = new ParametrizacaoRepository();
+//            ParametrizacaoService parametrizacaoService = new ParametrizacaoService(parametroRepository);
+//            if (parametrizacaoService.exists()) {
+//                // buscar usuario admin e excluir
+//                Usuario usuario = usuarioRepository.findByEmail("admin@admin.com");
+//                if (usuario != null)
+//                    usuarioRepository.delete(usuario.getId());
+//            }
         }
     }
 }

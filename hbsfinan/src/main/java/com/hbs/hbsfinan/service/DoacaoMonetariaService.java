@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan.service;
 
+import com.hbs.hbsfinan.dto.DoacaoMonetariaCreateDTO;
 import com.hbs.hbsfinan.exceptions.DoacaoMonetariaNotFoundException;
 import com.hbs.hbsfinan.exceptions.EventoNotFoundException;
 import com.hbs.hbsfinan.model.DoacaoMonetaria;
@@ -17,7 +18,7 @@ public class DoacaoMonetariaService {
     @Autowired
     private DoacaoMonetariaRepository doacaoMonetariaRepository;
 
-    public void save(DoacaoMonetaria doacaoMonetaria) {doacaoMonetariaRepository.save(doacaoMonetaria);};
+    public void save(DoacaoMonetariaCreateDTO doacaoMonetaria) {doacaoMonetariaRepository.save(doacaoMonetaria);};
 
     public void delete(int id) {doacaoMonetariaRepository.delete(id);}
 
@@ -47,5 +48,7 @@ public class DoacaoMonetariaService {
         return doacaoMonetaria;
     }
 
-
+    public List<DoacaoMonetaria> findByCaixa(int id) {
+        return doacaoMonetariaRepository.findByCaixa(id);
+    }
 }

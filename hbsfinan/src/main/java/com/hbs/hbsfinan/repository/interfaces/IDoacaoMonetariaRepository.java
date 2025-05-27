@@ -1,11 +1,12 @@
 package com.hbs.hbsfinan.repository.interfaces;
 
+import com.hbs.hbsfinan.dto.DoacaoMonetariaCreateDTO;
 import com.hbs.hbsfinan.model.DoacaoMonetaria;
 
 import java.util.List;
 
 public interface IDoacaoMonetariaRepository {
-    void save(DoacaoMonetaria doacaoMonetaria);
+    void save(DoacaoMonetariaCreateDTO doacaoMonetaria);
 
     boolean delete(int id);
 
@@ -16,4 +17,6 @@ public interface IDoacaoMonetariaRepository {
     DoacaoMonetaria findByApoiador(String apoiador);
 
     List<DoacaoMonetaria> findAll();
+
+    public List<DoacaoMonetaria> findByCaixa(int id);
 }
