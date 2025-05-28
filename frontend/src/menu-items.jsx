@@ -78,6 +78,12 @@ const menuItems = {
               type: 'item',
               url: '/eventos/inscrever'
             },
+            {
+              id: 'listar',
+              title: 'Listar evento-apoiador',
+              type: 'item',
+              url: '/eventos/listar'
+            },
           ],
         },
         {
