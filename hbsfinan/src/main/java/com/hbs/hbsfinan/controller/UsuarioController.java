@@ -7,6 +7,8 @@ import com.hbs.hbsfinan.dto.UsuarioResponseDTO;
 import com.hbs.hbsfinan.exceptions.EmailExistenteException;
 import com.hbs.hbsfinan.exceptions.RoleInvalidaException;
 import com.hbs.hbsfinan.exceptions.UsuarioNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.infra.db.SingletonDB;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -20,8 +22,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
-    @Autowired
+    private Conexao dbConnFactory;
+
     UsuarioService usuarioService;
+
+    public UsuarioController() {
+        this.dbConnFactory = Conexao.getInstance();
+        this.usuarioService = new UsuarioService(dbConnFactory);
+    }
 
     @PostMapping("/novo")
     public ResponseEntity save(@Valid @RequestBody UsuarioCreateDTO usuario) {
@@ -88,13 +96,9 @@ public class UsuarioController {
 
     @DeleteMapping("/excluir/{id}")
     public ResponseEntity delete(@PathVariable int id) {
-        try {
-            usuarioService.findById(id);
-            usuarioService.delete(id);
-            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Usuário excluído com sucesso!");
-            return new ResponseEntity<>(message, HttpStatus.OK);
-        } catch (UsuarioNotFoundException e) {
-            throw new UsuarioNotFoundException(e.getMessage());
-        }
+        usuarioService.findById(id);
+        usuarioService.delete(id);
+        RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Usuário excluído com sucesso!");
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

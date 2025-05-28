@@ -6,7 +6,6 @@ import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
 import { ToastContainer, toast } from 'react-toastify';
 
-
 const Usuarios = () => {
     const { usuarios } = useUsuarios();
     const token = localStorage.getItem("site");
@@ -19,7 +18,7 @@ const Usuarios = () => {
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
     if (!isAdmin) {
-    return <Navigate to="/" replace />; // redireciona para o dashboard
+        return <Navigate to="/" replace />; // redireciona para o dashboard
     }
 
     const handleShowModal = (usuario) => {
@@ -58,7 +57,6 @@ const Usuarios = () => {
             handleCloseModal();
         }
     };
-    
 
     return (
         <React.Fragment>

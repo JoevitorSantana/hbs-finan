@@ -2,69 +2,108 @@ package com.hbs.hbsfinan.repository.implementation;
 
 import com.hbs.hbsfinan.model.Grupo;
 import com.hbs.hbsfinan.repository.interfaces.IGrupoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.infra.db.SingletonDB;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 //
 @Repository
 public class GrupoRepository implements IGrupoRepository {
 
-    @Autowired
-    private JdbcTemplate dbConn;
-    private RowMapper<Grupo> rowMapper = (rs, rowNum) ->
-    {
-     Grupo grupo = new Grupo();
-     grupo.setId(rs.getInt("id"));
-     grupo.setNome(rs.getString("nome"));
-     return grupo;
-    };
+    private Conexao dbConn;
+
+    public GrupoRepository(Conexao dbConn) {this.dbConn = dbConn;}
 
     @Override
     public void save (Grupo grupo)
     {
-        dbConn.update("INSERT INTO grupo(nome)values (?)",grupo.getNome());//testar sem o ID e ver se vai
+        String sql = "INSERT INTO grupo(nome)values ('#1')";
+        sql = sql.replace("#1", grupo.getNome());
+        dbConn.update(sql);
     }
 
     @Override
-    public List<Grupo> findAll() {
-        return dbConn.query("SELECT * FROM grupo", rowMapper);
+    public List<Grupo> findAll()
+    {
+        List<Grupo> grupos = new ArrayList<>();
+        String sql = "SELECT * FROM grupo";
+        try
+        {
+            ResultSet rs = dbConn.query(sql);
+            while (rs.next())
+            {
+                Grupo g = new Grupo();
+                g.setId(rs.getInt("id"));
+                g.setNome(rs.getString("nome"));
+                grupos.add(g);
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        return grupos;
     }
 
     @Override
     public Grupo findByNome(String nome) {
+        Grupo grupo = null;
+        String sql = "SELECT * FROM grupo WHERE nome = '#1'";
+        sql=sql.replace("#1",nome);
         try
         {
-            return dbConn.queryForObject("SELECT * FROM grupo WHERE nome = ?", rowMapper, nome);
+            ResultSet rs = dbConn.query(sql);
+            if (rs.next()) {
+                grupo = new Grupo();
+                grupo.setId(rs.getInt("id"));
+                grupo.setNome(rs.getString("nome"));
+            }
         }
-        catch (EmptyResultDataAccessException e)
+        catch (Exception e)
         {
-            return null;
+            e.printStackTrace();
         }
+        return grupo;
     }
 
     @Override
     public Grupo findById(int id) {
+        Grupo grupo = null;
+        String sql = "SELECT * FROM grupo WHERE id = #1";
+        sql=sql.replace("#1",""+id);
         try
         {
-            return dbConn.queryForObject("SELECT * FROM grupo WHERE id = ?", rowMapper, id);
+            ResultSet rs = dbConn.query(sql);
+            if (rs.next()) {
+                grupo = new Grupo();
+                grupo.setId(rs.getInt("id"));
+                grupo.setNome(rs.getString("nome"));
+            }
         }
-        catch (EmptyResultDataAccessException e)
+        catch (Exception e)
         {
-            return null;
+            e.printStackTrace();
         }
+        return grupo;
     }
 
     @Override
     public void update(Grupo grupo) {
-        dbConn.update("UPDATE grupo SET nome = ? WHERE id = ?", grupo.getNome(),grupo.getId());
+        String sql = "UPDATE grupo SET nome = '#1' WHERE id = #2";
+        sql = sql.replace("#1", grupo.getNome());
+        sql = sql.replace("#2","" +grupo.getId());
+
+        dbConn.update(sql);
     }
 
     @Override
-    public void delete(int id) {
-        dbConn.update("DELETE FROM grupo WHERE id = ?", id);
+    public boolean delete(int id) {
+        String sql = "DELETE FROM grupo WHERE id = #1";
+        sql=sql.replace("#1",""+id);
+
+        return dbConn.update(sql);
     }
 }
