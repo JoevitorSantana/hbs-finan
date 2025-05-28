@@ -2,6 +2,7 @@ package com.hbs.hbsfinan.controller;
 //
 import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.exceptions.EventoNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Evento;
 import com.hbs.hbsfinan.service.EventoService;
 import jakarta.validation.Valid;
@@ -15,8 +16,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/eventos")
 public class EventoController {
-    @Autowired
+
     EventoService eventoService;
+
+    private Conexao dbConnFactory;
+
+    public EventoController() {
+        this.dbConnFactory = Conexao.getInstance();
+        this.eventoService = new EventoService(dbConnFactory);
+    }
 
     @PostMapping("/novo")
     public ResponseEntity save(@Valid @RequestBody Evento evento){

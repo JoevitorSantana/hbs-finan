@@ -14,7 +14,9 @@ import java.util.List;
 @Repository
 public class EventoRepository implements IEventoRepository {
 
-    private Conexao dbConn = SingletonDB.getConexao();
+    private Conexao dbConn;
+
+    public EventoRepository(Conexao dbConn) {this.dbConn = dbConn;}
 
     @Override
     public void save(Evento evento) {

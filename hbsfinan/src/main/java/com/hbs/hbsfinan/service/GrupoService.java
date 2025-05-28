@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.service;
 
 import com.hbs.hbsfinan.exceptions.GrupoNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Grupo;
 import com.hbs.hbsfinan.repository.implementation.GrupoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,16 @@ import java.util.List;
 //
 @Service
 public class GrupoService {
-    @Autowired
+
     private GrupoRepository grupoRepository;
+    private Conexao dbConnFactory;
+
+    public GrupoService(){}
+
+    public GrupoService(Conexao dbConnFactory){
+        this.dbConnFactory = dbConnFactory;
+        this.grupoRepository = new GrupoRepository(dbConnFactory);
+    }
 
     public void save(Grupo grupo) {grupoRepository.save(grupo);}
 

@@ -2,6 +2,7 @@ package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.exceptions.GrupoNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Grupo;
 import com.hbs.hbsfinan.service.GrupoService;
 import jakarta.validation.Valid;
@@ -15,8 +16,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/grupos")
 public class GrupoController {
-    @Autowired
+
+    private Conexao dbConnFactory;
+
     GrupoService grupoService;
+
+    public GrupoController(){
+        this.dbConnFactory = Conexao.getInstance();
+        this.grupoService = new GrupoService(dbConnFactory);
+    }
 
     @PostMapping("/novo")
     public ResponseEntity save(@Valid @RequestBody Grupo grupo){
