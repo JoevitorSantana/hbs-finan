@@ -15,7 +15,19 @@ const NovoEvento = () => {
         const newErrors = {};
         if (!formData.nome) newErrors.nome = 'Nome é obrigatório.';
         if (!formData.local) newErrors.local = 'Local é obrigatório.';
-        if (!formData.data) newErrors.data = 'Data é obrigatória.';
+        if (!formData.data) 
+        {
+            newErrors.data = 'Data é obrigatória.';
+        } 
+        else 
+        {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const dataEvento = new Date(formData.data);
+            if (dataEvento < hoje) {
+                newErrors.data = 'A data deve ser hoje ou uma data futura.';
+            }
+        }
         if (!formData.funcionario.id) newErrors.funcionario = 'ID do funcionario é obrigatório.';
         return newErrors;
     };
