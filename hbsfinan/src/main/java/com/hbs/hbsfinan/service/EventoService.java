@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.service;
 //
 import com.hbs.hbsfinan.exceptions.EventoNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Evento;
 import com.hbs.hbsfinan.repository.implementation.EventoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,17 @@ import java.util.List;
 
 @Service
 public class EventoService {
-    @Autowired
+
     private EventoRepository eventoRepository;
+    private Conexao dbConnFactory;
+
+    public EventoService(){}
+
+    public EventoService(Conexao dbConnFactory)
+    {
+        this.dbConnFactory = dbConnFactory;
+        this.eventoRepository = new EventoRepository(dbConnFactory);
+    }
 
     public void save(Evento evento) {eventoRepository.save(evento);};
 

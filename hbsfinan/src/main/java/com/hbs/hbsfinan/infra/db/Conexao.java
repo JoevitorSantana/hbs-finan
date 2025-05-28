@@ -19,13 +19,13 @@ public class Conexao
     {
         boolean conectado = false;
         try {
-            final String host = "jdbc:postgresql://localhost:5432/";
+            final String host = "jdbc:postgresql://ep-dawn-band-a5ez9679-pooler.us-east-2.aws.neon.tech:5432/";
             // private static final String CONNECTION_DATABASE = "neondb?sslmode=require";
-            final String banco = "hbsdb";
+            final String banco = "neondb?sslmode=require";
             //private static final String CONNECTION_USERNAME = "neondb_owner";
-            final String usuario = "postgres";
+            final String usuario = "neondb_owner";
             //private static final String CONNECTION_PASSWORD = "npg_tmjQ74ZJDHaW";
-            final String senha = "postgres";
+            final String senha = "npg_tmjQ74ZJDHaW";
 
             String url = host+banco;
             connect = DriverManager.getConnection(url,usuario,senha);

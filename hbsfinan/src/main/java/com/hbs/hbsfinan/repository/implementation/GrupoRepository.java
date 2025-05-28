@@ -13,7 +13,9 @@ import java.util.List;
 @Repository
 public class GrupoRepository implements IGrupoRepository {
 
-    private Conexao dbConn = SingletonDB.getConexao();
+    private Conexao dbConn;
+
+    public GrupoRepository(Conexao dbConn) {this.dbConn = dbConn;}
 
     @Override
     public void save (Grupo grupo)
