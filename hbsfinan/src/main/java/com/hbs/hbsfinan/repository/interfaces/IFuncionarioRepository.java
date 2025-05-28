@@ -6,7 +6,7 @@ import com.hbs.hbsfinan.model.Funcionario;
 import java.util.List;
 
 public interface IFuncionarioRepository {
-    void save(FuncionarioCreateDTO funcionario);
+    void save(Funcionario funcionario);
     Funcionario findById(int id);
     List<Funcionario> findAll();
     void delete(int id);

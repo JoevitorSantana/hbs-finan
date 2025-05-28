@@ -3,6 +3,7 @@ package com.hbs.hbsfinan.controller;
 import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
 import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.dto.UsuarioCreateDTO;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.model.Usuario;
 import com.hbs.hbsfinan.repository.interfaces.IUsuarioRepository;
@@ -21,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/funcionarios")
 public class FuncionarioController {
-
+    private Conexao dbConnFactory;
 
     @Autowired
     private FuncionarioService funcionarioService;
@@ -29,6 +30,10 @@ public class FuncionarioController {
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
+    public FuncionarioController() {
+        this.dbConnFactory = Conexao.getInstance();
+        this.funcionarioService = new FuncionarioService(dbConnFactory);
+    }
     @PostMapping("/novo")
     public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
         try {

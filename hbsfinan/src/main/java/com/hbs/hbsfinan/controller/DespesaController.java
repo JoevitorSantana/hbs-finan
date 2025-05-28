@@ -1,9 +1,13 @@
 package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.DespesaCreateDTO;
+import com.hbs.hbsfinan.dto.QuitacaoDTO;
+import com.hbs.hbsfinan.exceptions.DespesaNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Despesa;
 import com.hbs.hbsfinan.repository.implementation.DespesaRepository;
 import com.hbs.hbsfinan.service.DespesaService;
+import com.hbs.hbsfinan.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,36 +20,34 @@ import java.util.Optional;
 @RequestMapping("/despesas")
 public class DespesaController {
 
-    @Autowired
-    private DespesaService despesaService;
+    private final DespesaService despesaService;
+
+    // Injete via construtor (Spring faz a injeção automaticamente)
+    public DespesaController(DespesaService despesaService) {
+        this.despesaService = despesaService;
+    }
 
     @PostMapping("/caixa/{idCaixa}")
-    public ResponseEntity<Despesa> save(@PathVariable Long idCaixa, @RequestBody @Valid DespesaCreateDTO dto) {
+    public ResponseEntity<Despesa> save(@PathVariable int idCaixa, @RequestBody @Valid DespesaCreateDTO dto) {
         try {
-            Despesa criaDespesa = despesaService.CriarDespesa(dto, idCaixa);
+            Despesa criaDespesa = despesaService.criarDespesa(dto, (int) idCaixa);
             return ResponseEntity.ok(criaDespesa);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    // DTO para quitação
-    public static class QuitacaoDTO {
-        private double pagamentoTotal;
-        public double getPagamentoTotal() { return pagamentoTotal; }
-        public void setPagamentoTotal(double pagamentoTotal) { this.pagamentoTotal = pagamentoTotal; }
-    }
-
     @PutMapping("/quitar/{id}")
     public ResponseEntity<Despesa> quitarDespesa(@PathVariable int id, @RequestBody @Valid QuitacaoDTO dto) {
-        Despesa despesa = despesaService.findById(id);
-        if (despesa == null) {
+        try {
+            Despesa despesa = despesaService.findById(id);
+            despesa.setPagamentoTotal(dto.getPagamentoTotal());
+            despesa.setDataQuitacao(LocalDate.now());
+            despesaService.update(despesa);
+            return ResponseEntity.ok(despesa);
+        } catch (DespesaNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        despesa.setPagamentoTotal(dto.getPagamentoTotal());
-        despesa.setDataQuitacao(LocalDate.now());
-        despesaService.update(despesa);
-        return ResponseEntity.ok(despesa);
     }
 
     @GetMapping("/listar")
@@ -55,36 +57,36 @@ public class DespesaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Despesa> buscarPorId(@PathVariable int id) {
-        Despesa despesa = despesaService.findById(id);
-        if (despesa == null) {
+        try {
+            Despesa despesa = despesaService.findById(id);
+            return ResponseEntity.ok(despesa);
+        } catch (DespesaNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(despesa);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Despesa> atualizarDespesa(@PathVariable int id, @RequestBody @Valid DespesaCreateDTO dto) {
-        Despesa despesa = despesaService.findById(id);
-        if (despesa == null) {
+        try {
+            Despesa despesa = despesaService.findById(id);
+            despesa.setDataLancamento(dto.getDataLancamento());
+            despesa.setDataVencimento(dto.getDataVencimento());
+            despesa.setDesc(dto.getDesc());
+            despesa.setValor(dto.getValor());
+            despesaService.update(despesa);
+            return ResponseEntity.ok(despesa);
+        } catch (DespesaNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        // Atualiza os campos necessários
-        despesa.setDataLancamento(dto.getDataLancamento());
-        despesa.setDataVencimento(dto.getDataVencimento());
-        despesa.setDesc(dto.getDesc());
-        despesa.setValor(dto.getValor());
-        // pagamentoTotal e dataQuitacao só via quitação
-        despesaService.update(despesa);
-        return ResponseEntity.ok(despesa);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirDespesa(@PathVariable int id) {
-        Despesa despesa = despesaService.findById(id);
-        if (despesa == null) {
+        try {
+            despesaService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (DespesaNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-        despesaService.delete(id);
-        return ResponseEntity.noContent().build();
     }
 }
