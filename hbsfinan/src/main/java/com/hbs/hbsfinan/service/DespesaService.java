@@ -1,6 +1,7 @@
 package com.hbs.hbsfinan.service;
 
 import com.hbs.hbsfinan.dto.DespesaCreateDTO;
+import com.hbs.hbsfinan.model.Caixa;
 import com.hbs.hbsfinan.model.Despesa;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.implementation.DespesaRepository;
@@ -18,22 +19,24 @@ public class DespesaService {
 //    @Autowired
 //    private CaixaRepository caixaRepository;
 
-//    public Despesa CriarDespesa(DespesaCreateDTO dto, Long idCaixa){
-//        Caixa caixa = caixaRepository.findById(idCaixa).orElseThrow(() -> new RuntimeException("Caixa não encontrado"));
-//
-//        Despesa despesa = new Despesa();
-//
-//        despesa.setDataLancamento(dto.getDataLancamento());
-//        despesa.setDataVencimento(dto.getDataVencimento());
-//        despesa.setDesc(dto.getDesc());
-//        despesa.setPagamentoTotal(dto.getPagamentoTotal());
-//        despesa.setValor(dto.getValor());
-//        despesa.setDataQuitacao(dto.getDataQuitacao());
-//        despesa.setCaixa(caixa);
-//
-//        return despesaRepository.save(despesa);
-//
-//    }
+    public Despesa CriarDespesa(DespesaCreateDTO dto, Long idCaixa){
+        //Caixa caixa = caixaRepository.findById(idCaixa).orElseThrow(() -> new RuntimeException("Caixa não encontrado"));
+        Caixa caixa = new Caixa();
+        caixa.setId(idCaixa); // simula um caixa existente
+
+        Despesa despesa = new Despesa();
+
+        despesa.setDataLancamento(dto.getDataLancamento());
+        despesa.setDataVencimento(dto.getDataVencimento());
+        despesa.setDesc(dto.getDesc());
+        //despesa.setPagamentoTotal(dto.getPagamentoTotal());
+        despesa.setValor(dto.getValor());
+        //despesa.setDataQuitacao(dto.getDataQuitacao());
+        //despesa.setCaixa(caixa);
+
+        return despesaRepository.save(despesa);
+
+    }
 
 
     public List<Despesa> findAll() {

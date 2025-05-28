@@ -17,14 +17,14 @@ public class DespesaCreateDTO {
     @NotBlank(message = "A descrição é obrigatória")
     private String Desc;
 
-    @NotNull(message = "O valor total é obrigatório")
-    private Double pagamentoTotal; //valor se pagou com multa ou desconto
+//    @NotNull(message = "O valor total é obrigatório")
+//    private Double pagamentoTotal; //valor se pagou com multa ou desconto
 
     @NotNull(message = "O valor é obrigatório")
     private Double valor;
 
-    @NotNull(message = "A data de quitação é obrigatória")
-    private LocalDate dataQuitacao;
+//    @NotNull(message = "A data de quitação é obrigatória")
+//    private LocalDate dataQuitacao;
 
 
     public LocalDate getDataLancamento() {
@@ -51,13 +51,13 @@ public class DespesaCreateDTO {
         Desc = desc;
     }
 
-    public Double getPagamentoTotal() {
-        return pagamentoTotal;
-    }
-
-    public void setPagamentoTotal(Double pagamentoTotal) {
-        this.pagamentoTotal = pagamentoTotal;
-    }
+//    public Double getPagamentoTotal() {
+//        return pagamentoTotal;
+//    }
+//
+//    public void setPagamentoTotal(Double pagamentoTotal) {
+//        this.pagamentoTotal = pagamentoTotal;
+//    }
 
     public Double getValor() {
         return valor;
@@ -67,12 +67,12 @@ public class DespesaCreateDTO {
         this.valor = valor;
     }
 
-    public LocalDate getDataQuitacao() {
-        return dataQuitacao;
-    }
-
-    public void setDataQuitacao(LocalDate dataQuitacao) {
-        this.dataQuitacao = dataQuitacao;
-    }
+//    public LocalDate getDataQuitacao() {
+//        return dataQuitacao;
+//    }
+//
+//    public void setDataQuitacao(LocalDate dataQuitacao) {
+//        this.dataQuitacao = dataQuitacao;
+//    }
 }
 

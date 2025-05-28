@@ -1,9 +1,6 @@
 package com.hbs.hbsfinan.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
 
 import java.time.LocalDate;
@@ -26,11 +23,17 @@ public class Despesa {
     //many to one ->um cliente pode ter mts pedidos
 
 
-//    @ManyToOne
-//    @JoinColumn(name = "caixa_id", nullable = false)
-//    private Caixa caixa;
+    @ManyToOne
+    @JoinColumn(name = "caixa_id", nullable = false)
+    private Caixa caixa;
 
-    //FAZER GET E SET CAIXA
+    public Caixa getCaixa() {
+        return caixa;
+    }
+
+    public void setCaixa(Caixa caixa) {
+        this.caixa = caixa;
+    }
 
     public Despesa() {
     }

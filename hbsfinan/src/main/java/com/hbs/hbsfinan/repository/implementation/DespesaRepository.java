@@ -42,7 +42,15 @@ public class DespesaRepository implements IDespesaRepository {
 
     @Override
     public void save(DespesaCreateDTO despesa) {
-        dbConn.update("INSERT INTO despesa (dataLancamento,dataVencimento,Desc,pagamentoTotal,valor,dataQuitacao) VALUES (?,?,?,?,?,?)",despesa.getDataLancamento(),despesa.getDataVencimento(),despesa.getDesc(),despesa.getPagamentoTotal(),despesa.getValor(),despesa.getDataQuitacao());
+        dbConn.update(
+                "INSERT INTO despesa (dataLancamento, dataVencimento, Desc, valor, dataQuitacao, pagamentoTotal) VALUES (?, ?, ?, ?, ?, ?)",
+                despesa.getDataLancamento(),
+                despesa.getDataVencimento(),
+                despesa.getDesc(),
+                despesa.getValor(),
+                null,            // dataQuitacao no momento da criação é null
+                null             // pagamentoTotal também null inicialmente
+        );
     }
 
     @Override
