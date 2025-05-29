@@ -28,13 +28,11 @@ public class FuncionarioCreateDTO {
     @NotBlank(message = "O telefone é obrigatório")
     private String fone;
 
-    @NotBlank(message = "O endereço é obrigatório")
     private String endereco;
 
     @NotNull(message = "A data de nascimento é obrigatória")
     private Date dataNascimento;
 
-    @NotBlank(message = "O sexo é obrigatório")
     private String sexo;
 
     @NotBlank(message = "O CPF é obrigatório")

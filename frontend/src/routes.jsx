@@ -131,6 +131,16 @@ const routes = [
         path: '/despesas',
         element: lazy(() => import('./views/despesas'))
       },
+       {
+        exact: 'true',
+        path: '/despesas/novo',
+        element: lazy(() => import('./views/despesas/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/despesas/editar/*',
+        element: lazy(() => import('./views/despesas/editar'))
+      },
       {
         exact: 'true',
         path: '/doacao/alimenticia',
@@ -165,6 +175,11 @@ const routes = [
         exact: 'true',
         path: '/eventos/inscrever',
         element: lazy(() => import('./views/eventos/inscrever'))
+      },
+      {
+        exact: 'true',
+        path: '/eventos/listar',
+        element: lazy(() => import('./views/eventos/listar'))
       },
       {
         exact: 'true',

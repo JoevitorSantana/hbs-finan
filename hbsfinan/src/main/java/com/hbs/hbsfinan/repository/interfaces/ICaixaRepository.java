@@ -5,6 +5,7 @@ import com.hbs.hbsfinan.dto.UsuarioCreateDTO;
 import com.hbs.hbsfinan.model.Caixa;
 import com.hbs.hbsfinan.model.Usuario;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ICaixaRepository {
@@ -13,4 +14,5 @@ public interface ICaixaRepository {
     boolean delete(int id );
     Caixa findById(int id);
     List<Caixa> findAll();
+    Caixa findByDate(LocalDate date);
 }

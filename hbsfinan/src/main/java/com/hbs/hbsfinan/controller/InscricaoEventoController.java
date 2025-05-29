@@ -7,6 +7,7 @@ import com.hbs.hbsfinan.infra.db.SingletonDB;
 import com.hbs.hbsfinan.model.InscricaoEvento;
 import com.hbs.hbsfinan.service.InscricaoEventoService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +17,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/inscricoes-evento")
 public class InscricaoEventoController {
-    private Conexao dbConnFactory;
+    //private Conexao dbConnFactory;
+    @Autowired
     private InscricaoEventoService inscricaoEventoService;
 
-    public InscricaoEventoController() {
-        this.dbConnFactory = SingletonDB.getConexao();
-        this.inscricaoEventoService = new InscricaoEventoService(dbConnFactory);
-    }
+//    public InscricaoEventoController() {
+//        this.dbConnFactory = SingletonDB.getConexao();
+//        this.inscricaoEventoService = new InscricaoEventoService(dbConnFactory);
+//    }
 
     @PostMapping("/nova")
     public ResponseEntity save(@Valid @RequestBody InscricaoEvento inscricaoEvento) {
