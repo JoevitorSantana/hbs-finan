@@ -8,7 +8,6 @@ const EditarDespesas = () => {
   const idDespesa = window.location.pathname.split('/').pop();
   const token = localStorage.getItem("site");
   const { despesa } = useDespesa(idDespesa);
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -33,7 +32,7 @@ const EditarDespesas = () => {
       setFormData({
         dataLancamento: formatarData(despesa.dataLancamento),
         dataVencimento: formatarData(despesa.dataVencimento),
-        Desc: despesa.Desc,
+        Desc: despesa.Desc || '',
         pagamentoTotal: despesa.pagamentoTotal,
         valor: despesa.valor,
         dataQuitacao: formatarData(despesa.dataQuitacao),
@@ -44,7 +43,7 @@ const EditarDespesas = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setErrosValidacao(prev => ({ ...prev, [name]: null })); // Limpa erro ao modificar
+    setErrosValidacao(prev => ({ ...prev, [name]: null }));
   };
 
   const validarCampos = () => {
@@ -56,7 +55,7 @@ const EditarDespesas = () => {
     if (!formData.dataLancamento) erros.dataLancamento = "Data de lançamento é obrigatória.";
     if (!formData.dataVencimento) erros.dataVencimento = "Data de vencimento é obrigatória.";
     if (!formData.Desc || formData.Desc.trim() === "") erros.Desc = "Descrição é obrigatória.";
-    
+
     if (!formData.pagamentoTotal) {
       erros.pagamentoTotal = "Pagamento total é obrigatório.";
     } else if (isNaN(Number(formData.pagamentoTotal)) || Number(formData.pagamentoTotal) < 0) {
@@ -71,7 +70,6 @@ const EditarDespesas = () => {
 
     if (!formData.dataQuitacao) erros.dataQuitacao = "Data da quitação é obrigatória.";
 
-    // Valida ordem das datas
     if (formData.dataLancamento && formData.dataVencimento && dataLanc > dataVenc) {
       erros.dataVencimento = "Data de vencimento deve ser igual ou posterior à data de lançamento.";
     }
@@ -105,7 +103,7 @@ const EditarDespesas = () => {
         toast.success("Despesa atualizada com sucesso!");
         setTimeout(() => navigate('/despesas'), 1500);
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         setErroServidor(errorData.message || "Erro ao atualizar a despesa.");
       }
     } catch (error) {
@@ -167,7 +165,7 @@ const EditarDespesas = () => {
                     </Form.Control.Feedback>
                   </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="pagamentoTotal">
+                  {/* <Form.Group className="mb-3" controlId="pagamentoTotal">
                     <Form.Label>Pagamento Total <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
                       type="text"
@@ -179,7 +177,7 @@ const EditarDespesas = () => {
                     <Form.Control.Feedback type="invalid">
                       {errosValidacao.pagamentoTotal}
                     </Form.Control.Feedback>
-                  </Form.Group>
+                  </Form.Group> */}
                 </Col>
 
                 <Col md={6}>
@@ -197,7 +195,7 @@ const EditarDespesas = () => {
                     </Form.Control.Feedback>
                   </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="dataQuitacao">
+                 {/* <Form.Group className="mb-3" controlId="dataQuitacao">
                     <Form.Label>Data da Quitação <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
                       type="date"
@@ -209,7 +207,7 @@ const EditarDespesas = () => {
                     <Form.Control.Feedback type="invalid">
                       {errosValidacao.dataQuitacao}
                     </Form.Control.Feedback>
-                  </Form.Group>
+                  </Form.Group> */}
                 </Col>
 
                 <Col md={12}>

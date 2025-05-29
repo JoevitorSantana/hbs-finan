@@ -11,9 +11,7 @@ const NovaDespesa = () => {
     dataLancamento: '',
     dataVencimento: '',
     Desc: '',
-    pagamentoTotal: '',
-    valor: '',
-    dataQuitacao: ''
+    valor: ''
   });
 
   const [erroServidor, setErroServidor] = useState("");
@@ -68,7 +66,9 @@ const NovaDespesa = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/despesas/novo', {
+      //const idCaixa = 1; // ou pegue dinamicamente de algum lugar
+      const response = await fetch(`http://localhost:8080/despesas/caixa/${idCaixa}`, {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,33 +130,8 @@ const NovaDespesa = () => {
                     </Form.Control.Feedback>
                   </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="Desc">
-                    <Form.Label>Descrição <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="Desc"
-                      value={formData.Desc}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.Desc}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.Desc}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Form.Group className="mb-3" controlId="pagamentoTotal">
-                    <Form.Label>Pagamento Total <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="pagamentoTotal"
-                      value={formData.pagamentoTotal}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.pagamentoTotal}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.pagamentoTotal}
-                    </Form.Control.Feedback>
-                  </Form.Group>
+                 
+                  
                 </Col>
 
                 <Col md={6}>
@@ -173,8 +148,22 @@ const NovaDespesa = () => {
                       {errosValidacao.valor}
                     </Form.Control.Feedback>
                   </Form.Group>
+                   <Form.Group className="mb-3" controlId="Desc">
+                    <Form.Label>Descrição <span style={{ color: 'red' }}>*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="Desc"
+                      value={formData.Desc}
+                      onChange={handleChange}
+                      isInvalid={!!errosValidacao.Desc}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errosValidacao.Desc}
+                    </Form.Control.Feedback>
+                  </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="dataQuitacao">
+
+                  {/* <Form.Group className="mb-3" controlId="dataQuitacao">
                     <Form.Label>Data da Quitação <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
                       type="date"
@@ -187,6 +176,19 @@ const NovaDespesa = () => {
                       {errosValidacao.dataQuitacao}
                     </Form.Control.Feedback>
                   </Form.Group>
+                  <Form.Group className="mb-3" controlId="pagamentoTotal">
+                    <Form.Label>Pagamento Total <span style={{ color: 'red' }}>*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="pagamentoTotal"
+                      value={formData.pagamentoTotal}
+                      onChange={handleChange}
+                      isInvalid={!!errosValidacao.pagamentoTotal}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errosValidacao.pagamentoTotal}
+                    </Form.Control.Feedback>
+                  </Form.Group> */}
                 </Col>
 
                 <Col md={12}>
