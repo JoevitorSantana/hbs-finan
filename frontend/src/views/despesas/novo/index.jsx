@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { Button, Card, Col, Form, Row, Alert } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const NovaDespesa = () => {
+  const { idCaixa } = useParams(); // recebe o idCaixa pela URL
   const navigate = useNavigate();
   const token = localStorage.getItem("site");
 
   const [formData, setFormData] = useState({
     dataLancamento: '',
     dataVencimento: '',
-    Desc: '',
+    descricao: '',
     valor: ''
   });
 
@@ -20,37 +21,25 @@ const NovaDespesa = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setErrosValidacao(prev => ({ ...prev, [name]: null })); // limpa erro ao digitar
+    setErrosValidacao(prev => ({ ...prev, [name]: null }));
   };
 
   const validarCampos = () => {
     const erros = {};
-    const hoje = new Date();
     const dataLanc = new Date(formData.dataLancamento);
     const dataVenc = new Date(formData.dataVencimento);
-    const dataQuit = new Date(formData.dataQuitacao);
 
     if (!formData.dataLancamento) erros.dataLancamento = "Data de lançamento é obrigatória.";
     if (!formData.dataVencimento) erros.dataVencimento = "Data de vencimento é obrigatória.";
-    if (!formData.Desc) erros.Desc = "Descrição é obrigatória.";
-    if (!formData.pagamentoTotal) {
-      erros.pagamentoTotal = "Pagamento total é obrigatório.";
-    } else if (isNaN(Number(formData.pagamentoTotal)) || Number(formData.pagamentoTotal) < 0) {
-      erros.pagamentoTotal = "Pagamento total deve ser um número positivo.";
-    }
+    if (!formData.descricao) erros.descricao = "Descrição é obrigatória.";
     if (!formData.valor) {
       erros.valor = "Valor é obrigatório.";
     } else if (isNaN(Number(formData.valor)) || Number(formData.valor) < 0) {
       erros.valor = "Valor deve ser um número positivo.";
     }
-    if (!formData.dataQuitacao) erros.dataQuitacao = "Data da quitação é obrigatória.";
 
-    // Valida ordem das datas
     if (formData.dataLancamento && formData.dataVencimento && dataLanc > dataVenc) {
       erros.dataVencimento = "Data de vencimento deve ser igual ou posterior à data de lançamento.";
-    }
-    if (formData.dataQuitacao && formData.dataLancamento && dataQuit < dataLanc) {
-      erros.dataQuitacao = "Data da quitação deve ser igual ou posterior à data de lançamento.";
     }
 
     return erros;
@@ -66,13 +55,16 @@ const NovaDespesa = () => {
     }
 
     try {
-      //const idCaixa = 1; // ou pegue dinamicamente de algum lugar
-      const response = await fetch(`http://localhost:8080/despesas/caixa/${idCaixa}`, {
+      console.log(token)
+      console.log("Token:", token);
+console.log("URL:", `http://localhost:8080/despesas/editar/${idDespesa}`);
 
+      const response = await fetch(`http://localhost:8080/despesas/caixa/${idCaixa}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+          
         },
         body: JSON.stringify(formData)
       });
@@ -129,16 +121,15 @@ const NovaDespesa = () => {
                       {errosValidacao.dataVencimento}
                     </Form.Control.Feedback>
                   </Form.Group>
-
-                 
-                  
                 </Col>
 
                 <Col md={6}>
                   <Form.Group className="mb-3" controlId="valor">
                     <Form.Label>Valor <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
-                      type="text"
+                      type="number"
+                      step="0.01"
+                      min="0"
                       name="valor"
                       value={formData.valor}
                       onChange={handleChange}
@@ -148,47 +139,20 @@ const NovaDespesa = () => {
                       {errosValidacao.valor}
                     </Form.Control.Feedback>
                   </Form.Group>
-                   <Form.Group className="mb-3" controlId="Desc">
+
+                  <Form.Group className="mb-3" controlId="descricao">
                     <Form.Label>Descrição <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
                       type="text"
-                      name="Desc"
-                      value={formData.Desc}
+                      name="descricao"
+                      value={formData.descricao}
                       onChange={handleChange}
-                      isInvalid={!!errosValidacao.Desc}
+                      isInvalid={!!errosValidacao.descricao}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errosValidacao.Desc}
+                      {errosValidacao.descricao}
                     </Form.Control.Feedback>
                   </Form.Group>
-
-
-                  {/* <Form.Group className="mb-3" controlId="dataQuitacao">
-                    <Form.Label>Data da Quitação <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="date"
-                      name="dataQuitacao"
-                      value={formData.dataQuitacao}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.dataQuitacao}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.dataQuitacao}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="pagamentoTotal">
-                    <Form.Label>Pagamento Total <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="pagamentoTotal"
-                      value={formData.pagamentoTotal}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.pagamentoTotal}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.pagamentoTotal}
-                    </Form.Control.Feedback>
-                  </Form.Group> */}
                 </Col>
 
                 <Col md={12}>

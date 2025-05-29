@@ -40,7 +40,7 @@ const menuItems = {
               url: '/despesas'
             },
             {
-              id: 'quita',
+              id: 'quitar',
               title: 'Quitar',
               type: 'item',
               url: '/despesas/quitar'

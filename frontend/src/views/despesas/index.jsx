@@ -109,14 +109,14 @@ const Despesas = () => {
                   {despesas &&
                     despesas
                       .filter((d) =>
-                        d.Desc.toLowerCase().includes(filtroDescricao.toLowerCase())
+                        d.descricao.toLowerCase().includes(filtroDescricao.toLowerCase())
                       )
                       .map((despesa) => (
                         <tr key={despesa.id}>
                           <td>{despesa.id}</td>
                           <td>{formatarData(despesa.dataLancamento)}</td>
                           <td>{formatarData(despesa.dataVencimento)}</td>
-                          <td>{despesa.Desc}</td>
+                          <td>{despesa.descricao}</td>
                           <td>{despesa.pagamentoTotal}</td>
                           <td>{despesa.valor}</td>
                           <td>{formatarData(despesa.dataQuitacao)}</td>
@@ -155,7 +155,7 @@ const Despesas = () => {
           {despesaParaExcluir && (
             <p>
               Tem certeza que deseja excluir a despesa:{" "}
-              <strong>{despesaParaExcluir.Desc}</strong>?
+              <strong>{despesaParaExcluir.descricao}</strong>?
             </p>
           )}
         </Modal.Body>
