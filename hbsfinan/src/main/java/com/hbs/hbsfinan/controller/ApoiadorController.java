@@ -6,9 +6,11 @@ import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.dto.UsuarioCreateDTO;
 import com.hbs.hbsfinan.exceptions.EmailExistenteException;
 import com.hbs.hbsfinan.exceptions.RoleInvalidaException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Apoiador;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.service.ApoiadorService;
+import com.hbs.hbsfinan.service.GrupoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,16 +22,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/apoiador")
 public class ApoiadorController {
-    @Autowired
-    private ApoiadorService apoiadorService;
 
+
+    private Conexao dbConnFactory;
+
+    ApoiadorService apoiadorService;
+
+
+    public ApoiadorController(){
+        this.dbConnFactory = Conexao.getInstance();
+        this.apoiadorService = new ApoiadorService(dbConnFactory);
+    }
 
 
     //controller
     @PostMapping("/novo")
-    public ResponseEntity save(@RequestBody ApoiadorDTO apoiadorDTO) {
+    public ResponseEntity save(@RequestBody Apoiador apoiador) {
         try {
-            apoiadorService.save(apoiadorDTO);
+            apoiadorService.save(apoiador);
             RestResponseMessage message = new RestResponseMessage(HttpStatus.CREATED, "Apoiador inserido com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.CREATED);
         } catch (Exception e)
@@ -53,7 +63,7 @@ public class ApoiadorController {
 
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity<String> update(@PathVariable int id, @RequestBody Apoiador apoiador) {
+    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody Apoiador apoiador) {
         try {
             Apoiador oldApoiador = apoiadorService.findById(id);
 
@@ -93,14 +103,14 @@ public class ApoiadorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Apoiador> findById(@PathVariable int id) {
+    public ResponseEntity<Apoiador> findById(@PathVariable Long id) {
        Apoiador apoiador = apoiadorService.findById(id);
         return ResponseEntity.ok(apoiador);
     }
 
 
     @DeleteMapping("/excluir/{id}")
-    public ResponseEntity<String> delete(@PathVariable int id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         if (apoiadorService.findById(id) != null) {
             apoiadorService.delete(id);
             return ResponseEntity.ok("Deletado com sucesso!");
