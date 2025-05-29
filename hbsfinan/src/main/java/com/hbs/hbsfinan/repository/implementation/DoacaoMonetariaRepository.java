@@ -18,7 +18,9 @@ import java.util.List;
 public class DoacaoMonetariaRepository implements IDoacaoMonetariaRepository {
 
     //@Autowired
-    private Conexao dbConn = Conexao.getInstance();
+    private Conexao dbConn;
+    public DoacaoMonetariaRepository(Conexao dbConn){this.dbConn = dbConn;}
+
 
     private RowMapper<DoacaoMonetaria> rowMapper = (rs, rowNum) ->
     {
