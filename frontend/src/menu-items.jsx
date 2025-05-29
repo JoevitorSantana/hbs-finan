@@ -30,22 +30,9 @@ const menuItems = {
         {
           id: 'despesas',
           title: 'Despesas',
-          type: 'collapse',
+          type: 'item',
           icon: 'feather icon-percent',
-          children: [
-            {
-              id: 'lanca',
-              title: 'Lançar',
-              type: 'item',
-              url: '/despesas'
-            },
-            {
-              id: 'quitar',
-              title: 'Quitar',
-              type: 'item',
-              url: '/despesas/quitar'
-            }
-          ]
+          url: '/despesas'
         },
         {
           id: 'doacoes',
@@ -70,8 +57,8 @@ const menuItems = {
               title: 'Doação Monetária',
               type: 'item',
               url: '/doacao/monetaria'
-            }
-          ]
+            },
+          ],
         },
         {
           id: 'eventos',
@@ -90,8 +77,14 @@ const menuItems = {
               title: 'Inscrever-se Evento',
               type: 'item',
               url: '/eventos/inscrever'
-            }
-          ]
+            },
+            {
+              id: 'listar',
+              title: 'Listar evento-apoiador',
+              type: 'item',
+              url: '/eventos/listar'
+            },
+          ],
         },
         {
           id: 'funcionarios',
@@ -129,7 +122,7 @@ const menuItems = {
           url: '/grupos'
         }
       ]
-    }
+    },
   ]
 };
 

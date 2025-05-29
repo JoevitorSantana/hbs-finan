@@ -178,6 +178,11 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/eventos/listar',
+        element: lazy(() => import('./views/eventos/listar'))
+      },
+      {
+        exact: 'true',
         path: '/funcionarios',
         element: lazy(() => import('./views/funcionarios'))
       },

@@ -63,7 +63,7 @@ const Caixas = () => {
         const token = localStorage.getItem("site");
 
         try {
-            const response = await fetch("http://localhost:8080/caixas/abrir", {
+            const response = await fetch("http://localhost:8080/caixa/novo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -72,18 +72,19 @@ const Caixas = () => {
                 body: JSON.stringify({
                     valorInicial: dados.valorInicial,
                     dataAberturaCaixa: dados.dataAberturaCaixa,
-                    funId: 1,
+                    funId: 1, /* func default */
                 })
             });
 
             if (response.ok) {
                 const result = await response.json();
-                console.log("Caixa aberto com sucesso:", result);
-                // Exibir um toast ou mensagem de sucesso
+                toast.success(result.message || "Caixa aberto com sucesso!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
             } else {
                 const error = await response.json();
-                console.error("Erro ao abrir caixa:", error);
-                // Exibir toast de erro
+                toast.error(error.message || "Erro ao abrir caixa!");
             }
         } catch (err) {
             console.error("Erro na comunicação com o servidor:", err);
@@ -100,9 +101,9 @@ const Caixas = () => {
                         <Card.Header>
                             <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
                                 <Card.Title as="h5">Caixas</Card.Title>
-                                <Link to="/caixas/novo">
-                                    <Button variant="primary" onClick={() => setShowModalAbrir(true)}><IoIosCash /> Abrir</Button>
-                                </Link>
+                                {/* <Link to="/caixas/novo"> */}
+                                <Button variant="primary" onClick={() => setShowModalAbrir(true)}><IoIosCash /> Abrir</Button>
+                                {/* </Link> */}
                             </div>
                         </Card.Header>
 

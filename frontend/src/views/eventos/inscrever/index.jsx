@@ -14,6 +14,8 @@ const InscricaoEventoView = () => {
   const [apoiadorSelecionado, setApoiadorSelecionado] = useState(null);
 
   const [eventos, setEventos] = useState([]);
+  const [buscaEvento, setBuscaEvento] = useState("");
+  const [eventosFiltrados, setEventosFiltrados] = useState([]);
   const [eventosInscritos, setEventosInscritos] = useState([]);
   const [selecionados, setSelecionados] = useState([]);
   const [loadingApoiador, setLoadingApoiador] = useState(true);
@@ -41,7 +43,7 @@ const InscricaoEventoView = () => {
       .finally(() => setLoadingApoiador(false));
   }, []);
 
-  // Filtro de busca (nome ou CPF)
+  // Filtro de busca (nome ou CPF) de apoiador
   useEffect(() => {
     const buscaTrim = busca.trim();
     if (!buscaTrim) {
@@ -88,6 +90,21 @@ const InscricaoEventoView = () => {
       .finally(() => setLoadingEventos(false));
     setSelecionados([]);
   }, [apoiadorSelecionado]);
+
+  // Filtro de busca de eventos (nome ou local)
+  useEffect(() => {
+    if (!buscaEvento.trim()) {
+      setEventosFiltrados(eventos);
+      return;
+    }
+    const buscaLower = buscaEvento.trim().toLowerCase();
+    setEventosFiltrados(
+      eventos.filter(ev =>
+        (ev.nome && ev.nome.toLowerCase().includes(buscaLower)) ||
+        (ev.local && ev.local.toLowerCase().includes(buscaLower))
+      )
+    );
+  }, [buscaEvento, eventos]);
 
   // Buscar inscrições do apoiador selecionado
   useEffect(() => {
@@ -155,7 +172,7 @@ const InscricaoEventoView = () => {
   };
 
   // Se tem algum evento já inscrito, mostra mensagem
-  const algumInscrito = eventos.some(ev => eventosInscritos.includes(ev.id));
+  const algumInscrito = eventosFiltrados.some(ev => eventosInscritos.includes(ev.id));
 
   return (
     <div>
@@ -240,6 +257,20 @@ const InscricaoEventoView = () => {
             </div>
           </Card.Header>
           <Card.Body>
+            {/* Campo de busca de evento */}
+            <Row className="mb-3">
+              <Col md={3}>
+                <Form.Label style={{ fontWeight: 'bold' }}>Buscar evento</Form.Label>
+              </Col>
+              <Col md={9}>
+                <Form.Control
+                  type="text"
+                  placeholder="nome ou local do evento"
+                  value={buscaEvento}
+                  onChange={e => setBuscaEvento(e.target.value)}
+                />
+              </Col>
+            </Row>
             {loadingEventos ? (
               <div className="text-center"><Spinner animation="border" /></div>
             ) : (
@@ -257,7 +288,7 @@ const InscricaoEventoView = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {eventos.map(evento => {
+                    {eventosFiltrados.map(evento => {
                       const inscrito = eventosInscritos.includes(evento.id);
                       return (
                         <tr key={evento.id}>
