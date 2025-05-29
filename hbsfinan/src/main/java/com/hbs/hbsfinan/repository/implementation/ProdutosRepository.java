@@ -17,8 +17,9 @@ import java.util.List;
 @Repository
 public class ProdutosRepository implements IProdutosRepository {
 
-    @Autowired
-    private Conexao dbConn = SingletonDB.getConexao();
+    //@Autowired
+    //private Conexao dbConn = SingletonDB.getConexao();
+    private Conexao dbConn = Conexao.getInstance();
 
     private RowMapper<Produtos> rowMapper = (rs, rowNum) -> {
         Produtos produtos = new Produtos();
