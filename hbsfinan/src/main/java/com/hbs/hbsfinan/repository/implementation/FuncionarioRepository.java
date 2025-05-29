@@ -1,77 +1,137 @@
 package com.hbs.hbsfinan.repository.implementation;
 
 import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.interfaces.IFuncionarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class FuncionarioRepository implements IFuncionarioRepository {
 
-    @Autowired
-    private JdbcTemplate dbConn;
+    private Conexao dbConn;
 
-    private RowMapper<Funcionario> rowMapper = (rs, rowNum) -> {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setId(rs.getInt("id"));
-        funcionario.setNome(rs.getString("nome"));
-        funcionario.setEmail(rs.getString("email"));
-        funcionario.setDataNascimento(rs.getDate("data_nascimento"));
-        funcionario.setFone(rs.getString("fone"));
-        funcionario.setEndereco(rs.getString("endereco"));
-        funcionario.setSexo(rs.getString("sexo"));
-        funcionario.setCpf(rs.getString("cpf"));
-
-        return funcionario;
-    };
-
-    private int id;
-    private String nome;
-    private String email;
-    private Date dataNascimento;
-    private String fone;
-    private String endereco;
-    private String sexo;
-    private String cpf;
+    public FuncionarioRepository(Conexao dbConn) {
+        this.dbConn = dbConn;
+    }
 
     @Override
-    public void save(FuncionarioCreateDTO funcionario) {
-        dbConn.update("INSERT INTO funcionario (nome,email,fone,endereco,data_nascimento,sexo,cpf) VALUES (?,?,?,?,?,?,?)",funcionario.getNome(),funcionario.getEmail(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getDataNascimento(),funcionario.getSexo(), funcionario.getCpf());
+    public void save(Funcionario funcionario) {
+        String sql = "INSERT INTO funcionario (nome,email,fone,endereco,data_nascimento,sexo,cpf) VALUES ('#1','#2','#3','#4','#5','#6','#7')";
+        sql = sql.replace("#1", funcionario.getNome());
+        sql = sql.replace("#2", funcionario.getEmail());
+        sql = sql.replace("#3", funcionario.getFone());
+        sql = sql.replace("#4", funcionario.getEndereco());
+        sql = sql.replace("#5", funcionario.getDataNascimento().toString());
+        sql = sql.replace("#6", funcionario.getSexo());
+        sql = sql.replace("#7", funcionario.getCpf());
+
+        dbConn.update(sql);
     }
 
     @Override
     public Funcionario findById(int id) {
-        return dbConn.queryForObject("SELECT * FROM funcionario WHERE id = ?", rowMapper, id);
+        Funcionario funcionario = null;
+        String sql = "SELECT * FROM funcionario WHERE id = " + id;
+
+        try {
+            ResultSet rs = dbConn.query(sql);
+            if (rs.next()) {
+                funcionario = mapResultSetToFuncionario(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return funcionario;
     }
 
     @Override
     public List<Funcionario> findAll() {
-        return dbConn.query("SELECT * FROM funcionario", rowMapper);
+        List<Funcionario> lista = new ArrayList<>();
+        String sql = "SELECT * FROM funcionario";
+
+        try {
+            ResultSet rs = dbConn.query(sql);
+            while (rs.next()) {
+                lista.add(mapResultSetToFuncionario(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
     }
 
     @Override
     public void delete(int id) {
-        dbConn.update("DELETE FROM funcionario WHERE id = ?", id);
+        String sql = "DELETE FROM funcionario WHERE id = " + id;
+        dbConn.update(sql);
     }
 
     @Override
     public void update(Funcionario funcionario) {
-        dbConn.update("UPDATE funcionario SET nome = ?, email = ?,fone = ?,endereco = ?,data_nascimento = ?, sexo = ?,  cpf = ? WHERE id = ?", funcionario.getNome(),funcionario.getEmail(),funcionario.getFone(),funcionario.getEndereco(),funcionario.getDataNascimento(),funcionario.getSexo(), funcionario.getCpf(), funcionario.getId());
+        String sql = "UPDATE funcionario SET nome = '#1', email = '#2', fone = '#3', endereco = '#4', data_nascimento = '#5', sexo = '#6', cpf = '#7' WHERE id = #8";
+        sql = sql.replace("#1", funcionario.getNome());
+        sql = sql.replace("#2", funcionario.getEmail());
+        sql = sql.replace("#3", funcionario.getFone());
+        sql = sql.replace("#4", funcionario.getEndereco());
+        sql = sql.replace("#5", funcionario.getDataNascimento().toString());
+        sql = sql.replace("#6", funcionario.getSexo());
+        sql = sql.replace("#7", funcionario.getCpf());
+        sql = sql.replace("#8", String.valueOf(funcionario.getId()));
+
+        dbConn.update(sql);
     }
 
     @Override
     public Funcionario findByEmail(String email) {
+        Funcionario funcionario = null;
+        String sql = "SELECT * FROM funcionario WHERE email = '" + email + "'";
+
         try {
-            return dbConn.queryForObject("SELECT * FROM funcionario WHERE email = ?", rowMapper, email);
+            ResultSet rs = dbConn.query(sql);
+            if (rs.next()) {
+                funcionario = mapResultSetToFuncionario(rs);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+
+        return funcionario;
+    }
+
+    @Override
+    public Funcionario findByCpf(String cpf) {
+        Funcionario funcionario = null;
+        String sql = "SELECT * FROM funcionario WHERE cpf = '" + cpf + "'";
+
+        try {
+            ResultSet rs = dbConn.query(sql);
+            if (rs.next()) {
+                funcionario = mapResultSetToFuncionario(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return funcionario;
+    }
+
+    private Funcionario mapResultSetToFuncionario(ResultSet rs) throws Exception {
+        Funcionario funcionario = new Funcionario();
+        funcionario.setId(rs.getInt("id"));
+        funcionario.setNome(rs.getString("nome"));
+        funcionario.setEmail(rs.getString("email"));
+        funcionario.setFone(rs.getString("fone"));
+        funcionario.setEndereco(rs.getString("endereco"));
+        funcionario.setDataNascimento(rs.getDate("data_nascimento"));
+        funcionario.setSexo(rs.getString("sexo"));
+        funcionario.setCpf(rs.getString("cpf"));
+        return funcionario;
     }
 }

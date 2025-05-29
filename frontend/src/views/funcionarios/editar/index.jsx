@@ -1,196 +1,262 @@
-import { useFuncionario} from "hooks/useFuncionario";
 import React, { useEffect, useState } from "react";
-import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, Row, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  useFuncionario,
+  validarCPF,
+  aplicarMascaraCPF,
+  aplicarMascaraTelefone,
+  validarEmail
+} from "hooks/useFuncionarios";
 
 const EditarFuncionario = () => {
-    const idFuncionario = window.location.pathname.split('/').pop();
+  const idFuncionario = window.location.pathname.split('/').pop();
+  const token = localStorage.getItem("site");
+  const { funcionario } = useFuncionario(idFuncionario);
 
-    const token = localStorage.getItem("site");
+  const navigate = useNavigate();
 
-    const { funcionario } = useFuncionario(idFuncionario);
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    fone: '',
+    endereco: '',
+    dataNascimento: '',
+    sexo: '',
+    cpf: ''
+  });
 
-    const navigate = useNavigate();
+  const [erroServidor, setErroServidor] = useState("");
+  const [formValidado, setFormValidado] = useState(false);
 
-    const [formData, setFormData] = useState({
-        nome: '',
-        email: '',
-        fone: '',
-        endereco: '',
-        data_nascimento: '',
-        sexo: '',
-        cpf: ''
-    });
+  const formatarData = (dataCompleta) => {
+    if (!dataCompleta) return '';
+    return new Date(dataCompleta).toISOString().split('T')[0];
+  };
 
-    useEffect(() => {
-        if (funcionario != null) {
-            setFormData({
-                nome: funcionario.nome,
-                email: funcionario.email,
-                fone: funcionario.fone,
-                endereco: funcionario.endereco,
-                data_nascimento: funcionario.data_nascimento,
-                sexo: funcionario.sexo,
-                cpf: funcionario.cpf
-            });
-        }
-    }, [funcionario]);
+  useEffect(() => {
+    if (funcionario != null) {
+      setFormData({
+        nome: funcionario.nome,
+        email: funcionario.email,
+        fone: aplicarMascaraTelefone(funcionario.fone),
+        endereco: funcionario.endereco,
+        dataNascimento: formatarData(funcionario.dataNascimento),
+        sexo: funcionario.sexo,
+        cpf: aplicarMascaraCPF(funcionario.cpf)
+      });
+    }
+  }, [funcionario]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let novoValor = value;
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        try {
-            const { nome, email, fone, endereco, data_nascimento, sexo, cpf } = formData;
-
-            const response = await fetch(`http://localhost:8080/funcionarios/editar/${idFuncionario}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type' : 'application/json',
-                    'Authorization' : 'Bearer ' + token
-                },
-                body: JSON.stringify({
-                    nome: nome,
-                    email: email,
-                    fone: fone,
-                    endereco: endereco,
-                    data_nascimento: data_nascimento,
-                    sexo: sexo,
-                    cpf: cpf
-
-        
-                })
-            });
-
-            if (response.status === 200) {
-                alert('Funcionário alterado com sucesso!');
-                navigate('/funcionarios'); // redireciona para lista de usuários
-            } else {
-                const errorData = await response.json();
-                alert('Erro ao alterar funcionário: ' + (errorData.message || 'Erro desconhecido'));
-            }
-        } catch (error) {
-            console.error('Erro ao alterar funcionário:', error);
-            alert('Erro na comunicação com o servidor.');
-        }
+    if (name === 'cpf') {
+      novoValor = aplicarMascaraCPF(value);
+    } else if (name === 'fone') {
+      novoValor = aplicarMascaraTelefone(value);
     }
 
-    return (
-        <React.Fragment>
-            <Row>
-                <Col sm={12}>
-                    <Card>
-                        <Card.Header>
-                            <Card.Title as="h5">Editar Funcionário</Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                            <Form onSubmit={handleSubmit}>
-                                <Row>
-                                    <Col md={6}>
-                                        <Form.Group className="mb-3" controlId="nome">
-                                            <Form.Label>Nome</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="nome"
-                                                value={formData.nome}
-                                                placeholder="Nome"
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={6}>
-                                        <Form.Group className="mb-3" controlId="email">
-                                            <Form.Label>Email</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="email"
-                                                placeholder="Email"
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Form.Group className="mb-3" controlId="dataNascimento">
-                                            <Form.Label>Data Nascimento</Form.Label>
-                                            <Form.Control
-                                                type="date"
-                                                name="dataNascimento"
-                                                placeholder="Data nascimento"
-                                                value={formData.dataNascimento}
-                                                onChange={handleChange}
-                                            >
-                                            </Form.Control>
-                                        </Form.Group>
-                                    <Col md={6}>
-                                        <Form.Group className="mb-3" controlId="fone">
-                                            <Form.Label>Telefone</Form.Label>
-                                            <Form.Control
-                                                type="fone"
-                                                name="fone"
-                                                placeholder="Telefone"
-                                                value={formData.fone}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
+    setFormData(prev => ({
+      ...prev,
+      [name]: novoValor
+    }));
+  };
 
-                                        <Form.Group className="mb-3" controlId="endereco">
-                                            <Form.Label>Endereço</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="endereco"
-                                                placeholder="Endereco"
-                                                value={formData.endereco}
-                                                onChange={handleChange}
-                                            >
-                                            </Form.Control>
-                                        </Form.Group>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErroServidor("");
+    setFormValidado(true);
 
-                                        <Form.Group className="mb-3" controlId="sexo">
-                                        <Form.Label>Sexo</Form.Label>
-                                        <Form.Select
-                                            name="sexo"
-                                            value={formData.sexo}
-                                            onChange={handleChange}
-                                        >
-                                            <option value="">Selecione</option>
-                                            <option value="M">Masculino</option>
-                                            <option value="F">Feminino</option>
-                                        </Form.Select>
-                                    </Form.Group>
+    const cpfSemMascara = formData.cpf.replace(/[^\d]+/g, '');
+    const foneSemMascara = formData.fone.replace(/[^\d]+/g, '');
 
-                                        <Form.Group className="mb-3" controlId="cpf">
-                                            <Form.Label>CPF</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="cpf"
-                                                placeholder="CPF"
-                                                value={formData.cpf}
-                                                onChange={handleChange}
-                                            >
-                                            </Form.Control>
-                                        </Form.Group>
+    const dataNascimento = new Date(formData.dataNascimento);
+    const hoje = new Date();
+    const idade = hoje.getFullYear() - dataNascimento.getFullYear();
+    const aniversarioPassou =
+      hoje.getMonth() > dataNascimento.getMonth() ||
+      (hoje.getMonth() === dataNascimento.getMonth() && hoje.getDate() >= dataNascimento.getDate());
+    const idadeFinal = aniversarioPassou ? idade : idade - 1;
 
-                                        <Link to="/funcionarios">
-                                            <Button variant="secondary">Cancelar</Button>
-                                        </Link>
-                                        <Button variant="primary" type="submit">Salvar</Button>
-                                    </Col>
-                                    
-                                </Row>
-                            </Form>
-                        </Card.Body>
-                    </Card>
+    if (isNaN(dataNascimento.getTime())) {
+      setErroServidor("Data de nascimento inválida.");
+      return;
+    }
+
+    if (dataNascimento > hoje) {
+      setErroServidor("A data de nascimento é inválida.");
+      return;
+    }
+
+    if (idadeFinal < 18) {
+      setErroServidor("O funcionário deve ter no mínimo 18 anos.");
+      return;
+    }
+
+    if (!validarCPF(cpfSemMascara)) {
+      setErroServidor("CPF inválido!");
+      return;
+    }
+
+    if (!validarEmail(formData.email)) {
+      setErroServidor("Email inválido!");
+      return;
+    }
+
+    try {
+      const { nome, email, endereco, dataNascimento, sexo } = formData;
+      const response = await fetch(`http://localhost:8080/funcionarios/editar/${idFuncionario}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          nome,
+          email,
+          fone: foneSemMascara,
+          endereco,
+          dataNascimento,
+          sexo,
+          cpf: cpfSemMascara
+        })
+      });
+
+      if (response.status === 200) {
+        toast.success("Funcionário atualizado com sucesso!");
+        setTimeout(() => {
+          navigate('/funcionarios');
+        }, 1500);
+      } else {
+        const errorData = await response.json();
+        setErroServidor(errorData.message || 'Erro desconhecido ao atualizar o funcionário.');
+      }
+    } catch (error) {
+      setErroServidor('Erro na comunicação com o servidor.');
+    }
+  };
+
+  return (
+    <Row>
+      <Col sm={12}>
+        <Card>
+          <Card.Header>
+            <Card.Title as="h5">Editar Funcionário</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            {erroServidor && <Alert variant="danger">{erroServidor}</Alert>}
+            <Form noValidate onSubmit={handleSubmit}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="nome">
+                    <Form.Label>Nome <span style={{ color: 'red' }}>*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="nome"
+                      value={formData.nome}
+                      onChange={handleChange}
+                      required
+                      isInvalid={formValidado && !formData.nome}
+                    />
+                    <Form.Control.Feedback type="invalid">O nome é obrigatório.</Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3" controlId="email">
+                    <Form.Label>Email <span style={{ color: 'red' }}>*</span></Form.Label>
+                    <Form.Control
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      isInvalid={formValidado && !validarEmail(formData.email)}
+                    />
+                    <Form.Control.Feedback type="invalid">Email inválido.</Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3" controlId="dataNascimento">
+                    <Form.Label>Data de Nascimento <span style={{ color: 'red' }}>*</span></Form.Label>
+                    <Form.Control
+                      type="date"
+                      name="dataNascimento"
+                      value={formData.dataNascimento}
+                      onChange={handleChange}
+                      required
+                      isInvalid={formValidado && !formData.dataNascimento}
+                    />
+                    <Form.Control.Feedback type="invalid">Data de nascimento é obrigatória.</Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3" controlId="fone">
+                    <Form.Label>Telefone <span style={{ color: 'red' }}>*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="fone"
+                      value={formData.fone}
+                      onChange={handleChange}
+                      required
+                      isInvalid={formValidado && !formData.fone}
+                    />
+                    <Form.Control.Feedback type="invalid">Telefone é obrigatório.</Form.Control.Feedback>
+                  </Form.Group>
                 </Col>
-            </Row>
-        </React.Fragment>
-    );
-}
+
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="endereco">
+                    <Form.Label>Endereço</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="endereco"
+                      value={formData.endereco}
+                      onChange={handleChange}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3" controlId="sexo">
+                    <Form.Label>Sexo</Form.Label>
+                    <Form.Select
+                      name="sexo"
+                      value={formData.sexo}
+                      onChange={handleChange}
+                      isInvalid={formValidado && !formData.sexo}
+                    >
+                      <option value="">Selecione</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Feminino">Feminino</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3" controlId="cpf">
+                    <Form.Label>CPF <span style={{ color: 'red' }}>*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="cpf"
+                      value={formData.cpf}
+                      onChange={handleChange}
+                      maxLength={14}
+                      required
+                      isInvalid={formValidado && !validarCPF(formData.cpf.replace(/[^\d]+/g, ''))}
+                    />
+                    <Form.Control.Feedback type="invalid">CPF inválido.</Form.Control.Feedback>
+                  </Form.Group>
+                </Col>
+
+                <Col md={12}>
+                  <Link to="/funcionarios">
+                    <Button variant="secondary" className="me-2">Cancelar</Button>
+                  </Link>
+                  <Button variant="primary" type="submit">Salvar</Button>
+                </Col>
+              </Row>
+            </Form>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
+  );
+};
 
 export default EditarFuncionario;

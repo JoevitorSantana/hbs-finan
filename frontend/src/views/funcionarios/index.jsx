@@ -1,11 +1,3 @@
-
-import React from "react";
-import { Button, Card, Col, Row, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
-import { IoPersonAdd } from "react-icons/io5";
-import { useFuncionarios } from "hooks/useFuncionario";
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
