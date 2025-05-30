@@ -85,7 +85,7 @@ const NovoUsuario = () => {
                                 <Row>
                                     <Col md={6}>
                                         <Form.Group className="mb-3" controlId="nome">
-                                            <Form.Label>Nome</Form.Label>
+                                            <Form.Label>Nome<span className="text-danger">*</span></Form.Label>
                                             <Form.Control
                                                 type="nome"
                                                 name="nome"
@@ -102,7 +102,7 @@ const NovoUsuario = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group className="mb-3" controlId="ultimoNome">
-                                            <Form.Label>Último Nome</Form.Label>
+                                            <Form.Label>Último Nome<span className="text-danger">*</span></Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 name="ultimoNome"
@@ -119,7 +119,7 @@ const NovoUsuario = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group className="mb-3" controlId="email">
-                                            <Form.Label>Email</Form.Label>
+                                            <Form.Label>Email<span className="text-danger">*</span></Form.Label>
                                             <Form.Control
                                                 type="email"
                                                 name="email"
@@ -135,7 +135,7 @@ const NovoUsuario = () => {
                                         </Form.Group>
 
                                         <Form.Group className="mb-3" controlId="role">
-                                            <Form.Label>Nível</Form.Label>
+                                            <Form.Label>Nível<span className="text-danger">*</span></Form.Label>
                                             <Form.Control
                                                 as="select"
                                                 name="role"
@@ -154,7 +154,7 @@ const NovoUsuario = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group className="mb-3" controlId="senha">
-                                            <Form.Label>Senha</Form.Label>
+                                            <Form.Label>Senha<span className="text-danger">*</span></Form.Label>
                                             <Form.Control
                                                 type="password"
                                                 name="senha"

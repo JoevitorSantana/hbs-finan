@@ -5,7 +5,9 @@ import com.hbs.hbsfinan.exceptions.CaixaNotFoundException;
 import com.hbs.hbsfinan.exceptions.ExistingCaixaException;
 import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Caixa;
+import com.hbs.hbsfinan.model.DoacaoMonetaria;
 import com.hbs.hbsfinan.repository.implementation.CaixaRepository;
+import com.hbs.hbsfinan.repository.implementation.DoacaoMonetariaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,6 +51,9 @@ public class CaixaService {
         if (caixa == null)
             throw new CaixaNotFoundException("Caixa não encontrado!");
 
+        if (findDoacoesMonetarias(id).size() > 0)
+            throw new ExistingCaixaException("Não é possível excluir um caixa com doações!");
+
         if (!caixaRepository.delete(id)) {
             throw new RuntimeException("Erro ao excluir caixa.");
         }
@@ -58,5 +63,11 @@ public class CaixaService {
         if (caixaRepository.findById(caixa.getId()) == null)
             throw new CaixaNotFoundException("Caixa não encontrado!");
         caixaRepository.update(caixa);
+    }
+
+    public List<DoacaoMonetaria> findDoacoesMonetarias(int idCaixa)
+    {
+        DoacaoMonetariaRepository doacaoMonetariaRepository = new DoacaoMonetariaRepository();
+        return doacaoMonetariaRepository.findByCaixa(idCaixa);
     }
 }

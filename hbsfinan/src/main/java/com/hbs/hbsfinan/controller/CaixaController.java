@@ -82,7 +82,6 @@ public class CaixaController {
 
     @DeleteMapping("/excluir/{id}")
     public ResponseEntity<RestResponseMessage> delete(@PathVariable int id) {
-        caixaService.findById(id); // valida existência
         caixaService.delete(id);
         RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Caixa excluído com sucesso!");
         return new ResponseEntity<>(message, HttpStatus.OK);

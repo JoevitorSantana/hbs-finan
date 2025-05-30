@@ -26,6 +26,7 @@ const AuthProvider = ({ children }) => {
 
             if (res.token) {
                 let user = {
+                    id: res.id,
                     nome: res.nome,
                     ultimoNome: res.ultimoNome,
                     email: res.email,

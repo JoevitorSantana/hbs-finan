@@ -34,7 +34,7 @@ const Caixas = () => {
 
     const handleConfirmDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/caixas/excluir/${caixaSelecionado.id}`, {
+            const response = await fetch(`http://localhost:8080/caixa/excluir/${caixaSelecionado.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
