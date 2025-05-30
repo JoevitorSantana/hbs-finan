@@ -79,6 +79,12 @@ const menuItems = {
               url: '/eventos'
             },
             {
+              id: 'anotacoes',
+              title: 'Ver Anotacoes de Eventos',
+              type: 'item',
+              url: '/anotacoes'
+            },
+            {
               id: 'inscrever',
               title: 'Inscrever-se Evento',
               type: 'item',
@@ -90,6 +96,7 @@ const menuItems = {
               type: 'item',
               url: '/eventos/listar'
             },
+
           ],
         },
         {

@@ -17,14 +17,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/inscricoes-evento")
 public class InscricaoEventoController {
-    //private Conexao dbConnFactory;
     @Autowired
     private InscricaoEventoService inscricaoEventoService;
-
-//    public InscricaoEventoController() {
-//        this.dbConnFactory = SingletonDB.getConexao();
-//        this.inscricaoEventoService = new InscricaoEventoService(dbConnFactory);
-//    }
 
     @PostMapping("/nova")
     public ResponseEntity save(@Valid @RequestBody InscricaoEvento inscricaoEvento) {
@@ -33,7 +27,6 @@ public class InscricaoEventoController {
             RestResponseMessage message = new RestResponseMessage(HttpStatus.CREATED, "Inscrição realizada com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.CREATED);
         } catch (Exception e){
-            // Pode personalizar conforme suas exceções customizadas
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -79,7 +72,7 @@ public class InscricaoEventoController {
 
     @DeleteMapping("/excluir/{id}")
     public ResponseEntity delete(@PathVariable Long id) {
-        inscricaoEventoService.findById(id); // já lança exceção se não existe
+        inscricaoEventoService.findById(id);
         inscricaoEventoService.delete(id);
         RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Inscrição excluída com sucesso!");
         return new ResponseEntity<>(message, HttpStatus.OK);

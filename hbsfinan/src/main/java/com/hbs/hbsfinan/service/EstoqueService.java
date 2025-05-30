@@ -1,40 +1,41 @@
 package com.hbs.hbsfinan.service;
 
 import com.hbs.hbsfinan.dto.MovimentacaoEstoqueRequestDTO;
-import com.hbs.hbsfinan.dto.ProdutoEstoqueDTO;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.model.MovimentacaoEstoque;
 import com.hbs.hbsfinan.model.Produtos;
+import com.hbs.hbsfinan.repository.implementation.FuncionarioRepository;
+import com.hbs.hbsfinan.repository.implementation.MovimentacaoEstoqueRepository;
+import com.hbs.hbsfinan.repository.implementation.ProdutosRepository;
+
 import com.hbs.hbsfinan.repository.interfaces.IFuncionarioRepository;
 import com.hbs.hbsfinan.repository.interfaces.IMovimentacaoEstoqueRepository;
 import com.hbs.hbsfinan.repository.interfaces.IProdutosRepository;
 
-import org.springframework.beans.factory.annotation.Autowired; // Importe Autowired
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EstoqueService {
-
-    private final IMovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final IProdutosRepository produtoRepository;
     private final IFuncionarioRepository funcionarioRepository;
+    private final IMovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
 
-    @Autowired // O Spring vai injetar os beans dos repositórios aqui
-    public EstoqueService(IProdutosRepository produtoRepository,
-                          IFuncionarioRepository funcionarioRepository,
-                          IMovimentacaoEstoqueRepository movimentacaoEstoqueRepository) {
-        this.produtoRepository = produtoRepository;
-        this.funcionarioRepository = funcionarioRepository;
-        this.movimentacaoEstoqueRepository = movimentacaoEstoqueRepository;
+    public EstoqueService(Conexao dbConn) {
+        if (dbConn == null) {
+            throw new IllegalArgumentException("Instância de Conexao não pode ser nula para EstoqueService.");
+        }
+
+        this.produtoRepository = new ProdutosRepository(dbConn);
+        this.funcionarioRepository = new FuncionarioRepository(dbConn);
+        this.movimentacaoEstoqueRepository = new MovimentacaoEstoqueRepository(dbConn);
     }
 
-    // ... (métodos registrarMovimentacao e listarProdutosComEstoque permanecem os mesmos) ...
+
     public void registrarMovimentacao(MovimentacaoEstoqueRequestDTO dto) {
-        // Validações iniciais
         if (dto == null || dto.getProdutoId() <= 0 || dto.getFuncionarioId() <= 0 || dto.getTipo() == null || dto.getQuantidadeMovimentada() == 0) {
             throw new IllegalArgumentException("Dados inválidos para movimentação de estoque.");
         }
@@ -82,13 +83,20 @@ public class EstoqueService {
                 ". Nova quantidade: " + novaQuantidade);
     }
 
-    public List<ProdutoEstoqueDTO> listarProdutosComEstoque() {
-        List<Produtos> produtosModel = produtoRepository.findAll();
-        if (produtosModel == null) {
-            return List.of();
+//    public List<ProdutoEstoqueDTO> listarProdutosComEstoque() {
+//        List<Produtos> produtosModel = produtoRepository.findAll();
+//        if (produtosModel == null) {
+//            return List.of();
+//        }
+//        return produtosModel.stream()
+//                .map(p -> new ProdutoEstoqueDTO(p.getId(), p.getNome(), p.getQtd()))
+//                .collect(Collectors.toList());
+//    }
+    public List<MovimentacaoEstoque> listarTodasMovimentacoes() {
+        List<MovimentacaoEstoque> movimentacoes = movimentacaoEstoqueRepository.findAll();
+        if (movimentacoes == null) {
+            return Collections.emptyList();
         }
-        return produtosModel.stream()
-                .map(p -> new ProdutoEstoqueDTO(p.getId(), p.getNome(), p.getQtd()))
-                .collect(Collectors.toList());
+        return movimentacoes;
     }
 }

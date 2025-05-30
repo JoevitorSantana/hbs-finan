@@ -14,14 +14,9 @@ public class InscricaoEventoService {
 
     @Autowired
     private InscricaoEventoRepository inscricaoEventoRepository;
-    //private Conexao dbConnFactory;
 
     public InscricaoEventoService() {}
 
-//    public InscricaoEventoService(Conexao dbConnFactory) {
-//        this.dbConnFactory = dbConnFactory;
-//        this.inscricaoEventoRepository = new InscricaoEventoRepository(dbConnFactory);
-//    }
 
     public void save(InscricaoEvento inscricaoEvento) {
         // Aqui pode adicionar validações (ex: checar se o apoiador e evento existem, regras de negócio etc)
@@ -49,6 +44,4 @@ public class InscricaoEventoService {
             throw new InscricaoEventoNotFoundException("Inscrição não encontrada!");
         return inscricaoEvento;
     }
-
-    // Aqui pode criar conversores para DTO se quiser trabalhar com retorno customizado para Controller/API
 }

@@ -3,14 +3,15 @@ package com.hbs.hbsfinan.controller;
 import com.hbs.hbsfinan.dto.MovimentacaoEstoqueRequestDTO;
 import com.hbs.hbsfinan.dto.ProdutoEstoqueDTO;
 import com.hbs.hbsfinan.dto.RestResponseMessage;
-// Remova a importação de Conexao se não for mais usada aqui
-// import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.model.MovimentacaoEstoque;
 import com.hbs.hbsfinan.service.EstoqueService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+// Não precisa mais de @Autowired aqui se o controller não tiver outras dependências Spring
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// Remova a importação de JdbcTemplate se não for mais usada aqui
+// Não precisa de JdbcTemplate aqui se o EstoqueService não o recebe mais
 // import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,17 +21,14 @@ import java.util.List;
 @RequestMapping("/api/estoque")
 public class EstoqueController {
 
-    // private Conexao dbConnFactory; // <-- NÃO PRECISA MAIS
-    private final EstoqueService estoqueService; // Final, pois será injetado no construtor
+    private Conexao dbConnFactory;
+    private EstoqueService estoqueService;
 
-    @Autowired // Injeta o bean EstoqueService
-    public EstoqueController(EstoqueService estoqueService) {
-        this.estoqueService = estoqueService;
-        // REMOVA a instanciação manual do service e do dbConnFactory daqui
+    public EstoqueController() {
+        this.dbConnFactory = Conexao.getInstance();
+        this.estoqueService = new EstoqueService(this.dbConnFactory);
     }
 
-    // ... (métodos @PostMapping("/movimentar") e @GetMapping("/saldos") permanecem como antes) ...
-    // Vou omiti-los aqui para brevidade, mas eles usam this.estoqueService.
     @PostMapping("/movimentar")
     public ResponseEntity<RestResponseMessage> registrarNovaMovimentacao(@Valid @RequestBody MovimentacaoEstoqueRequestDTO dto) {
         try {
@@ -58,19 +56,37 @@ public class EstoqueController {
         }
     }
 
+//    @GetMapping("/saldos")
+//    public ResponseEntity<?> visualizarSaldosEstoque() {
+//        try {
+//            List<ProdutoEstoqueDTO> saldos = estoqueService.listarProdutosComEstoque();
+//            if (saldos == null || saldos.isEmpty()) {
+//                return new ResponseEntity<>(saldos, HttpStatus.OK);
+//            }
+//            return ResponseEntity.ok(saldos);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            RestResponseMessage mensagemErro = new RestResponseMessage(
+//                    HttpStatus.INTERNAL_SERVER_ERROR,
+//                    "Ocorreu um erro inesperado ao buscar os saldos do estoque."
+//            );
+//            return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
     @GetMapping("/saldos")
-    public ResponseEntity<?> visualizarSaldosEstoque() {
+    public ResponseEntity<?> visualizarMovimentacoesEstoque() { // Nome do método atualizado para clareza
         try {
-            List<ProdutoEstoqueDTO> saldos = estoqueService.listarProdutosComEstoque();
-            if (saldos == null || saldos.isEmpty()) {
-                return new ResponseEntity<>(saldos, HttpStatus.OK);
+            List<MovimentacaoEstoque> movimentacoes = estoqueService.listarTodasMovimentacoes();
+            if (movimentacoes == null || movimentacoes.isEmpty()) {
+                return new ResponseEntity<>(movimentacoes, HttpStatus.OK);
             }
-            return ResponseEntity.ok(saldos);
+            return ResponseEntity.ok(movimentacoes);
         } catch (Exception e) {
             e.printStackTrace();
             RestResponseMessage mensagemErro = new RestResponseMessage(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Ocorreu um erro inesperado ao buscar os saldos do estoque."
+                    // Mensagem de erro mais específica
+                    "Ocorreu um erro inesperado ao buscar as movimentações do estoque."
             );
             return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
         }

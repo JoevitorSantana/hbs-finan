@@ -1,10 +1,10 @@
-package com.hbs.hbsfinan.model; // Mantendo o mesmo pacote das suas outras models
+package com.hbs.hbsfinan.model;
 
 import com.hbs.hbsfinan.enums.TipoMovimentacao;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity // Sem @Table, o JPA/Hibernate nomeará a tabela (provavelmente "movimentacao_estoque")
+@Entity
 public class MovimentacaoEstoque {
 
     @Id
@@ -12,33 +12,30 @@ public class MovimentacaoEstoque {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto_id", nullable = false) // É bom manter JoinColumn para FKs claras
+    @JoinColumn(name = "produto_id", nullable = false)
     private Produtos produto;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "funcionario_id", nullable = false) // É bom manter JoinColumn para FKs claras
+    @JoinColumn(name = "funcionario_id", nullable = false)
     private Funcionario funcionario;
 
-    @Column(nullable = false) // O nome da coluna será inferido de "quantidadeMovimentada"
+    @Column(nullable = false)
     private long quantidadeMovimentada;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false) // O nome da coluna será inferido de "tipo"
+    @Column(nullable = false)
     private TipoMovimentacao tipo;
 
-    @Column(nullable = false) // O nome da coluna será inferido de "dataHoraMovimentacao"
+    @Column(nullable = false)
     private LocalDateTime dataHoraMovimentacao;
 
-    private String observacao; // O nome da coluna será inferido de "observacao"
+    private String observacao;
 
-    // Construtor padrão exigido pelo JPA
     public MovimentacaoEstoque() {
-        this.dataHoraMovimentacao = LocalDateTime.now(); // Valor padrão
+        this.dataHoraMovimentacao = LocalDateTime.now();
     }
-
-    // Construtor para facilitar a criação de instâncias
     public MovimentacaoEstoque(Produtos produto, Funcionario funcionario, long quantidadeMovimentada, TipoMovimentacao tipo, String observacao) {
-        this(); // Chama o construtor padrão para setar dataHoraMovimentacao
+        this();
         this.produto = produto;
         this.funcionario = funcionario;
         this.quantidadeMovimentada = quantidadeMovimentada;
