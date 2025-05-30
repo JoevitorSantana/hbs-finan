@@ -12,19 +12,16 @@ public class InscricaoEvento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relacionamento com Apoiador
     @ManyToOne
     @JoinColumn(name = "apoiador_id", nullable = false)
     private Apoiador apoiador;
 
-    // Relacionamento com Evento
     @ManyToOne
     @JoinColumn(name = "evento_id", nullable = false)
     private Evento evento;
 
     // Construtores
     public InscricaoEvento() {}
-
     public InscricaoEvento(Apoiador apoiador, Evento evento) {
         this.apoiador = apoiador;
         this.evento = evento;

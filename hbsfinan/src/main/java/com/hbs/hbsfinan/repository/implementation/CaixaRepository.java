@@ -8,6 +8,7 @@ import com.hbs.hbsfinan.repository.interfaces.ICaixaRepository;
 
 import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +23,18 @@ public class CaixaRepository implements ICaixaRepository {
 
     @Override
     public void save(CaixaCreateDTO dto) {
-        String sql = "INSERT INTO caixa (valor_inicial, dt_abertura_caixa, fun_id) " +
-                "VALUES (#1, '#2', #3)";
+        try {
+            String sql = "INSERT INTO caixa (valor_inicial, dt_abertura_caixa, fun_id) " +
+                    "VALUES (#1, '#2', #3)";
 
-        sql = sql.replace("#1", "" + dto.getValorInicial());
-        sql = sql.replace("#2", dto.getDataAberturaCaixa().toString());
-        sql = sql.replace("#3", "" + dto.getFunId());
+            sql = sql.replace("#1", "" + dto.getValorInicial());
+            sql = sql.replace("#2", dto.getDataAberturaCaixa().toString());
+            sql = sql.replace("#3", "" + dto.getFunId());
 
-        dbConn.update(sql);
+            dbConn.update(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -104,6 +109,24 @@ public class CaixaRepository implements ICaixaRepository {
         Funcionario funcionario = new Funcionario();
         funcionario.setId(rs.getInt("fun_id"));
         caixa.setFuncionario(funcionario);
+
+        return caixa;
+    }
+
+    @Override
+    public Caixa findByDate(LocalDate date) {
+        Caixa caixa = null;
+        String sql = "SELECT * FROM caixa WHERE date(dt_abertura_caixa) = '#1'";
+        sql = sql.replace("#1", date.toString());
+
+        try {
+            ResultSet rs = dbConn.query(sql);
+            if (rs.next()) {
+                caixa = mapResultSetToCaixa(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return caixa;
     }

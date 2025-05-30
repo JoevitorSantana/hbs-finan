@@ -9,10 +9,10 @@ import java.util.List;
 
 public interface IApoiadorRepository {
 
-    void save(ApoiadorDTO apoiador);
-    Apoiador findById(int id);
+    void save(Apoiador apoiador);
+    Apoiador findById(Long id);
     List<Apoiador> findAll();
-    void delete(int id);
+    boolean delete(Long id);
     void update(Apoiador apoiador);
     Apoiador findByEmail(String email);
 }

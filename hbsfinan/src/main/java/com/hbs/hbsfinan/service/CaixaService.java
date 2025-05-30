@@ -2,6 +2,7 @@ package com.hbs.hbsfinan.service;
 
 import com.hbs.hbsfinan.dto.CaixaCreateDTO;
 import com.hbs.hbsfinan.exceptions.CaixaNotFoundException;
+import com.hbs.hbsfinan.exceptions.ExistingCaixaException;
 import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Caixa;
 import com.hbs.hbsfinan.repository.implementation.CaixaRepository;
@@ -24,6 +25,10 @@ public class CaixaService {
     }
 
     public void save(CaixaCreateDTO dto) {
+        Caixa caixaTeste = caixaRepository.findByDate(dto.getDataAberturaCaixa().toLocalDate());
+        if (caixaTeste != null) {
+            throw new ExistingCaixaException("Já existe caixa aberto para esta data!"); 
+        }
         caixaRepository.save(dto);
     }
 

@@ -1,10 +1,10 @@
 package com.hbs.hbsfinan.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -13,19 +13,27 @@ public class Apoiador {
     @Id
     private Long Id;
 
+
+
+    @ManyToOne
+    @JoinColumn(name = "id_grupo")//ver se esta certo
+    private Grupo grupo;
+
+
     private String nome;
     private String email;
     private String fone;
     private String endereco;
-    private Date dataNasc;
+    private LocalDate dataNasc;
     private String sexo;
     private String cpf;
 
     public Apoiador(){}
 
-    public Apoiador(String nome, String email, String fone, String endereco, String sexo, String cpf, Date dataNasc, Long Id)
+    public Apoiador(String nome, String email, String fone, String endereco, String sexo, String cpf, LocalDate dataNasc, Long Id, Grupo grupo)
     {
         this.cpf=cpf;
+        this.grupo=grupo;
         this.dataNasc=dataNasc;
         this.Id=Id;
         this.email=email;
@@ -35,7 +43,7 @@ public class Apoiador {
         this.endereco=endereco;
     }
 
-    public void setDataNasc(Date dataNasc) {
+    public void setDataNasc(LocalDate dataNasc) {
         this.dataNasc = dataNasc;
     }
 
@@ -72,7 +80,7 @@ public class Apoiador {
         return nome;
     }
 
-    public Date getDataNasc() {
+    public LocalDate getDataNasc() {
         return dataNasc;
     }
 
@@ -99,5 +107,27 @@ public class Apoiador {
     public String getSexo() {
         return sexo;
     }
+
+    public void setGrupo(Grupo grupo) {
+        this.grupo = grupo;
+    }
+
+    public Grupo getGrupo() {
+        return grupo;
+    }
+
+    @JsonProperty("id_grupo")
+    public int getGrupoId() {
+        if (grupo != null)
+        {
+            return grupo.getId();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
 
 }

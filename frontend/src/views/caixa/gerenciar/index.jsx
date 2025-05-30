@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Row, Table, Modal, Form } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
+import { GiPayMoney, GiReceiveMoney } from "react-icons/gi";
+import { FaMinus, FaPlus } from "react-icons/fa";
+import { color } from "d3";
+
 
 function toLocalDateTimeString() {
     const date = new Date();
@@ -23,13 +27,28 @@ const GerenciarCaixa = () => {
     const [nomeInstituicao, setNomeInstituicao] = useState("");
     const [cnpjInstituicao, setCnpjInstituicao] = useState("");
 
+    const [valorAtual, setValorAtual] = useState(0);
+
     const token = localStorage.getItem("site");
 
     useEffect(() => {
         carregarCaixa();
         carregarMovimentacoes();
         // carregarApoiadores();
+        calcularValorTotalCaixa();
     }, []);
+
+    const calcularValorTotalCaixa = () => {
+        let acc = 0;
+        movimentacoes?.map((mov) => {
+            if (mov.tipo == 'DM')
+                acc += mov.valor;
+            else 
+                acc -+ mov.valor;
+        });
+
+        setValorAtual(acc);
+    }
 
     const carregarCaixa = async () => {
         const response = await fetch(`http://localhost:8080/caixa/${idCaixa}`, {
@@ -48,8 +67,21 @@ const GerenciarCaixa = () => {
             },
         });
         const data = await response.json();
-        console.log(data);
-        setMovimentacoes(data);
+        let movMonetarias = [];
+        data?.map((doacao) => {
+            let monetaria = {
+                id: doacao.id,
+                data: doacao.data,
+                id_ap: '-',
+                valor: doacao.valor,
+                tipo: 'DM'
+            };
+
+            movMonetarias.push(monetaria);
+        });
+
+        setMovimentacoes(movMonetarias);
+        calcularValorTotalCaixa();
     };
 
     const carregarApoiadores = async () => {
@@ -97,6 +129,7 @@ const GerenciarCaixa = () => {
                     resetarCamposDoacao();
                     carregarCaixa();
                     carregarMovimentacoes();
+                    calcularValorTotalCaixa();
                 } else {
                     const error = await response.json();
                     toast.error(error.message || "Erro ao registrar doação.");
@@ -148,7 +181,7 @@ const GerenciarCaixa = () => {
                             <Card.Title>Caixa Dia { caixa && new Date(caixa.dataAberturaCaixa).toLocaleString("pt-BR", {day: "2-digit", month: "2-digit", year: "numeric"})}</Card.Title>
                         </Card.Header>
                         <Card.Body>
-                            <h5>Valor atual em caixa: <strong>R$ {caixa?.valor?.toFixed(2)}</strong></h5>
+                            <h5>Valor atual em caixa: <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL'}).format(valorAtual)}</strong></h5>
                             <Button variant="success" onClick={() => setShowModal(true)}>Registrar Doação</Button>{' '}
                             <Button variant="danger" onClick={finalizarCaixa}>Finalizar Caixa</Button>
                             <hr />
@@ -158,17 +191,21 @@ const GerenciarCaixa = () => {
                                 <tr>
                                     <th>Tipo</th>
                                     <th>Valor</th>
-                                    <th>Descrição</th>
+                                    <th>Apoiador/Instituição</th>
                                     <th>Data</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {movimentacoes && movimentacoes.map((mov, idx) => (
                                     <tr key={idx}>
-                                        <td>{/*mov.tipo*/}</td>
-                                        <td>R$ {mov.valor.toFixed(2)}</td>
+                                        <td>{mov.tipo == 'DM' ? <GiReceiveMoney title="Doação Monetária" color="green" size={30}/> : <GiPayMoney title="Doação Instituição" color="red" size={30} /> }</td>
+                                        <td style={{fontWeight: 'bolder', color: (mov.tipo == 'DM' ? 'green' : 'red')}} >{mov.tipo == 'DM' ? <FaPlus /> : <FaMinus /> } R$ {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL'}).format(mov.valor)}</td>
                                         <td>{/*mov.descricao*/}</td>
-                                        <td>{new Date(mov.data).toLocaleString()}</td>
+                                        <td>{new Date(mov.data).toLocaleString('pt-BR',  {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric'
+                                        })}</td>
                                     </tr>
                                 ))}
                                 </tbody>

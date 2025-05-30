@@ -24,6 +24,7 @@ public class DoacaoMonetariaController {
 
     @PostMapping("/novo")
     public ResponseEntity save(@Valid @RequestBody DoacaoMonetariaCreateDTO doacaoMonetaria){
+
         try
         {
             doacaoMonetariaService.save(doacaoMonetaria);
@@ -53,26 +54,14 @@ public class DoacaoMonetariaController {
 
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity update(@PathVariable int id, @RequestBody DoacaoMonetaria doacaoMonetaria )//Pq a data esta 1 dia a menos?
-    {
-        try
-        {
-            DoacaoMonetaria oldDoacaoMonetaria = doacaoMonetariaService.findById(id);
-            if(doacaoMonetaria.getValor() != 0 && doacaoMonetaria.getValor() != oldDoacaoMonetaria.getValor())
-                oldDoacaoMonetaria.setValor(doacaoMonetaria.getValor());
-            if(doacaoMonetaria.getData()!=null && !doacaoMonetaria.getData().equals(oldDoacaoMonetaria.getData()))
-                oldDoacaoMonetaria.setData(doacaoMonetaria.getData());
-            if(doacaoMonetaria.getApoiador()!=null && !doacaoMonetaria.getApoiador().equals(oldDoacaoMonetaria.getApoiador()))
-                oldDoacaoMonetaria.setApoiador(doacaoMonetaria.getApoiador());
-
-
-            doacaoMonetariaService.update(oldDoacaoMonetaria);
-            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Doacao atualizado com sucesso!");
-            return new ResponseEntity<>(message, HttpStatus.OK);
-        }
-        catch (EventoNotFoundException e)
-        {
-            throw new EventoNotFoundException(e.getMessage());
+    public ResponseEntity<?> editarDoacao(@PathVariable int id, @RequestBody DoacaoMonetaria nova) {
+        try {
+            nova.setId(id); // garante que o ID seja o mesmo da URL
+            doacaoMonetariaService.update(nova); // chama seu método update
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace(); // isso imprime o erro no console
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar doação");
         }
     }
 

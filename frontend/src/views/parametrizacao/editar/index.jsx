@@ -46,7 +46,8 @@ function isValidCNPJ(value) {
 }
 
 const EditarParametrizacao = () => {
-  const { parametros, c } = useParametros();
+  //const { parametros, c } = useParametros();
+  const { parametros, loading, error } = useParametros();
   const token = localStorage.getItem("site");
   const navigate = useNavigate();
 
