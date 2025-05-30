@@ -33,11 +33,7 @@ public class DoacaoMonetariaService {
     }
 
     public List<DoacaoMonetaria> findAll() {
-        List<DoacaoMonetaria> doacaoMonetarias = doacaoMonetariaRepository.findAll();
-        List<DoacaoMonetaria> doacaoMonetariasRetorno = new ArrayList<>();
-        for (DoacaoMonetaria doacaoMonetaria : doacaoMonetarias)
-            doacaoMonetariasRetorno.add(doacaoMonetaria);
-        return doacaoMonetariasRetorno;
+        return doacaoMonetariaRepository.findAll();
     }
 
     public DoacaoMonetaria findByApoiador(String apoiador) {

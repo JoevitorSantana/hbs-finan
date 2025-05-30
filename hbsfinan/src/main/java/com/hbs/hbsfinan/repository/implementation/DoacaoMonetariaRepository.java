@@ -30,7 +30,7 @@ public class DoacaoMonetariaRepository implements IDoacaoMonetariaRepository {
 
         //ver se esta certo
         Apoiador apoiador = new Apoiador();
-        apoiador.setId(rs.getLong("apo_id"));
+        apoiador.setId(rs.getLong("id_ap"));
         doacaoMonetaria.setApoiador(apoiador);
 
         return doacaoMonetaria;
@@ -55,15 +55,21 @@ public class DoacaoMonetariaRepository implements IDoacaoMonetariaRepository {
 
     @Override
     public void update(DoacaoMonetaria doacaoMonetaria) {
-        String sql = "UPDATE doacao_monetaria SET valor = '#1', data = '#2', id_ap = '#3' WHERE id = #4";
+        // Formata a data para o padrão ISO (yyyy-MM-dd)
+        String dataFormatada = new java.text.SimpleDateFormat("yyyy-MM-dd").format(doacaoMonetaria.getData());
+
+        String sql = "UPDATE doacao_monetaria SET valor = #1, data = '#2', id_ap = #3, id_caixa = #4 WHERE id = #5";
         sql = sql.replace("#1", "" + doacaoMonetaria.getValor());
-        sql = sql.replace("#2", "" + doacaoMonetaria.getData());
+        sql = sql.replace("#2", dataFormatada);
         sql = sql.replace("#3", "" + doacaoMonetaria.getApoiadorId());
-        sql = sql.replace("#4", "" + doacaoMonetaria.getId());
+        sql = sql.replace("#4", "" + doacaoMonetaria.getCaixaId());
+        sql = sql.replace("#5", "" + doacaoMonetaria.getId());
 
-        dbConn.update(sql);
+        boolean sucesso = dbConn.update(sql);
+        if (!sucesso) {
+            throw new RuntimeException("Falha ao atualizar doação monetária");
+        }
     }
-
     @Override
     public DoacaoMonetaria findById(int id) {
         DoacaoMonetaria doacaoMonetaria = null;
@@ -132,6 +138,10 @@ public class DoacaoMonetariaRepository implements IDoacaoMonetariaRepository {
                 Apoiador apoiador = new Apoiador();
                 apoiador.setId(rs.getLong("id_ap"));
                 doacaoMonetaria.setApoiador(apoiador);
+
+                Caixa caixa = new Caixa();
+                caixa.setId(rs.getInt("id_caixa"));
+                doacaoMonetaria.setCaixa(caixa);
 
                 doacaoMonetarias.add(doacaoMonetaria);
             }

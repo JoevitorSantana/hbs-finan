@@ -30,11 +30,12 @@ public class DoacaoMonetaria {
     public DoacaoMonetaria() {
     }
 
-    public DoacaoMonetaria(int id, long valor, Date data, Apoiador apoiador) {
+    public DoacaoMonetaria(int id, long valor, Date data, Apoiador apoiador, Caixa caixa) {
         this.id = id;
         this.valor = valor;
         this.data = data;
         this.apoiador = apoiador;
+        this.caixa = caixa;
     }
 
     public int getId() {
@@ -81,5 +82,29 @@ public class DoacaoMonetaria {
             return 0;
         }
     }
+    @JsonIgnore
+    public Caixa getCaixa() {
+        return caixa;
+    }
 
+    @JsonProperty
+    public void setCaixa(Caixa caixa) {
+        this.caixa = caixa;
+    }
+
+    @JsonProperty("id_caixa")
+    public long getCaixaId() {
+        if (caixa != null) {
+            return caixa.getId();
+        } else {
+            return 0;
+        }
+    }
+
+
+    public void setApoiadorId(int idApoiador) {
+    }
+
+    public void setCaixaId(int idCaixa) {
+    }
 }

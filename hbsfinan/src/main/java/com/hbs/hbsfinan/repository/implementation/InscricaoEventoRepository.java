@@ -68,7 +68,7 @@ public class InscricaoEventoRepository implements IInscricaoEventoRepository {
                 apoiador.setCpf(rs.getString("apoiador_cpf"));
                 apoiador.setFone(rs.getString("apoiador_fone"));
                 apoiador.setEndereco(rs.getString("apoiador_endereco"));
-                apoiador.setDataNasc(rs.getDate("apoiador_data_nasc"));
+                apoiador.setDataNasc(rs.getDate("apoiador_data_nasc").toLocalDate());
                 apoiador.setSexo(rs.getString("apoiador_sexo"));
                 inscricaoEvento.setApoiador(apoiador);
 
@@ -109,7 +109,7 @@ public class InscricaoEventoRepository implements IInscricaoEventoRepository {
                 apoiador.setCpf(rs.getString("apoiador_cpf"));
                 apoiador.setFone(rs.getString("apoiador_fone"));
                 apoiador.setEndereco(rs.getString("apoiador_endereco"));
-                apoiador.setDataNasc(rs.getDate("apoiador_data_nasc"));
+                apoiador.setDataNasc(rs.getDate("apoiador_data_nasc").toLocalDate());
                 apoiador.setSexo(rs.getString("apoiador_sexo"));
                 inscricaoEvento.setApoiador(apoiador);
 
