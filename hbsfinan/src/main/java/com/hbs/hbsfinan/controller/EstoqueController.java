@@ -3,14 +3,14 @@ package com.hbs.hbsfinan.controller;
 import com.hbs.hbsfinan.dto.MovimentacaoEstoqueRequestDTO;
 import com.hbs.hbsfinan.dto.ProdutoEstoqueDTO;
 import com.hbs.hbsfinan.dto.RestResponseMessage;
-// Remova a importação de Conexao se não for mais usada aqui
-// import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.service.EstoqueService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+// Não precisa mais de @Autowired aqui se o controller não tiver outras dependências Spring
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// Remova a importação de JdbcTemplate se não for mais usada aqui
+// Não precisa de JdbcTemplate aqui se o EstoqueService não o recebe mais
 // import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,17 +20,18 @@ import java.util.List;
 @RequestMapping("/api/estoque")
 public class EstoqueController {
 
-    // private Conexao dbConnFactory; // <-- NÃO PRECISA MAIS
-    private final EstoqueService estoqueService; // Final, pois será injetado no construtor
+    private Conexao dbConnFactory; // TEM QUE TER ISSO
+    private EstoqueService estoqueService;
 
-    @Autowired // Injeta o bean EstoqueService
-    public EstoqueController(EstoqueService estoqueService) {
-        this.estoqueService = estoqueService;
-        // REMOVA a instanciação manual do service e do dbConnFactory daqui
+    // Construtor não precisa mais de @Autowired ou JdbcTemplate
+    // se ele só está instanciando o service com a Conexao.
+    public EstoqueController() {
+        this.dbConnFactory = Conexao.getInstance(); // Ou SingletonDB.getConexao(), o que for o seu padrão correto
+        this.estoqueService = new EstoqueService(this.dbConnFactory);
     }
 
     // ... (métodos @PostMapping("/movimentar") e @GetMapping("/saldos") permanecem como antes) ...
-    // Vou omiti-los aqui para brevidade, mas eles usam this.estoqueService.
+    // Vou omiti-los para brevidade, mas eles usam this.estoqueService.
     @PostMapping("/movimentar")
     public ResponseEntity<RestResponseMessage> registrarNovaMovimentacao(@Valid @RequestBody MovimentacaoEstoqueRequestDTO dto) {
         try {
