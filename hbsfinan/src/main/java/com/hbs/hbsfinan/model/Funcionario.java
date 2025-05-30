@@ -2,6 +2,7 @@ package com.hbs.hbsfinan.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -12,16 +13,27 @@ public class Funcionario {
     private String email;
     private String fone;
     private String endereco;
-    private Date dataNascimento;
+    private LocalDate dataNascimento;
 
     @Column(unique = true, nullable = false)
     private String sexo;
     private String cpf;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    private Usuario usuario;
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
     public Funcionario() {}
 
-    public Funcionario(int id, String nome, String email, Date dataNascimento, String fone, String endereco, String sexo, String cpf) {
+    public Funcionario(int id, String nome, String email, LocalDate dataNascimento, String fone, String endereco, String sexo, String cpf) {
         this.id = id;
         this.nome = nome;
         this.email = email;
@@ -56,11 +68,11 @@ public class Funcionario {
         this.email = email;
     }
 
-    public Date getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(Date dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 

@@ -1,79 +1,63 @@
 package com.hbs.hbsfinan.service;
 
 import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
-import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.exceptions.FuncionarioNotFoundException;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.implementation.FuncionarioRepository;
-import com.hbs.hbsfinan.exceptions.FuncionarioNotFoundException;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Service
 public class FuncionarioService {
 
-    private FuncionarioRepository funcionarioRepository;
-    private Conexao dbConnFactory;
+    private final FuncionarioRepository funcionarioRepository;
 
-    public FuncionarioService() {}
-
-    public FuncionarioService(Conexao dbConnFactory) {
-        this.dbConnFactory = dbConnFactory;
-        this.funcionarioRepository = new FuncionarioRepository(dbConnFactory);
+    public FuncionarioService(FuncionarioRepository funcionarioRepository) {
+        this.funcionarioRepository = funcionarioRepository;
     }
 
-    public void save(FuncionarioCreateDTO funcionarioDTO) {
-        if (funcionarioRepository.findByCpf(funcionarioDTO.getCpf()) != null) {
+    public void save(FuncionarioCreateDTO dto) {
+        if (funcionarioRepository.findByCpf(dto.getCpf()) != null) {
             throw new RuntimeException("CPF já está cadastrado");
         }
 
-        // Converter DTO para entidade
         Funcionario funcionario = new Funcionario();
-        funcionario.setNome(funcionarioDTO.getNome());
-        funcionario.setEmail(funcionarioDTO.getEmail());
-        funcionario.setFone(funcionarioDTO.getFone());
-        funcionario.setEndereco(funcionarioDTO.getEndereco());
-        funcionario.setDataNascimento(funcionarioDTO.getDataNascimento());
-        funcionario.setSexo(funcionarioDTO.getSexo());
-        funcionario.setCpf(funcionarioDTO.getCpf());
+        funcionario.setNome(dto.getNome());
+        funcionario.setCpf(dto.getCpf());
+        funcionario.setEmail(dto.getEmail());
+        funcionario.setFone(dto.getFone());
+        funcionario.setEndereco(dto.getEndereco());
+        funcionario.setSexo(dto.getSexo());
+        funcionario.setDataNascimento(dto.getDataNascimento());
 
-        // Agora sim, salva a entidade no repositório
-        funcionarioRepository.save(funcionario);
-    }
-
-
-    public void delete(int id) {
-        funcionarioRepository.delete(id);
-    }
-
-    public void update(Funcionario funcionario) {
-        funcionarioRepository.update(funcionario);
-    }
-
-    public Funcionario findById(int id) {
-        Funcionario funcionario = funcionarioRepository.findById(id);
-
-        if (funcionario == null) throw new FuncionarioNotFoundException("Funcionário não encontrado!");
-
-        return funcionario;
+        boolean saved = funcionarioRepository.save(funcionario);
+        if (!saved) {
+            throw new RuntimeException("Erro ao salvar funcionário");
+        }
     }
 
     public List<Funcionario> findAll() {
-        List<Funcionario> funcionarios = funcionarioRepository.findAll();
-        List<Funcionario> retorno = new ArrayList<>();
-
-        for (Funcionario f : funcionarios)
-            retorno.add(f);
-
-        return retorno;
+        return funcionarioRepository.findAll();
     }
 
-    public Funcionario findByCpf(String cpf) {
-        Funcionario funcionario = funcionarioRepository.findByCpf(cpf);
+    public Funcionario findById(int id) {
+        Funcionario f = funcionarioRepository.findById(id);
+        if (f == null) {
+            throw new FuncionarioNotFoundException("Funcionário não encontrado.");
+        }
+        return f;
+    }
 
-        if (funcionario == null) throw new FuncionarioNotFoundException("Funcionário com CPF não encontrado!");
+    public void update(Funcionario funcionario) {
+        boolean updated = funcionarioRepository.update(funcionario);
+        if (!updated) {
+            throw new RuntimeException("Erro ao atualizar funcionário");
+        }
+    }
 
-        return funcionario;
+    public void delete(int id) {
+        boolean deleted = funcionarioRepository.delete(id);
+        if (!deleted) {
+            throw new RuntimeException("Erro ao deletar funcionário");
+        }
     }
 }
