@@ -158,6 +158,16 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/doacao/monetaria/novo',
+        element: lazy(() => import('./views/doacoes/monetaria/novo'))
+      },
+      {
+        exact: 'true',
+        path: '/doacao/monetaria/editar/*',
+        element: lazy(() => import('./views/doacoes/monetaria/editar'))
+      },
+      {
+        exact: 'true',
         path: '/eventos',
         element: lazy(() => import('./views/eventos'))
       },
