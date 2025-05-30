@@ -14,19 +14,20 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
+//@Repository
 public class ProdutosRepository implements IProdutosRepository {
 
     //@Autowired
     //private Conexao dbConn = SingletonDB.getConexao();
     //private Conexao dbConn = Conexao.getInstance();
+    /*ALTEREI/ADICIONEI DESSA PARTE*/
     private Conexao dbConn; // Não inicializa mais aqui
 
     // Construtor para receber a instância de Conexao
     public ProdutosRepository(Conexao dbConn) {
         this.dbConn = dbConn;
     }
-
+    /*A ESSA*/
 
     private RowMapper<Produtos> rowMapper = (rs, rowNum) -> {
         Produtos produtos = new Produtos();
