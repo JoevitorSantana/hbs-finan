@@ -58,6 +58,12 @@ const menuItems = {
               type: 'item',
               url: '/doacao/monetaria'
             },
+            {
+              id: 'instituicao',
+              title: 'Doação para Instituição',
+              type: 'item',
+              url: '/doacao/instituicao'
+            }
           ],
         },
         {
