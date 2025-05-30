@@ -26,6 +26,7 @@ const NovoFuncionario = () => {
 
   const [formValidado, setFormValidado] = useState(false);
   const [cpfErro, setCpfErro] = useState("");
+  const [emailErro, setEmailErro] = useState("");      // Novo estado para erro email
   const [telefoneErro, setTelefoneErro] = useState("");
   const [erroServidor, setErroServidor] = useState("");
 
@@ -43,16 +44,25 @@ const NovoFuncionario = () => {
       setTelefoneErro(validarTelefone(novoValor.replace(/\D/g, '')) ? "" : "Telefone inválido");
     }
 
+    if (name === "email") {
+      setEmailErro(validarEmail(value) ? "" : "Email inválido");
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: novoValor
     }));
+
+    // Limpa erros gerais ao modificar qualquer campo
+    setErroServidor("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormValidado(true);
     setErroServidor("");
+    setCpfErro("");
+    setEmailErro("");
 
     const form = e.currentTarget;
     if (form.checkValidity() === false) {
@@ -60,6 +70,7 @@ const NovoFuncionario = () => {
       return;
     }
 
+    // Validações extras
     const cpfLimpo = formData.cpf.replace(/\D/g, '');
     const foneLimpo = formData.fone.replace(/\D/g, '');
     const dataNascimento = new Date(formData.dataNascimento);
@@ -88,17 +99,17 @@ const NovoFuncionario = () => {
     }
 
     if (!validarCPF(cpfLimpo)) {
-      setErroServidor("CPF inválido. Corrija antes de enviar.");
+      setCpfErro("CPF inválido. Corrija antes de enviar.");
       return;
     }
 
     if (!validarTelefone(foneLimpo)) {
-      setErroServidor("Telefone inválido. Corrija antes de enviar.");
+      setTelefoneErro("Telefone inválido. Corrija antes de enviar.");
       return;
     }
 
     if (!validarEmail(formData.email)) {
-      setErroServidor("Email inválido. Corrija antes de enviar.");
+      setEmailErro("Email inválido. Corrija antes de enviar.");
       return;
     }
 
@@ -113,7 +124,10 @@ const NovoFuncionario = () => {
           ...formData,
           cpf: cpfLimpo,
           fone: foneLimpo,
+          // envia a data no padrão ISO yyyy-MM-dd
           dataNascimento: formData.dataNascimento
+            ? new Date(formData.dataNascimento).toISOString().split('T')[0]
+            : null
         })
       });
 
@@ -124,10 +138,22 @@ const NovoFuncionario = () => {
         }, 1500);
       } else {
         const errorData = await response.json();
-        if (errorData.message && errorData.message.toLowerCase().includes("cpf")) {
-          setCpfErro(errorData.message);
+
+        // Supondo que seu backend envie mensagens claras:
+        if (errorData.message) {
+          const msgLower = errorData.message.toLowerCase();
+
+          if (msgLower.includes("cpf")) {
+            setCpfErro(errorData.message);
+            setErroServidor("");
+          } else if (msgLower.includes("email")) {
+            setEmailErro(errorData.message);
+            setErroServidor("");
+          } else {
+            setErroServidor(errorData.message);
+          }
         } else {
-          setErroServidor(errorData.message || 'Erro desconhecido ao cadastrar funcionário.');
+          setErroServidor("Erro desconhecido ao cadastrar funcionário.");
         }
       }
     } catch (error) {
@@ -148,6 +174,7 @@ const NovoFuncionario = () => {
             <Form noValidate className={formValidado ? "was-validated" : ""} onSubmit={handleSubmit}>
               <Row>
                 <Col md={6}>
+                  {/* Nome */}
                   <Form.Group className="mb-3" controlId="nome">
                     <Form.Label>Nome <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
@@ -157,7 +184,7 @@ const NovoFuncionario = () => {
                       onChange={handleChange}
                       required
                       isInvalid={formValidado && !formData.nome}
-                      isValid={formValidado && !!formData.nome}
+                      isValid={formValidado && !!formData.nome} 
                     />
                     <Form.Control.Feedback type="invalid">
                       O nome é obrigatório.
@@ -167,6 +194,7 @@ const NovoFuncionario = () => {
                     </Form.Control.Feedback>
                   </Form.Group>
 
+                  {/* Email */}
                   <Form.Group className="mb-3" controlId="email">
                     <Form.Label>Email <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
@@ -175,17 +203,18 @@ const NovoFuncionario = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      isInvalid={formValidado && (!formData.email || !validarEmail(formData.email))}
-                      isValid={formValidado && formData.email && validarEmail(formData.email)}
+                      isInvalid={formValidado && (!!emailErro || !formData.email)}
+                      isValid={formValidado && !emailErro && formData.email}
                     />
                     <Form.Control.Feedback type="invalid">
-                      Email é obrigatório.
+                      {emailErro || "Email é obrigatório."}
                     </Form.Control.Feedback>
                     <Form.Control.Feedback type="valid">
                       Tudo certo!
                     </Form.Control.Feedback>
                   </Form.Group>
 
+                  {/* Data Nascimento */}
                   <Form.Group className="mb-3" controlId="dataNascimento">
                     <Form.Label>Data de Nascimento <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
@@ -205,6 +234,7 @@ const NovoFuncionario = () => {
                     </Form.Control.Feedback>
                   </Form.Group>
 
+                  {/* Telefone */}
                   <Form.Group className="mb-3" controlId="fone">
                     <Form.Label>Telefone <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
@@ -213,11 +243,11 @@ const NovoFuncionario = () => {
                       value={formData.fone}
                       onChange={handleChange}
                       required
-                      isInvalid={formValidado && (!formData.fone || !validarTelefone(formData.fone.replace(/\D/g, '')))}
-                      isValid={formValidado && formData.fone && validarTelefone(formData.fone.replace(/\D/g, ''))}
+                      isInvalid={formValidado && (!!telefoneErro || !formData.fone)}
+                      isValid={formValidado && !telefoneErro && formData.fone}
                     />
                     <Form.Control.Feedback type="invalid">
-                      Telefone é obrigatório.
+                      {telefoneErro || "Telefone é obrigatório."}
                     </Form.Control.Feedback>
                     <Form.Control.Feedback type="valid">
                       Tudo certo!
@@ -226,6 +256,7 @@ const NovoFuncionario = () => {
                 </Col>
 
                 <Col md={6}>
+                  {/* Endereço */}
                   <Form.Group className="mb-3" controlId="endereco">
                     <Form.Label>Endereço</Form.Label>
                     <Form.Control
@@ -236,6 +267,7 @@ const NovoFuncionario = () => {
                     />
                   </Form.Group>
 
+                  {/* Sexo */}
                   <Form.Group className="mb-3" controlId="sexo">
                     <Form.Label>Sexo</Form.Label>
                     <Form.Select
@@ -249,6 +281,7 @@ const NovoFuncionario = () => {
                     </Form.Select>
                   </Form.Group>
 
+                  {/* CPF */}
                   <Form.Group className="mb-3" controlId="cpf">
                     <Form.Label>CPF <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
@@ -256,10 +289,10 @@ const NovoFuncionario = () => {
                       name="cpf"
                       value={formData.cpf}
                       onChange={handleChange}
-                      maxLength={14}
+                      maxLength={14} // 000.000.000-00
                       required
-                      isInvalid={formValidado && (!formData.cpf || !validarCPF(formData.cpf.replace(/\D/g, '')))}
-                      isValid={formValidado && formData.cpf && validarCPF(formData.cpf.replace(/\D/g, ''))}
+                      isInvalid={formValidado && (!!cpfErro || !formData.cpf)}
+                      isValid={formValidado && !cpfErro && formData.cpf}
                     />
                     <Form.Control.Feedback type="invalid">
                       {cpfErro || "CPF é obrigatório."}
@@ -269,14 +302,12 @@ const NovoFuncionario = () => {
                     </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
-
-                <Col md={12}>
-                  <Link to="/funcionarios">
-                    <Button variant="secondary" className="me-2">Cancelar</Button>
-                  </Link>
-                  <Button variant="primary" type="submit">Cadastrar</Button>
-                </Col>
               </Row>
+
+              <div className="d-flex justify-content-between mt-4">
+                <Button variant="primary" type="submit">Cadastrar</Button>
+                <Link to="/funcionarios" className="btn btn-outline-secondary">Cancelar</Link>
+              </div>
             </Form>
           </Card.Body>
         </Card>
