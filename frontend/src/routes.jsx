@@ -167,20 +167,36 @@ const routes = [
         element: lazy(() => import('./views/doacoes/monetaria/editar'))
       },
       {
-        exact: 'true',
-        path: '/anotacoes',
-        element: lazy(() => import('./views/anotacoes'))
-      },
-      {
-        exact: 'true',
-        path: '/anotacoes/novo',
-        element: lazy(() => import('./views/anotacoes/novo'))
-      },
-      {
-        exact: 'true',
-        path: '/anotacoes/editar/*',
-        element: lazy(() => import('./views/anotacoes/editar'))
-      },
+  exact: 'true',
+  path: '/doacao/instituicao',
+  element: lazy(() => import('./views/doacoes/instituicao'))
+},
+{
+  exact: 'true',
+  path: '/doacao/instituicao/novo',
+  element: lazy(() => import('./views/doacoes/instituicao/novo'))
+},
+{
+  exact: 'true',
+  path: '/doacao/instituicao/editar/:id',
+  element: lazy(() => import('./views/doacoes/instituicao/editar'))
+},
+
+{
+  exact: 'true',
+  path: '/anotacoes',
+  element: lazy(() => import('./views/anotacoes'))
+},
+{
+  exact: 'true',
+  path: '/anotacoes/novo',
+  element: lazy(() => import('./views/anotacoes/novo'))
+},
+{
+  exact: 'true',
+  path: '/anotacoes/editar/*',
+  element: lazy(() => import('./views/anotacoes/editar'))
+},
       {
         exact: 'true',
         path: '/eventos',
