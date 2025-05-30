@@ -15,12 +15,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository // Mantendo para consistência e para indicar o papel da classe
+@Repository
 public class MovimentacaoEstoqueRepository implements IMovimentacaoEstoqueRepository {
+    private Conexao dbConn;
 
-    private Conexao dbConn; // Campo para armazenar a Conexao injetada via construtor
-
-    // Construtor que recebe a Conexao do EstoqueService
     public MovimentacaoEstoqueRepository(Conexao dbConn) {
         if (dbConn == null) {
             throw new IllegalArgumentException("Instância de Conexao não pode ser nula para MovimentacaoEstoqueRepository.");
@@ -35,7 +33,6 @@ public class MovimentacaoEstoqueRepository implements IMovimentacaoEstoqueReposi
         }
         String sql = "INSERT INTO movimentacao_estoque (produto_id, funcionario_id, quantidade_movimentada, tipo, data_hora_movimentacao, observacao) " +
                 "VALUES (#PRODUTO_ID, #FUNCIONARIO_ID, #QTD_MOV, '#TIPO', '#DATA_HORA', '#OBSERVACAO')";
-
         sql = sql.replace("#PRODUTO_ID", String.valueOf(movimentacao.getProduto().getId()));
         sql = sql.replace("#FUNCIONARIO_ID", String.valueOf(movimentacao.getFuncionario().getId()));
         sql = sql.replace("#QTD_MOV", String.valueOf(movimentacao.getQuantidadeMovimentada()));
@@ -44,31 +41,22 @@ public class MovimentacaoEstoqueRepository implements IMovimentacaoEstoqueReposi
 
         String observacao = movimentacao.getObservacao();
         if (observacao == null || observacao.trim().isEmpty()) {
-            // Para inserir NULL de forma segura, a query SQL deveria usar placeholders '?'
-            // e PreparedStatement. Com replace, é mais arriscado.
-            // Se o campo no banco aceita NULL e a string 'NULL' funciona, mantenha.
-            // Caso contrário, ajuste a query para não incluir o campo ou use uma string vazia se o banco permitir.
-            // Exemplo para não incluir se for null (mais complexo com replace):
-            // if (observacao == null) ... monta SQL sem o campo observacao ...
-            // Por simplicidade, mantendo o replace para 'NULL' assumindo que funciona no seu SGBD
             sql = sql.replace("'#OBSERVACAO'", "NULL");
         } else {
-            // CUIDADO com SQL Injection aqui. A sanitização de ' é um paliativo mínimo.
             observacao = observacao.replace("'", "''");
             sql = sql.replace("#OBSERVACAO", observacao);
         }
-
         this.dbConn.update(sql);
     }
 
     @Override
     public void update(MovimentacaoEstoque movimentacao) {
-        if (this.dbConn == null) throw new RuntimeException("Conexao dbConn é nula em MovimentacaoEstoqueRepository.update");
-        // Lembre-se das considerações sobre imutabilidade de movimentações.
+        if (this.dbConn == null)
+            throw new RuntimeException("Conexao dbConn é nula em MovimentacaoEstoqueRepository.update");
+
         String sql = "UPDATE movimentacao_estoque SET produto_id = #PRODUTO_ID, funcionario_id = #FUNCIONARIO_ID, " +
                 "quantidade_movimentada = #QTD_MOV, tipo = '#TIPO', data_hora_movimentacao = '#DATA_HORA', " +
                 "observacao = '#OBSERVACAO' WHERE id = #ID";
-
         sql = sql.replace("#PRODUTO_ID", String.valueOf(movimentacao.getProduto().getId()));
         sql = sql.replace("#FUNCIONARIO_ID", String.valueOf(movimentacao.getFuncionario().getId()));
         sql = sql.replace("#QTD_MOV", String.valueOf(movimentacao.getQuantidadeMovimentada()));
@@ -82,9 +70,7 @@ public class MovimentacaoEstoqueRepository implements IMovimentacaoEstoqueReposi
             observacao = observacao.replace("'", "''");
             sql = sql.replace("#OBSERVACAO", observacao);
         }
-
         sql = sql.replace("#ID", String.valueOf(movimentacao.getId()));
-
         this.dbConn.update(sql);
     }
 

@@ -4,6 +4,7 @@ import com.hbs.hbsfinan.dto.MovimentacaoEstoqueRequestDTO;
 import com.hbs.hbsfinan.dto.ProdutoEstoqueDTO;
 import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.model.MovimentacaoEstoque;
 import com.hbs.hbsfinan.service.EstoqueService;
 import jakarta.validation.Valid;
 // Não precisa mais de @Autowired aqui se o controller não tiver outras dependências Spring
@@ -20,18 +21,14 @@ import java.util.List;
 @RequestMapping("/api/estoque")
 public class EstoqueController {
 
-    private Conexao dbConnFactory; // TEM QUE TER ISSO
+    private Conexao dbConnFactory;
     private EstoqueService estoqueService;
 
-    // Construtor não precisa mais de @Autowired ou JdbcTemplate
-    // se ele só está instanciando o service com a Conexao.
     public EstoqueController() {
-        this.dbConnFactory = Conexao.getInstance(); // Ou SingletonDB.getConexao(), o que for o seu padrão correto
+        this.dbConnFactory = Conexao.getInstance();
         this.estoqueService = new EstoqueService(this.dbConnFactory);
     }
 
-    // ... (métodos @PostMapping("/movimentar") e @GetMapping("/saldos") permanecem como antes) ...
-    // Vou omiti-los para brevidade, mas eles usam this.estoqueService.
     @PostMapping("/movimentar")
     public ResponseEntity<RestResponseMessage> registrarNovaMovimentacao(@Valid @RequestBody MovimentacaoEstoqueRequestDTO dto) {
         try {
@@ -59,19 +56,37 @@ public class EstoqueController {
         }
     }
 
+//    @GetMapping("/saldos")
+//    public ResponseEntity<?> visualizarSaldosEstoque() {
+//        try {
+//            List<ProdutoEstoqueDTO> saldos = estoqueService.listarProdutosComEstoque();
+//            if (saldos == null || saldos.isEmpty()) {
+//                return new ResponseEntity<>(saldos, HttpStatus.OK);
+//            }
+//            return ResponseEntity.ok(saldos);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            RestResponseMessage mensagemErro = new RestResponseMessage(
+//                    HttpStatus.INTERNAL_SERVER_ERROR,
+//                    "Ocorreu um erro inesperado ao buscar os saldos do estoque."
+//            );
+//            return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
     @GetMapping("/saldos")
-    public ResponseEntity<?> visualizarSaldosEstoque() {
+    public ResponseEntity<?> visualizarMovimentacoesEstoque() { // Nome do método atualizado para clareza
         try {
-            List<ProdutoEstoqueDTO> saldos = estoqueService.listarProdutosComEstoque();
-            if (saldos == null || saldos.isEmpty()) {
-                return new ResponseEntity<>(saldos, HttpStatus.OK);
+            List<MovimentacaoEstoque> movimentacoes = estoqueService.listarTodasMovimentacoes();
+            if (movimentacoes == null || movimentacoes.isEmpty()) {
+                return new ResponseEntity<>(movimentacoes, HttpStatus.OK);
             }
-            return ResponseEntity.ok(saldos);
+            return ResponseEntity.ok(movimentacoes);
         } catch (Exception e) {
             e.printStackTrace();
             RestResponseMessage mensagemErro = new RestResponseMessage(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Ocorreu um erro inesperado ao buscar os saldos do estoque."
+                    // Mensagem de erro mais específica
+                    "Ocorreu um erro inesperado ao buscar as movimentações do estoque."
             );
             return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
         }
