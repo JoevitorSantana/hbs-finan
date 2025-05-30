@@ -32,7 +32,7 @@ const menuItems = {
           title: 'Despesas',
           type: 'item',
           icon: 'feather icon-percent',
-          url: '/despesas'
+          url: '/despesas',
         },
         {
           id: 'doacoes',
@@ -77,6 +77,12 @@ const menuItems = {
               title: 'Inscrever-se Evento',
               type: 'item',
               url: '/eventos/inscrever'
+            },
+            {
+              id: 'listar',
+              title: 'Listar evento-apoiador',
+              type: 'item',
+              url: '/eventos/listar'
             },
           ],
         },

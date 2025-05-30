@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row, Alert } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useDespesa } from "../hooks/useDespesas";
+import { useDespesas } from "hooks/useDespesas";
 
 const EditarDespesas = () => {
-  const idDespesa = window.location.pathname.split('/').pop();
+  const { idDespesa } = useParams();
   const token = localStorage.getItem("site");
-  const { despesa } = useDespesa(idDespesa);
-
   const navigate = useNavigate();
 
+  const getDataAtualFormatada = () => {
+    const hoje = new Date();
+    return hoje.toISOString().split('T')[0]; // yyyy-mm-dd
+  };
+
   const [formData, setFormData] = useState({
-    dataLancamento: '',
+    dataLancamento: getDataAtualFormatada(),
     dataVencimento: '',
-    Desc: '',
+    descricao: '',
     pagamentoTotal: '',
     valor: '',
     dataQuitacao: ''
@@ -22,6 +25,19 @@ const EditarDespesas = () => {
 
   const [erroServidor, setErroServidor] = useState("");
   const [errosValidacao, setErrosValidacao] = useState({});
+  const [isQuitada, setIsQuitada] = useState(false); // Estado para saber se está quitada
+
+  // Verifica se o token está expirado
+  const isTokenExpired = () => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch (err) {
+      return true;
+    }
+  };
+
+  const { despesa } = useDespesas(idDespesa);
 
   const formatarData = (dataCompleta) => {
     if (!dataCompleta) return '';
@@ -33,50 +49,53 @@ const EditarDespesas = () => {
       setFormData({
         dataLancamento: formatarData(despesa.dataLancamento),
         dataVencimento: formatarData(despesa.dataVencimento),
-        Desc: despesa.Desc,
+        descricao: despesa.descricao || '',
         pagamentoTotal: despesa.pagamentoTotal,
         valor: despesa.valor,
         dataQuitacao: formatarData(despesa.dataQuitacao),
       });
+
+      setIsQuitada(!!despesa.dataQuitacao); // true se já quitada
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        dataLancamento: getDataAtualFormatada()
+      }));
+      setIsQuitada(false);
     }
   }, [despesa]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    setErrosValidacao(prev => ({ ...prev, [name]: null })); // Limpa erro ao modificar
+    setErrosValidacao(prev => ({ ...prev, [name]: null }));
   };
 
   const validarCampos = () => {
     const erros = {};
-    const dataLanc = new Date(formData.dataLancamento);
-    const dataVenc = new Date(formData.dataVencimento);
-    const dataQuit = new Date(formData.dataQuitacao);
+    const dataLanc = formData.dataLancamento ? new Date(formData.dataLancamento) : null;
+    const dataVenc = formData.dataVencimento ? new Date(formData.dataVencimento) : null;
 
-    if (!formData.dataLancamento) erros.dataLancamento = "Data de lançamento é obrigatória.";
-    if (!formData.dataVencimento) erros.dataVencimento = "Data de vencimento é obrigatória.";
-    if (!formData.Desc || formData.Desc.trim() === "") erros.Desc = "Descrição é obrigatória.";
-    
-    if (!formData.pagamentoTotal) {
-      erros.pagamentoTotal = "Pagamento total é obrigatório.";
-    } else if (isNaN(Number(formData.pagamentoTotal)) || Number(formData.pagamentoTotal) < 0) {
-      erros.pagamentoTotal = "Pagamento total deve ser um número positivo.";
+    if (!formData.dataLancamento) {
+      erros.dataLancamento = "Data de lançamento é obrigatória.";
+    }
+
+    if (!formData.dataVencimento) {
+      erros.dataVencimento = "Data de vencimento é obrigatória.";
+    } else if (dataLanc && dataVenc && dataVenc < dataLanc) {
+      erros.dataVencimento = "Data de vencimento deve ser igual ou posterior à data de lançamento.";
+    }
+
+    if (!formData.descricao || formData.descricao.trim() === "") {
+      erros.descricao = "Descrição é obrigatória.";
     }
 
     if (!formData.valor) {
       erros.valor = "Valor é obrigatório.";
-    } else if (isNaN(Number(formData.valor)) || Number(formData.valor) < 0) {
+    } else if (isNaN(Number(formData.valor))) {
+      erros.valor = "Valor deve ser um número válido.";
+    } else if (Number(formData.valor) < 0) {
       erros.valor = "Valor deve ser um número positivo.";
-    }
-
-    if (!formData.dataQuitacao) erros.dataQuitacao = "Data da quitação é obrigatória.";
-
-    // Valida ordem das datas
-    if (formData.dataLancamento && formData.dataVencimento && dataLanc > dataVenc) {
-      erros.dataVencimento = "Data de vencimento deve ser igual ou posterior à data de lançamento.";
-    }
-    if (formData.dataQuitacao && formData.dataLancamento && dataQuit < dataLanc) {
-      erros.dataQuitacao = "Data da quitação deve ser igual ou posterior à data de lançamento.";
     }
 
     return erros;
@@ -85,6 +104,17 @@ const EditarDespesas = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErroServidor("");
+
+    if (isQuitada) {
+      setErroServidor("Não é possível editar uma despesa já quitada.");
+      return;
+    }
+
+    if (!token || isTokenExpired()) {
+      setErroServidor("Sessão expirada. Faça login novamente.");
+      return;
+    }
+
     const erros = validarCampos();
     if (Object.keys(erros).length > 0) {
       setErrosValidacao(erros);
@@ -105,7 +135,7 @@ const EditarDespesas = () => {
         toast.success("Despesa atualizada com sucesso!");
         setTimeout(() => navigate('/despesas'), 1500);
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         setErroServidor(errorData.message || "Erro ao atualizar a despesa.");
       }
     } catch (error) {
@@ -121,7 +151,12 @@ const EditarDespesas = () => {
             <Card.Title as="h5">Editar Despesa</Card.Title>
           </Card.Header>
           <Card.Body>
-            {erroServidor && <Alert variant="danger">{erroServidor}</Alert>}
+            {erroServidor && <Alert variant={isQuitada ? "info" : "danger"}>{erroServidor}</Alert>}
+            {isQuitada && (
+              <Alert variant="info">
+                Esta despesa já está quitada e não pode ser editada.
+              </Alert>
+            )}
             <Form onSubmit={handleSubmit}>
               <Row>
                 <Col md={6}>
@@ -133,6 +168,7 @@ const EditarDespesas = () => {
                       value={formData.dataLancamento}
                       onChange={handleChange}
                       isInvalid={!!errosValidacao.dataLancamento}
+                      disabled={isQuitada}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errosValidacao.dataLancamento}
@@ -147,37 +183,10 @@ const EditarDespesas = () => {
                       value={formData.dataVencimento}
                       onChange={handleChange}
                       isInvalid={!!errosValidacao.dataVencimento}
+                      disabled={isQuitada}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errosValidacao.dataVencimento}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Form.Group className="mb-3" controlId="Desc">
-                    <Form.Label>Descrição <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="Desc"
-                      value={formData.Desc}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.Desc}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.Desc}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Form.Group className="mb-3" controlId="pagamentoTotal">
-                    <Form.Label>Pagamento Total <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="pagamentoTotal"
-                      value={formData.pagamentoTotal}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.pagamentoTotal}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.pagamentoTotal}
                     </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -191,23 +200,25 @@ const EditarDespesas = () => {
                       value={formData.valor}
                       onChange={handleChange}
                       isInvalid={!!errosValidacao.valor}
+                      disabled={isQuitada}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errosValidacao.valor}
                     </Form.Control.Feedback>
                   </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="dataQuitacao">
-                    <Form.Label>Data da Quitação <span style={{ color: 'red' }}>*</span></Form.Label>
+                  <Form.Group className="mb-3" controlId="descricao">
+                    <Form.Label>Descrição <span style={{ color: 'red' }}>*</span></Form.Label>
                     <Form.Control
-                      type="date"
-                      name="dataQuitacao"
-                      value={formData.dataQuitacao}
+                      type="text"
+                      name="descricao"
+                      value={formData.descricao}
                       onChange={handleChange}
-                      isInvalid={!!errosValidacao.dataQuitacao}
+                      isInvalid={!!errosValidacao.descricao}
+                      disabled={isQuitada}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errosValidacao.dataQuitacao}
+                      {errosValidacao.descricao}
                     </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
@@ -216,7 +227,9 @@ const EditarDespesas = () => {
                   <Link to="/despesas">
                     <Button variant="secondary" className="me-2">Cancelar</Button>
                   </Link>
-                  <Button variant="primary" type="submit">Salvar Alterações</Button>
+                  <Button variant="primary" type="submit" disabled={isQuitada}>
+                    {isQuitada ? "Despesa Quitada" : "Salvar Alterações"}
+                  </Button>
                 </Col>
               </Row>
             </Form>

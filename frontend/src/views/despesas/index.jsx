@@ -56,6 +56,34 @@ const Despesas = () => {
     }
   };
 
+  const handleQuitarDespesa = async (idDespesa) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/despesas/quitar/${idDespesa}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Despesa quitada com sucesso!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        const data = await response.json();
+        toast.error(data.message || "Erro ao quitar despesa.");
+      }
+    } catch (error) {
+      console.error("Erro ao quitar despesa:", error);
+      toast.error("Erro na comunicação com o servidor.");
+    }
+  };
+
   const formatarData = (data) =>
     data ? new Date(data).toLocaleDateString("pt-BR") : "";
 
@@ -109,15 +137,25 @@ const Despesas = () => {
                   {despesas &&
                     despesas
                       .filter((d) =>
-                        d.Desc.toLowerCase().includes(filtroDescricao.toLowerCase())
+                        d.descricao
+                          .toLowerCase()
+                          .includes(filtroDescricao.toLowerCase())
                       )
                       .map((despesa) => (
                         <tr key={despesa.id}>
                           <td>{despesa.id}</td>
                           <td>{formatarData(despesa.dataLancamento)}</td>
                           <td>{formatarData(despesa.dataVencimento)}</td>
-                          <td>{despesa.Desc}</td>
-                          <td>{despesa.pagamentoTotal}</td>
+                          <td>{despesa.descricao}</td>
+                          <td>
+                            {despesa.pagamentoTotal > 0
+                              ? despesa.pagamentoTotal.toLocaleString("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                })
+                              : "-"}
+                          </td>
+
                           <td>{despesa.valor}</td>
                           <td>{formatarData(despesa.dataQuitacao)}</td>
                           <td>
@@ -130,6 +168,17 @@ const Despesas = () => {
                                 <FaEdit />
                               </Button>
                             </Link>
+                            <Link to={`/despesas/quitar/${despesa.id}`}>
+                              <Button
+                                size="sm"
+                                variant="success"
+                                className="me-2"
+                                disabled={!!despesa.dataQuitacao}
+                              >
+                                Quitar
+                              </Button>
+                            </Link>
+
                             <Button
                               size="sm"
                               variant="danger"
@@ -155,7 +204,7 @@ const Despesas = () => {
           {despesaParaExcluir && (
             <p>
               Tem certeza que deseja excluir a despesa:{" "}
-              <strong>{despesaParaExcluir.Desc}</strong>?
+              <strong>{despesaParaExcluir.descricao}</strong>?
             </p>
           )}
         </Modal.Body>
