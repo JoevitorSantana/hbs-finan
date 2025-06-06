@@ -1,13 +1,13 @@
 import { useUsuarios } from "hooks/useUsers";
 import React, { useState } from "react";
-import { Button, Card, Col, Row, Table, Modal } from "react-bootstrap";
+import { Button, Card, Col, Row, Table, Modal, Form } from "react-bootstrap";
 import { Link, Navigate } from "react-router-dom";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { IoPersonAdd } from "react-icons/io5";
 import { ToastContainer, toast } from 'react-toastify';
 
 const Usuarios = () => {
-    const { usuarios } = useUsuarios();
+    const { usuarios, usuario } = useUsuarios();
     const token = localStorage.getItem("site");
 
     const raw = localStorage.getItem("user");
@@ -16,6 +16,8 @@ const Usuarios = () => {
 
     const [showModal, setShowModal] = useState(false);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+
+    const [filtro, setFiltro] = useState("");
 
     if (!isAdmin) {
         return <Navigate to="/" replace />; // redireciona para o dashboard
@@ -74,6 +76,14 @@ const Usuarios = () => {
                         </Card.Header>
                         
                         <Card.Body>
+                            <Form.Group controlId="filtroUsuarios" className="mb-3">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Filtrar por nome ou email..."
+                                    value={filtro}
+                                    onChange={(e) => setFiltro(e.target.value)}
+                                />
+                            </Form.Group>
                             <Table responsive hover>
                                 <thead>
                                     <tr>
@@ -84,7 +94,15 @@ const Usuarios = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {usuarios && usuarios.map((usuario) => (
+                                    {usuarios && usuarios
+                                        .filter(usu => usu.email !== usuarioAtual?.email)
+                                        .filter(usu => {
+                                            const termo = filtro.toLowerCase();
+                                            return usu.nome.toLowerCase().includes(termo) ||
+                                                usu.ultimoNome.toLowerCase().includes(termo) ||
+                                                usu.email.toLowerCase().includes(termo);
+                                        })
+                                        .map((usuario) => (
                                         <tr key={usuario.id}>
                                             <th scope="row">{usuario.id}</th>
                                             <td>{usuario.nome + " " + usuario.ultimoNome}</td>
