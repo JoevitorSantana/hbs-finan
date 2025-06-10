@@ -8,7 +8,7 @@ const NovaAnotacao = () => {
     const token = localStorage.getItem("site");
 
     const [errors, setErrors] = useState({});
-    const [eventos, setEventos] = useState([]); // State to store the list of events
+    const [eventos, setEventos] = useState([]); 
 
     const [formData, setFormData] = useState({
         anotacao: '',
@@ -16,7 +16,7 @@ const NovaAnotacao = () => {
         evento: { id: '' }
     });
 
-    // Fetch events from the API when the component mounts
+
     useEffect(() => {
         const fetchEventos = async () => {
             try {
@@ -65,7 +65,7 @@ const NovaAnotacao = () => {
         }));
     };
 
-    // Updated to handle the event selection
+
     const handleEventoChange = (e) => {
         const { value } = e.target;
         setFormData(prevState => ({
