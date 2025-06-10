@@ -102,6 +102,10 @@ public class ProdutosRepository implements IProdutosRepository {
                         : "NULL"
         );
         sql = sql.replace("#4", String.valueOf(produtos.getId()));
+        System.out.println("Nome: " + produtos.getNome());
+        System.out.println("Quantidade: " + produtos.getQtd());
+        System.out.println("Data validade: " + produtos.getDataValidade());
+        System.out.println("SQL gerado: " + sql);
 
         dbConn.update(sql);
     }

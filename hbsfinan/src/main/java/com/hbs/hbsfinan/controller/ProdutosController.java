@@ -58,11 +58,20 @@ public class ProdutosController {
     public ResponseEntity update(@PathVariable int id, @RequestBody Produtos produtos){
         try{
             Produtos oldProdutos = produtosService.findById(id);
+
             if(produtos.getNome() != null && !produtos.getNome().equals(oldProdutos.getNome()))
                 oldProdutos.setNome(produtos.getNome());
+
             if(produtos.getQtd() != 0 && produtos.getQtd() != oldProdutos.getQtd())
                 oldProdutos.setQtd(produtos.getQtd());
+
+            // Atualiza data validade, mesmo para null (permite remover)
+            if (produtos.getDataValidade() != null || (produtos.getDataValidade() == null && oldProdutos.getDataValidade() != null)) {
+                oldProdutos.setDataValidade(produtos.getDataValidade());
+            }
+
             produtosService.update(oldProdutos);
+
             RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Produto atualizado com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.OK);
         }catch (Exception e){
