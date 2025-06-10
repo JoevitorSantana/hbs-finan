@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "inscricao_evento")
 public class InscricaoEvento {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,14 +19,13 @@ public class InscricaoEvento {
     @JoinColumn(name = "evento_id", nullable = false)
     private Evento evento;
 
-    // Construtores
+
     public InscricaoEvento() {}
     public InscricaoEvento(Apoiador apoiador, Evento evento) {
         this.apoiador = apoiador;
         this.evento = evento;
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

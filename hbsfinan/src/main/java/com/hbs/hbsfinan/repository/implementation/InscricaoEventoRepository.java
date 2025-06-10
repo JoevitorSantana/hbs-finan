@@ -8,16 +8,18 @@ import com.hbs.hbsfinan.repository.interfaces.IInscricaoEventoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 @Repository
 public class InscricaoEventoRepository implements IInscricaoEventoRepository {
 
     private final Conexao dbConn;
 
-    public InscricaoEventoRepository() {
-        this.dbConn = Conexao.getInstance();
+    public InscricaoEventoRepository(Conexao dbConn) {
+        this.dbConn = dbConn;
     }
 
     @Override
@@ -25,7 +27,14 @@ public class InscricaoEventoRepository implements IInscricaoEventoRepository {
         String sql = "INSERT INTO inscricao_evento (apoiador_id, evento_id) VALUES (#1, #2)";
         sql = sql.replace("#1", "" + inscricaoEvento.getApoiador().getId());
         sql = sql.replace("#2", "" + inscricaoEvento.getEvento().getId());
-        dbConn.update(sql);
+
+        try {
+            dbConn.update(sql);
+        } catch (Exception e) {
+            System.err.println("Erro ao salvar inscrição de evento: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao salvar inscrição de evento.", e);
+        }
     }
 
     @Override
@@ -34,14 +43,27 @@ public class InscricaoEventoRepository implements IInscricaoEventoRepository {
         sql = sql.replace("#1", "" + inscricaoEvento.getApoiador().getId());
         sql = sql.replace("#2", "" + inscricaoEvento.getEvento().getId());
         sql = sql.replace("#3", "" + inscricaoEvento.getId());
-        dbConn.update(sql);
+
+        try {
+            dbConn.update(sql);
+        } catch (Exception e) {
+            System.err.println("Erro ao atualizar inscrição de evento: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao atualizar inscrição de evento.", e);
+        }
     }
 
     @Override
     public boolean delete(Long id) {
         String sql = "DELETE FROM inscricao_evento WHERE id = #1";
         sql = sql.replace("#1", "" + id);
-        return dbConn.update(sql);
+        try {
+            return dbConn.update(sql);
+        } catch (Exception e) {
+            System.err.println("Erro ao deletar inscrição de evento: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao deletar inscrição de evento.", e);
+        }
     }
 
     @Override
@@ -58,30 +80,10 @@ public class InscricaoEventoRepository implements IInscricaoEventoRepository {
             ResultSet rs = dbConn.query(sql);
 
             if (rs.next()) {
-                inscricaoEvento = new InscricaoEvento();
-                inscricaoEvento.setId(rs.getLong("inscricao_id"));
-
-                Apoiador apoiador = new Apoiador();
-                apoiador.setId(rs.getLong("apoiador_id"));
-                apoiador.setNome(rs.getString("apoiador_nome"));
-                apoiador.setEmail(rs.getString("apoiador_email"));
-                apoiador.setCpf(rs.getString("apoiador_cpf"));
-                apoiador.setFone(rs.getString("apoiador_fone"));
-                apoiador.setEndereco(rs.getString("apoiador_endereco"));
-                apoiador.setDataNasc(rs.getDate("apoiador_data_nasc").toLocalDate());
-                apoiador.setSexo(rs.getString("apoiador_sexo"));
-                inscricaoEvento.setApoiador(apoiador);
-
-                Evento evento = new Evento();
-                evento.setId(rs.getInt("evento_id"));
-                evento.setNome(rs.getString("evento_nome"));
-                evento.setLocal(rs.getString("evento_local"));
-                evento.setData(rs.getDate("evento_data"));
-                evento.setDescricao(rs.getString("evento_descricao"));
-                evento.setMateriais(rs.getString("evento_materiais"));
-                inscricaoEvento.setEvento(evento);
+                inscricaoEvento = mapResultSetToInscricaoEvento(rs);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar inscrição de evento por ID: " + e.getMessage());
             e.printStackTrace();
         }
         return inscricaoEvento;
@@ -99,34 +101,38 @@ public class InscricaoEventoRepository implements IInscricaoEventoRepository {
         try {
             ResultSet rs = dbConn.query(sql);
             while (rs.next()) {
-                InscricaoEvento inscricaoEvento = new InscricaoEvento();
-                inscricaoEvento.setId(rs.getLong("inscricao_id"));
-
-                Apoiador apoiador = new Apoiador();
-                apoiador.setId(rs.getLong("apoiador_id"));
-                apoiador.setNome(rs.getString("apoiador_nome"));
-                apoiador.setEmail(rs.getString("apoiador_email"));
-                apoiador.setCpf(rs.getString("apoiador_cpf"));
-                apoiador.setFone(rs.getString("apoiador_fone"));
-                apoiador.setEndereco(rs.getString("apoiador_endereco"));
-                apoiador.setDataNasc(rs.getDate("apoiador_data_nasc").toLocalDate());
-                apoiador.setSexo(rs.getString("apoiador_sexo"));
-                inscricaoEvento.setApoiador(apoiador);
-
-                Evento evento = new Evento();
-                evento.setId(rs.getInt("evento_id"));
-                evento.setNome(rs.getString("evento_nome"));
-                evento.setLocal(rs.getString("evento_local"));
-                evento.setData(rs.getDate("evento_data"));
-                evento.setDescricao(rs.getString("evento_descricao"));
-                evento.setMateriais(rs.getString("evento_materiais"));
-                inscricaoEvento.setEvento(evento);
-
-                lista.add(inscricaoEvento);
+                lista.add(mapResultSetToInscricaoEvento(rs));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar todas as inscrições de evento: " + e.getMessage());
             e.printStackTrace();
         }
         return lista;
+    }
+
+    private InscricaoEvento mapResultSetToInscricaoEvento(ResultSet rs) throws SQLException {
+        InscricaoEvento inscricaoEvento = new InscricaoEvento();
+        inscricaoEvento.setId(rs.getLong("inscricao_id"));
+
+        Apoiador apoiador = new Apoiador();
+        apoiador.setId(rs.getLong("apoiador_id"));
+        apoiador.setNome(rs.getString("apoiador_nome"));
+        apoiador.setEmail(rs.getString("apoiador_email"));
+        apoiador.setCpf(rs.getString("apoiador_cpf"));
+        apoiador.setFone(rs.getString("apoiador_fone"));
+        apoiador.setEndereco(rs.getString("apoiador_endereco"));
+        apoiador.setDataNasc(rs.getDate("apoiador_data_nasc").toLocalDate());
+        apoiador.setSexo(rs.getString("apoiador_sexo"));
+        inscricaoEvento.setApoiador(apoiador);
+
+        Evento evento = new Evento();
+        evento.setId(rs.getInt("evento_id"));
+        evento.setNome(rs.getString("evento_nome"));
+        evento.setLocal(rs.getString("evento_local"));
+        evento.setData(rs.getDate("evento_data"));
+        evento.setDescricao(rs.getString("evento_descricao"));
+        evento.setMateriais(rs.getString("evento_materiais"));
+        inscricaoEvento.setEvento(evento);
+        return inscricaoEvento;
     }
 }
