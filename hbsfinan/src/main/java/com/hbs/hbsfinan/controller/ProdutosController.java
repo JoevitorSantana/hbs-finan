@@ -4,9 +4,11 @@ import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.dto.UsuarioEditResponseDTO;
 import com.hbs.hbsfinan.dto.UsuarioResponseDTO;
 import com.hbs.hbsfinan.exceptions.UsuarioNotFoundException;
+import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.model.Produtos;
 import com.hbs.hbsfinan.model.Usuario;
+import com.hbs.hbsfinan.service.EventoService;
 import com.hbs.hbsfinan.service.ProdutosService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,14 @@ import java.util.List;
 @RequestMapping("/produtos")
 public class ProdutosController {
 
-    @Autowired
+
     ProdutosService produtosService;
+    private Conexao dbConnFactory;
+
+    public ProdutosController() {
+        this.dbConnFactory = Conexao.getInstance();
+        this.produtosService = new ProdutosService(dbConnFactory);
+    }
 
     @PostMapping("/novo")
     public ResponseEntity save(@Valid @RequestBody Produtos produtos){
@@ -79,3 +87,5 @@ public class ProdutosController {
         return ResponseEntity.badRequest().build();
     }
 }
+
+
