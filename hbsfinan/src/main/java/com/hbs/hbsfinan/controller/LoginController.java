@@ -39,7 +39,7 @@ public class LoginController {
 
         Usuario objUsuario = loginService.loadUsuarioByEmail(usuario.email());
 
-        LoginResponseDTO response = new LoginResponseDTO(objUsuario.getNome(), objUsuario.getUltimoNome(), objUsuario.getEmail(), objUsuario.getRole(), token);
+        LoginResponseDTO response = new LoginResponseDTO(objUsuario.getId(), objUsuario.getNome(), objUsuario.getUltimoNome(), objUsuario.getEmail(), objUsuario.getRole(), token);
 
         return ResponseEntity.ok(response);
     }

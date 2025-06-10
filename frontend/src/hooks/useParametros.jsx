@@ -8,7 +8,7 @@ export function useParametros() {
     const [parametros, setParametros] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/parametrizacao', {
+        fetch('http://localhost:8080/parametrizacao', {
             method: 'GET',
             headers: {
                 'Authorization' : 'Bearer ' + token,

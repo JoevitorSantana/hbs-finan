@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.filter.CorsFilter; // Ainda necessário para o CorsFilter customizado
 
 import java.util.List;
 
@@ -33,18 +33,19 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .cors().and()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                                    .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                                    .requestMatchers(HttpMethod.POST, "/usuarios/novo").permitAll()
-                                    .requestMatchers(HttpMethod.POST, "/api/parametrizacao").hasRole("ADMIN")
-                                    .requestMatchers(HttpMethod.PUT, "/api/parametrizacao").hasRole("ADMIN")
-                                    .requestMatchers(HttpMethod.GET, "/usuarios/listar").hasRole("ADMIN")
-                                    .requestMatchers(HttpMethod.PUT, "/usuarios/editar/**").hasRole("ADMIN")
-                                    .requestMatchers(HttpMethod.DELETE, "/usuarios/excluir/**").hasRole("ADMIN")
-                                    .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios/novo").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/parametrizacao").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/parametrizacao/novo").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/parametrizacao/editar").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/listar").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/editar/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/usuarios/excluir/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -57,7 +58,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public CorsFilter corsFilter() {
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -67,7 +68,7 @@ public class SecurityConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
-        return new CorsFilter(source);
+        return source;
     }
 
     @Bean

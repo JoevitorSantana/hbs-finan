@@ -1,69 +1,56 @@
 package com.hbs.hbsfinan.service;
 
-import com.hbs.hbsfinan.model.Parametrizacao;
-import com.hbs.hbsfinan.repository.interfaces.IParametrizacaoRepository;
 import com.hbs.hbsfinan.exceptions.ParametrizacaoJaCadastradaException;
 import com.hbs.hbsfinan.exceptions.ParametrizacaoNaoEncontradaException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.model.Parametrizacao;
+import com.hbs.hbsfinan.repository.implementation.ParametrizacaoRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
 
 @Service
 public class ParametrizacaoService {
+    private ParametrizacaoRepository parametrizacaoRepository;
+    private Conexao dbConnFactory;
 
-    private final IParametrizacaoRepository repo;
+    public ParametrizacaoService() {}
 
-    @Autowired
-    public ParametrizacaoService(IParametrizacaoRepository repo) {
-        this.repo = repo;
+    public ParametrizacaoService(Conexao dbConnFactory) {
+        this.dbConnFactory = dbConnFactory;
+        this.parametrizacaoRepository = new ParametrizacaoRepository(dbConnFactory);
     }
 
-    /**Verifica se já existe configuração cadastrada.*/
-    public boolean exists() {
-        return repo.exists();
-    }
-
-    /**Recupera a configuração existente ou lança exceção se não existir.*/
-    public Parametrizacao get() {
-        Parametrizacao response = repo.findFirst();
-        if (response == null)
-            throw new ParametrizacaoNaoEncontradaException("Parametrização não encontrada.");
-        return response;
-    }
-
-    /**Cria uma nova parametrização. Só permite se não houver registro.*/
-    @Transactional
-    public Parametrizacao create(Parametrizacao dto) {
-        if (repo.exists()) {
-            throw new ParametrizacaoJaCadastradaException("Já existe uma parametrização cadastrada.");
+    public Parametrizacao getParametrizacao() {
+        Parametrizacao parametrizacao = parametrizacaoRepository.findFirst();
+        if (parametrizacao == null) {
+            throw new ParametrizacaoNaoEncontradaException("Nenhuma parametrização cadastrada.");
         }
-        repo.save(dto);
-        return repo.findFirst();
+        return parametrizacao;
+    }
+    @Transactional
+    public Parametrizacao createParametrizacao(Parametrizacao parametrizacao) {
+        if (parametrizacaoRepository.exists()) {
+            throw new ParametrizacaoJaCadastradaException("Já existe uma parametrização cadastrada. Use o método de atualização.");
+        }
+        parametrizacaoRepository.save(parametrizacao);
+        return parametrizacaoRepository.findFirst();
+    }
+    @Transactional
+    public Parametrizacao updateParametrizacao(Parametrizacao parametrizacao) {
+        Parametrizacao atual = parametrizacaoRepository.findFirst();
+
+        if (atual == null) {
+            throw new ParametrizacaoNaoEncontradaException("Parametrização não encontrada para atualização.");
+        }
+
+        parametrizacao.setId(atual.getId());
+
+        parametrizacaoRepository.update(parametrizacao);
+        return parametrizacaoRepository.findFirst(); // Retorna a parametrização atualizada do banco
     }
 
-    /**Atualiza a parametrização existente com os dados fornecidos.*/
-    @Transactional
-    public Parametrizacao update(Parametrizacao dto) {
-
-        Parametrizacao atual = repo.findFirst();
-        if (atual == null)
-            new ParametrizacaoNaoEncontradaException("Parametrização não encontrada para atualização.");
-        // Copia cada campo do DTO para a entidade existente
-        atual.setNomeEmpresa(dto.getNomeEmpresa());
-        atual.setRazaoSocial(dto.getRazaoSocial());
-        atual.setEnderecoRua(dto.getEnderecoRua());
-        atual.setEnderecoBairro(dto.getEnderecoBairro());
-        atual.setEnderecoCidade(dto.getEnderecoCidade());
-        atual.setEnderecoCep(dto.getEnderecoCep());
-        atual.setEnderecoEstado(dto.getEnderecoEstado());
-        atual.setEmail(dto.getEmail());
-        atual.setTelefone(dto.getTelefone());
-        atual.setCelular(dto.getCelular());
-        atual.setNomeProprietario(dto.getNomeProprietario());
-        atual.setCnpj(dto.getCnpj());
-        atual.setLogoPequenaUrl(dto.getLogoPequenaUrl());
-        atual.setLogoGrandeUrl(dto.getLogoGrandeUrl());
-        repo.update(atual);
-        return atual;
+    public boolean existsParametrizacao() {
+        return parametrizacaoRepository.exists();
     }
 }

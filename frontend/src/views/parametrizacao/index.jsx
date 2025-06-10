@@ -1,5 +1,3 @@
-/*AQUI EM PARAMETRIZACAO EU TENHO QUE FAZER O EDITAR PARAMETRIZAÇÃO*/
-/*OLHAR O USUARIO E USURIO/EDITAR */
 import { useParametros } from "hooks/useParametros";
 import React from "react";
 import { Button, Card, Col, Row, Table } from "react-bootstrap";
@@ -7,7 +5,6 @@ import { Link, Navigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 
 const Parametrizacao = () => {
-  // Hook que provê os dados da parametrização
   const { parametros } = useParametros();
   
   const raw = localStorage.getItem("user");

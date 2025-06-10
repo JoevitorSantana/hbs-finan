@@ -35,20 +35,14 @@ const GerenciarCaixa = () => {
         carregarCaixa();
         carregarMovimentacoes();
         // carregarApoiadores();
-        calcularValorTotalCaixa();
     }, []);
 
-    const calcularValorTotalCaixa = () => {
-        let acc = 0;
-        movimentacoes?.map((mov) => {
-            if (mov.tipo == 'DM')
-                acc += mov.valor;
-            else 
-                acc -+ mov.valor;
-        });
-
-        setValorAtual(acc);
-    }
+    const calcularValorTotalCaixa = (movs) => {
+        const total = movs?.reduce((acc, mov) => {
+            return acc + parseFloat(mov.valor || 0);
+        }, 0);
+        setValorAtual(total);
+    };
 
     const carregarCaixa = async () => {
         const response = await fetch(`http://localhost:8080/caixa/${idCaixa}`, {
@@ -81,7 +75,7 @@ const GerenciarCaixa = () => {
         });
 
         setMovimentacoes(movMonetarias);
-        calcularValorTotalCaixa();
+        calcularValorTotalCaixa(movMonetarias);
     };
 
     const carregarApoiadores = async () => {
@@ -113,7 +107,6 @@ const GerenciarCaixa = () => {
                     };
 
             if (tipoDoacao == "MONETARIA") {
-                console.log(payload);
                 const response = await fetch("http://localhost:8080/doacao-monetaria/novo", {
                     method: "POST",
                     headers: {
@@ -151,11 +144,17 @@ const GerenciarCaixa = () => {
 
     const finalizarCaixa = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/caixas/finalizar/${caixa.id}`, {
+            // inserindo fechamento e valor final
+            caixa.dataFechamentoCaixa = toLocalDateTimeString();
+            caixa.valorFinal = valorAtual;
+
+            const response = await fetch(`http://localhost:8080/caixa/editar/${caixa.id}`, {
                 method: "PUT",
                 headers: {
+                    'Content-Type': 'application/json',
                     Authorization: "Bearer " + token,
                 },
+                body: JSON.stringify(caixa),
             });
 
             if (response.ok) {
@@ -178,12 +177,16 @@ const GerenciarCaixa = () => {
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title>Caixa Dia { caixa && new Date(caixa.dataAberturaCaixa).toLocaleString("pt-BR", {day: "2-digit", month: "2-digit", year: "numeric"})}</Card.Title>
+                            <Card.Title>Caixa Dia { caixa && new Date(caixa.dataAberturaCaixa).toLocaleString("pt-BR", {day: "2-digit", month: "2-digit", year: "numeric"})} - {!caixa?.dataFechamentoCaixa ? 'Aberto' : 'Finalizado'} </Card.Title>
                         </Card.Header>
                         <Card.Body>
-                            <h5>Valor atual em caixa: <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL'}).format(valorAtual)}</strong></h5>
-                            <Button variant="success" onClick={() => setShowModal(true)}>Registrar Doação</Button>{' '}
-                            <Button variant="danger" onClick={finalizarCaixa}>Finalizar Caixa</Button>
+                            <h5>Valor {!caixa?.dataFechamentoCaixa ? "atual" : "final"} em caixa: <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL'}).format(valorAtual+caixa?.valorInicial)}</strong></h5>
+                            {!caixa?.dataFechamentoCaixa && (
+                                <>
+                                    <Button variant="success" onClick={() => setShowModal(true)}>Registrar Doação</Button>{' '}
+                                    <Button variant="danger" onClick={finalizarCaixa}>Finalizar Caixa</Button>
+                                </>
+                            )}
                             <hr />
                             <h5>Movimentações do Dia</h5>
                             <Table hover responsive>

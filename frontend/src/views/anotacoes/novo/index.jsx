@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
@@ -8,12 +8,37 @@ const NovaAnotacao = () => {
     const token = localStorage.getItem("site");
 
     const [errors, setErrors] = useState({});
+    const [eventos, setEventos] = useState([]); 
 
     const [formData, setFormData] = useState({
         anotacao: '',
         data: '',
         evento: { id: '' }
     });
+
+
+    useEffect(() => {
+        const fetchEventos = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/eventos/listar', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setEventos(data);
+                } else {
+                    toast.error('Erro ao buscar eventos.');
+                }
+            } catch (error) {
+                console.error('Erro ao buscar eventos:', error);
+                toast.error('Erro na comunicação com o servidor.');
+            }
+        };
+
+        fetchEventos();
+    }, [token]);
 
     const validateFields = () => {
         const newErrors = {};
@@ -28,7 +53,7 @@ const NovaAnotacao = () => {
                 newErrors.data = 'A data deve ser hoje ou uma data futura.';
             }
         }
-        if (!formData.evento.id) newErrors.evento = 'ID do evento é obrigatório.';
+        if (!formData.evento.id) newErrors.evento = 'Selecione um evento.';
         return newErrors;
     };
 
@@ -40,20 +65,13 @@ const NovaAnotacao = () => {
         }));
     };
 
-    const handleChangeNested = (e) => {
-        const { name, value } = e.target;
 
-        if (name === "eventoId") {
-            setFormData(prevState => ({
-                ...prevState,
-                evento: { id: value }
-            }));
-        } else {
-            setFormData(prevState => ({
-                ...prevState,
-                [name]: value
-            }));
-        }
+    const handleEventoChange = (e) => {
+        const { value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            evento: { id: value }
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -138,16 +156,21 @@ const NovaAnotacao = () => {
                                     </Col>
                                     <Col md={6}>
                                         <Form.Group className="mb-3" controlId="evento.id">
-                                            <Form.Label>ID do Evento *</Form.Label>
-                                            <Form.Control
-                                                type="number"
+                                            <Form.Label>Evento *</Form.Label>
+                                            <Form.Select
                                                 name="eventoId"
                                                 value={formData.evento.id}
-                                                placeholder="ID do evento relacionado"
-                                                onChange={handleChangeNested}
+                                                onChange={handleEventoChange}
                                                 isInvalid={!!errors.evento}
                                                 isValid={formData.evento.id && !errors.evento}
-                                            />
+                                            >
+                                                <option value="">Selecione um evento</option>
+                                                {eventos.map(evento => (
+                                                    <option key={evento.id} value={evento.id}>
+                                                        {evento.nome}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
                                             <Form.Control.Feedback type="invalid">
                                                 {errors.evento}
                                             </Form.Control.Feedback>

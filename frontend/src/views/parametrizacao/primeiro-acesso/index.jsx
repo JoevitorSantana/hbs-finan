@@ -48,6 +48,8 @@ function isValidCNPJ(value) {
 const PrimeiroAcessoParametrizacao = () => {
     const { parametros } = useParametros();
     const token = localStorage.getItem("site");
+    const usu = localStorage.getItem("user");
+    const usuarioLogado = usu ? JSON.parse(usu) : null;
     const navigate = useNavigate();
     const [abaAtiva, setAbaAtiva] = useState('parametrizacao');
 
@@ -207,7 +209,7 @@ const PrimeiroAcessoParametrizacao = () => {
 
         // Inserindo Parametrização
         try {
-            const response = await fetch("http://localhost:8080/api/parametrizacao", {
+            const response = await fetch("http://localhost:8080/parametrizacao/novo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -257,12 +259,9 @@ const PrimeiroAcessoParametrizacao = () => {
             toast.error('Erro na comunicação com o servidor.');
         }
 
-        // desautenticando
-        logOut();
-
         // Excluindo Usuário Admin Padrão
-        /* try {
-            const response = await fetch(`http://localhost:8080/usuarios/excluir/${usuarioSelecionado.id}`, {
+        try {
+            const response = await fetch(`http://localhost:8080/usuarios/excluir/${usuarioLogado.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -284,7 +283,10 @@ const PrimeiroAcessoParametrizacao = () => {
             toast.error('Erro na comunicação com o servidor.');
         } finally {
             handleCloseModal();
-        } */
+        }
+
+        // desautenticando
+        logOut();
     };
 
     const validateFields = () => {
