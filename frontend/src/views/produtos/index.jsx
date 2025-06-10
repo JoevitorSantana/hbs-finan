@@ -49,8 +49,8 @@ const Produtos = () => {
                                         <th>#</th>
                                         <th>Nome</th>
                                         <th>Quantidade</th>
+                                        <th>Data</th> {/* Nova coluna */}
                                         <th>Ações</th>
-
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -59,6 +59,7 @@ const Produtos = () => {
                                             <th scope="row">{produto.id}</th>
                                             <td>{produto.nome}</td>
                                             <td>{produto.qtd}</td>
+                                            <td>{produto.dataValidade ? new Date(produto.dataValidade).toLocaleDateString('pt-BR') : '-'}</td>
                                             <td style={{ justifyContent: 'center' }} >
                                                 <Link to={ "/produtos/editar/" + produto.id }>
                                                     <Button

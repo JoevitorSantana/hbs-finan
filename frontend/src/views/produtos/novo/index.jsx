@@ -3,12 +3,12 @@ import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 
 const NovoProduto = () => {
-
     const navigate = useNavigate();
     const token = localStorage.getItem("site");
     const [formData, setFormData] = useState({
         nome: '',
-        qtd: ''
+        qtd: '',
+        dataValidade: '' // campo correto alinhado com backend
     });
 
     const handleChange = (e) => {
@@ -56,7 +56,7 @@ const NovoProduto = () => {
                         <Card.Body>
                             <Form onSubmit={handleSubmit}>
                                 <Row>
-                                    <Col md={6}>
+                                    <Col md={4}>
                                         <Form.Group className="mb-3" controlId="nome">
                                             <Form.Label>Nome</Form.Label>
                                             <Form.Control
@@ -68,23 +68,35 @@ const NovoProduto = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col md={6}>
+                                    <Col md={4}>
                                         <Form.Group className="mb-3" controlId="qtd">
                                             <Form.Label>Quantidade</Form.Label>
                                             <Form.Control
                                                 type="number"
                                                 name="qtd"
-                                                placeholder="qtd"
+                                                placeholder="Quantidade"
                                                 value={formData.qtd}
                                                 onChange={handleChange}
                                             />
                                         </Form.Group>
-                                        <Link to="/produtos">
-                                            <Button variant="secondary">Cancelar</Button>
-                                        </Link>
-                                        <Button variant="primary" type="submit">Salvar</Button>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-3" controlId="dataValidade">
+                                            <Form.Label>Data</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                name="dataValidade"
+                                                value={formData.dataValidade}
+                                                onChange={handleChange}
+                                            />
+                                        </Form.Group>
                                     </Col>
                                 </Row>
+
+                                <Link to="/produtos">
+                                    <Button variant="secondary" className="me-2">Cancelar</Button>
+                                </Link>
+                                <Button variant="primary" type="submit">Salvar</Button>
                             </Form>
                         </Card.Body>
                     </Card>
