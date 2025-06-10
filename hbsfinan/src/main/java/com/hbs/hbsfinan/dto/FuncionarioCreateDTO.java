@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class FuncionarioCreateDTO {
@@ -31,12 +32,22 @@ public class FuncionarioCreateDTO {
     private String endereco;
 
     @NotNull(message = "A data de nascimento é obrigatória")
-    private Date dataNascimento;
+    private LocalDate dataNascimento;
 
     private String sexo;
 
     @NotBlank(message = "O CPF é obrigatório")
     private String cpf;
+
+    private UsuarioCreateDTO usuario;
+
+    public UsuarioCreateDTO getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(UsuarioCreateDTO usuario) {
+        this.usuario = usuario;
+    }
 
     public String getNome() {
         return nome;
@@ -70,11 +81,11 @@ public class FuncionarioCreateDTO {
         this.endereco = endereco;
     }
 
-    public Date getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(Date dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 

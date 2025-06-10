@@ -1,137 +1,131 @@
 package com.hbs.hbsfinan.repository.implementation;
 
-import com.hbs.hbsfinan.dto.FuncionarioCreateDTO;
 import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.interfaces.IFuncionarioRepository;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class FuncionarioRepository implements IFuncionarioRepository {
 
-    private Conexao dbConn;
+    private Conexao conexao;
 
-    public FuncionarioRepository(Conexao dbConn) {
-        this.dbConn = dbConn;
+    public FuncionarioRepository(Conexao conexao) {
+        this.conexao = conexao;
     }
 
-    @Override
-    public void save(Funcionario funcionario) {
-        String sql = "INSERT INTO funcionario (nome,email,fone,endereco,data_nascimento,sexo,cpf) VALUES ('#1','#2','#3','#4','#5','#6','#7')";
-        sql = sql.replace("#1", funcionario.getNome());
-        sql = sql.replace("#2", funcionario.getEmail());
-        sql = sql.replace("#3", funcionario.getFone());
-        sql = sql.replace("#4", funcionario.getEndereco());
-        sql = sql.replace("#5", funcionario.getDataNascimento().toString());
-        sql = sql.replace("#6", funcionario.getSexo());
-        sql = sql.replace("#7", funcionario.getCpf());
-
-        dbConn.update(sql);
-    }
-
-    @Override
-    public Funcionario findById(int id) {
+    public Funcionario findByCpf(String cpf) {
         Funcionario funcionario = null;
-        String sql = "SELECT * FROM funcionario WHERE id = " + id;
-
-        try {
-            ResultSet rs = dbConn.query(sql);
+        String sql = "SELECT * FROM funcionario WHERE cpf = ?";
+        try (PreparedStatement ps = conexao.getConnection().prepareStatement(sql)) {
+            ps.setString(1, cpf);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 funcionario = mapResultSetToFuncionario(rs);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return funcionario;
     }
 
-    @Override
+    public Funcionario findById(int id) {
+        Funcionario funcionario = null;
+        String sql = "SELECT * FROM funcionario WHERE id = ?";
+        try (PreparedStatement ps = conexao.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                funcionario = mapResultSetToFuncionario(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return funcionario;
+    }
+
     public List<Funcionario> findAll() {
         List<Funcionario> lista = new ArrayList<>();
         String sql = "SELECT * FROM funcionario";
-
-        try {
-            ResultSet rs = dbConn.query(sql);
+        try (Statement stmt = conexao.getConnection().createStatement()) {
+            ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 lista.add(mapResultSetToFuncionario(rs));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return lista;
     }
 
-    @Override
-    public void delete(int id) {
-        String sql = "DELETE FROM funcionario WHERE id = " + id;
-        dbConn.update(sql);
-    }
-
-    @Override
-    public void update(Funcionario funcionario) {
-        String sql = "UPDATE funcionario SET nome = '#1', email = '#2', fone = '#3', endereco = '#4', data_nascimento = '#5', sexo = '#6', cpf = '#7' WHERE id = #8";
-        sql = sql.replace("#1", funcionario.getNome());
-        sql = sql.replace("#2", funcionario.getEmail());
-        sql = sql.replace("#3", funcionario.getFone());
-        sql = sql.replace("#4", funcionario.getEndereco());
-        sql = sql.replace("#5", funcionario.getDataNascimento().toString());
-        sql = sql.replace("#6", funcionario.getSexo());
-        sql = sql.replace("#7", funcionario.getCpf());
-        sql = sql.replace("#8", String.valueOf(funcionario.getId()));
-
-        dbConn.update(sql);
-    }
-
-    @Override
-    public Funcionario findByEmail(String email) {
-        Funcionario funcionario = null;
-        String sql = "SELECT * FROM funcionario WHERE email = '" + email + "'";
-
-        try {
-            ResultSet rs = dbConn.query(sql);
-            if (rs.next()) {
-                funcionario = mapResultSetToFuncionario(rs);
-            }
-        } catch (Exception e) {
+    public boolean save(Funcionario funcionario) {
+        String sql = "INSERT INTO funcionario (nome, cpf, email, fone, endereco, sexo, data_nascimento) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conexao.getConnection().prepareStatement(sql)) {
+            ps.setString(1, funcionario.getNome());
+            ps.setString(2, funcionario.getCpf());
+            ps.setString(3, funcionario.getEmail());
+            ps.setString(4, funcionario.getFone());
+            ps.setString(5, funcionario.getEndereco());
+            ps.setString(6, funcionario.getSexo());
+            ps.setDate(7, funcionario.getDataNascimento() != null ? Date.valueOf(funcionario.getDataNascimento()) : null);
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-
-        return funcionario;
     }
 
-    @Override
-    public Funcionario findByCpf(String cpf) {
-        Funcionario funcionario = null;
-        String sql = "SELECT * FROM funcionario WHERE cpf = '" + cpf + "'";
-
-        try {
-            ResultSet rs = dbConn.query(sql);
-            if (rs.next()) {
-                funcionario = mapResultSetToFuncionario(rs);
-            }
-        } catch (Exception e) {
+    public boolean update(Funcionario funcionario) {
+        String sql = "UPDATE funcionario SET nome = ?, cpf = ?, email = ?, fone = ?, endereco = ?, sexo = ?, data_nascimento = ? WHERE id = ?";
+        try (PreparedStatement ps = conexao.getConnection().prepareStatement(sql)) {
+            ps.setString(1, funcionario.getNome());
+            ps.setString(2, funcionario.getCpf());
+            ps.setString(3, funcionario.getEmail());
+            ps.setString(4, funcionario.getFone());
+            ps.setString(5, funcionario.getEndereco());
+            ps.setString(6, funcionario.getSexo());
+            ps.setDate(7, funcionario.getDataNascimento() != null ? Date.valueOf(funcionario.getDataNascimento()) : null);
+            ps.setInt(8, funcionario.getId());
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-
-        return funcionario;
     }
 
-    private Funcionario mapResultSetToFuncionario(ResultSet rs) throws Exception {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setId(rs.getInt("id"));
-        funcionario.setNome(rs.getString("nome"));
-        funcionario.setEmail(rs.getString("email"));
-        funcionario.setFone(rs.getString("fone"));
-        funcionario.setEndereco(rs.getString("endereco"));
-        funcionario.setDataNascimento(rs.getDate("data_nascimento"));
-        funcionario.setSexo(rs.getString("sexo"));
-        funcionario.setCpf(rs.getString("cpf"));
-        return funcionario;
+    public boolean delete(int id) {
+        String sql = "DELETE FROM funcionario WHERE id = ?";
+        try (PreparedStatement ps = conexao.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
+            int result = ps.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
+    private Funcionario mapResultSetToFuncionario(ResultSet rs) throws SQLException {
+        Funcionario f = new Funcionario();
+        f.setId(rs.getInt("id"));
+        f.setNome(rs.getString("nome"));
+        f.setCpf(rs.getString("cpf"));
+        f.setEmail(rs.getString("email"));
+        f.setFone(rs.getString("fone"));
+        f.setEndereco(rs.getString("endereco"));
+        f.setSexo(rs.getString("sexo"));
+        Date data = rs.getDate("data_nascimento");
+        if (data != null) {
+            f.setDataNascimento(data.toLocalDate());
+        }
+        return f;
+    }
+
 }

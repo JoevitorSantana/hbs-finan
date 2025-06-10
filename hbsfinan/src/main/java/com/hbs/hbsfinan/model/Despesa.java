@@ -1,54 +1,54 @@
 package com.hbs.hbsfinan.model;
 
 import jakarta.persistence.*;
-import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
-
 import java.time.LocalDate;
 
-// @Entity
+@Entity
+@Table(name = "despesa")
 public class Despesa {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "data_lancamento", nullable = false)
     private LocalDate dataLancamento;
+
+    @Column(name = "data_vencimento", nullable = false)
     private LocalDate dataVencimento;
-    private String Desc;
-    private double pagamentoTotal; //valor pagou com multa ou desconto
+
+    @Column(name = "descricao", nullable = false)
+    private String descricao;
+
+    @Column(name = "pagamento_total", nullable = false)
+    private Double pagamentoTotal; // valor efetivo pago (com multa/ desconto)
+
+    @Column(name = "valor", nullable = false)
     private double valor;
+
+    @Column(name = "data_quitacao")
     private LocalDate dataQuitacao;
 
-    //one to one ->cada pessoa tem um cpf
-    //many to one ->um cliente pode ter mts pedidos
-
-
-    @ManyToOne
-    @JoinColumn(name = "caixa_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_caixa", nullable = false)
     private Caixa caixa;
-
-    public Caixa getCaixa() {
-        return caixa;
-    }
-
-    public void setCaixa(Caixa caixa) {
-        this.caixa = caixa;
-    }
 
     public Despesa() {
     }
 
-
-    public Despesa(int id, LocalDate dataLancamento, LocalDate dataVencimento, String desc, double pagamentoTotal, double valor, LocalDate dataQuitacao /*, Caixa caixa*/) {
+    public Despesa(int id, LocalDate dataLancamento, LocalDate dataVencimento, String descricao,
+                   double pagamentoTotal, double valor, LocalDate dataQuitacao, Caixa caixa) {
         this.id = id;
         this.dataLancamento = dataLancamento;
         this.dataVencimento = dataVencimento;
-        Desc = desc;
+        this.descricao = descricao;
         this.pagamentoTotal = pagamentoTotal;
         this.valor = valor;
         this.dataQuitacao = dataQuitacao;
-        //this.caixa = caixa;
+        this.caixa = caixa;
     }
+
+    // Getters e Setters
 
     public int getId() {
         return id;
@@ -74,19 +74,19 @@ public class Despesa {
         this.dataVencimento = dataVencimento;
     }
 
-    public String getDesc() {
-        return Desc;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public void setDesc(String desc) {
-        Desc = desc;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
     public double getPagamentoTotal() {
         return pagamentoTotal;
     }
 
-    public void setPagamentoTotal(double pagamentoTotal) {
+    public void setPagamentoTotal(Double pagamentoTotal) {
         this.pagamentoTotal = pagamentoTotal;
     }
 
@@ -104,5 +104,13 @@ public class Despesa {
 
     public void setDataQuitacao(LocalDate dataQuitacao) {
         this.dataQuitacao = dataQuitacao;
+    }
+
+    public Caixa getCaixa() {
+        return caixa;
+    }
+
+    public void setCaixa(Caixa caixa) {
+        this.caixa = caixa;
     }
 }

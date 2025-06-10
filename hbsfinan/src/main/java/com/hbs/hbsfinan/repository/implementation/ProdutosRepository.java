@@ -14,43 +14,35 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Repository
+@Repository
 public class ProdutosRepository implements IProdutosRepository {
 
     //@Autowired
     //private Conexao dbConn = SingletonDB.getConexao();
-    //private Conexao dbConn = Conexao.getInstance();
-    /*ALTEREI/ADICIONEI DESSA PARTE*/
-    private Conexao dbConn; // Não inicializa mais aqui
 
-    // Construtor para receber a instância de Conexao
+    private Conexao dbConn;
+
     public ProdutosRepository(Conexao dbConn) {
         this.dbConn = dbConn;
     }
-    /*A ESSA*/
 
-    private RowMapper<Produtos> rowMapper = (rs, rowNum) -> {
-        Produtos produtos = new Produtos();
-        produtos.setId(rs.getInt("id"));
-        produtos.setNome(rs.getString("nome"));
-        produtos.setQtd(rs.getLong("qtd"));
-
-        return produtos;
-    };
     @Override
     public void save(Produtos produtos) {
-        String sql = "INSERT INTO produtos (nome, qtd) values ('#1', '#2')";
+        String sql = "INSERT INTO produtos (nome, qtd, data_validade) VALUES ('#1', #2, #3)";
         sql = sql.replace("#1", produtos.getNome());
-        sql = sql.replace("#2", "" + produtos.getQtd());
+        sql = sql.replace("#2", String.valueOf(produtos.getQtd()));
+        sql = sql.replace("#3",
+                produtos.getDataValidade() != null
+                        ? "'" + produtos.getDataValidade().toString() + "'"
+                        : "NULL"
+        );
         dbConn.update(sql);
     }
-
 
     @Override
     public Produtos findById(int id) {
         Produtos produtos = null;
-        String sql = "SELECT * FROM produtos WHERE id = #1";
-        sql = sql.replace("#1", "" + id);
+        String sql = "SELECT * FROM produtos WHERE id = " + id;
         try {
             ResultSet rs = dbConn.query(sql);
             if (rs.next()) {
@@ -59,15 +51,15 @@ public class ProdutosRepository implements IProdutosRepository {
                 produtos.setNome(rs.getString("nome"));
                 produtos.setQtd(rs.getLong("qtd"));
 
-
-
+                if (rs.getDate("data_validade") != null) {
+                    produtos.setDataValidade(rs.getDate("data_validade").toLocalDate());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return produtos;
     }
-
 
     @Override
     public List<Produtos> findAll() {
@@ -76,15 +68,16 @@ public class ProdutosRepository implements IProdutosRepository {
         try {
             ResultSet rs = dbConn.query(sql);
             while (rs.next()) {
-                Produtos produtos1 = new Produtos();
-                produtos1.setId(rs.getInt("id"));
-                produtos1.setNome(rs.getString("nome"));
-                produtos1.setQtd(rs.getLong("qtd"));
+                Produtos p = new Produtos();
+                p.setId(rs.getInt("id"));
+                p.setNome(rs.getString("nome"));
+                p.setQtd(rs.getLong("qtd"));
 
+                if (rs.getDate("data_validade") != null) {
+                    p.setDataValidade(rs.getDate("data_validade").toLocalDate());
+                }
 
-
-
-                produtos.add(produtos1);
+                produtos.add(p);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,22 +87,28 @@ public class ProdutosRepository implements IProdutosRepository {
 
     @Override
     public boolean delete(int id) {
-        String sql = "DELETE FROM produtos WHERE id =#1";
-        sql=sql.replace("#1",""+id);
+        String sql = "DELETE FROM produtos WHERE id = " + id;
         return dbConn.update(sql);
     }
 
-
     @Override
     public void update(Produtos produtos) {
-        String sql = "UPDATE produtos SET nome = '#1', qtd = '#2' WHERE id = #3";
+        String sql = "UPDATE produtos SET nome = '#1', qtd = #2, data_validade = #3 WHERE id = #4";
         sql = sql.replace("#1", produtos.getNome());
-        sql = sql.replace("#2", "" + produtos.getQtd());
-        sql = sql.replace("#3", "" + produtos.getId());
+        sql = sql.replace("#2", String.valueOf(produtos.getQtd()));
+        sql = sql.replace("#3",
+                produtos.getDataValidade() != null
+                        ? "'" + produtos.getDataValidade().toString() + "'"
+                        : "NULL"
+        );
+        sql = sql.replace("#4", String.valueOf(produtos.getId()));
+        System.out.println("Nome: " + produtos.getNome());
+        System.out.println("Quantidade: " + produtos.getQtd());
+        System.out.println("Data validade: " + produtos.getDataValidade());
+        System.out.println("SQL gerado: " + sql);
 
         dbConn.update(sql);
     }
-
 
 
 

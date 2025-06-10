@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IDespesaRepository {
 
-    void save(DespesaCreateDTO despesa);
+    void save(Despesa despesa);
     Despesa findById(int id);
     List<Despesa> findAll();
     void delete(int id);

@@ -32,7 +32,7 @@ const menuItems = {
           title: 'Despesas',
           type: 'item',
           icon: 'feather icon-percent',
-          url: '/despesas'
+          url: '/despesas',
         },
         {
           id: 'doacoes',
@@ -58,12 +58,6 @@ const menuItems = {
               type: 'item',
               url: '/doacao/monetaria'
             },
-            {
-              id: 'instituicao',
-              title: 'Doação para Instituição',
-              type: 'item',
-              url: '/doacao/instituicao'
-            }
           ],
         },
         {
@@ -79,12 +73,6 @@ const menuItems = {
               url: '/eventos'
             },
             {
-              id: 'anotacoes',
-              title: 'Ver Anotacoes de Eventos',
-              type: 'item',
-              url: '/anotacoes'
-            },
-            {
               id: 'inscrever',
               title: 'Inscrever-se Evento',
               type: 'item',
@@ -96,7 +84,6 @@ const menuItems = {
               type: 'item',
               url: '/eventos/listar'
             },
-
           ],
         },
         {

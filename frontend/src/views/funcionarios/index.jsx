@@ -114,51 +114,47 @@ const Funcionarios = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {funcionarios &&
-                    funcionarios
-                      .filter(
-                        (func) =>
-                          func.nome
-                            .toLowerCase()
-                            .includes(filtroNome.toLowerCase()) &&
-                          func.cpf
-                            .replace(/\D/g, "")
-                            .includes(filtroCpf.replace(/\D/g, ""))
-                      )
-                      .map((funcionario) => (
-                        <tr key={funcionario.id}>
-                          <th scope="row">{funcionario.id}</th>
-                          <td>{funcionario.nome}</td>
-                          <td>{funcionario.email}</td>
-                          <td>{funcionario.fone}</td>
-                          <td>{funcionario.endereco}</td>
-                          <td>
-                            {funcionario.dataNascimento
-                              ? new Date(funcionario.dataNascimento).toLocaleDateString("pt-BR")
-                              : ""}
-                          </td>
-                          <td>{funcionario.sexo}</td>
-                          <td>{funcionario.cpf}</td>
-                          <td>
-                            <Link to={`/funcionarios/editar/${funcionario.id}`}>
-                              <Button
-                                size="sm"
-                                className="label theme-bg text-white f-12"
-                              >
-                                <FaEdit />
-                              </Button>
-                            </Link>
-                            <Button
-                              size="sm"
-                              className="label theme-bg2 text-white f-12"
-                              onClick={() => handleAbrirModalExcluir(funcionario)}
-                            >
-                              <FaRegTrashAlt />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                </tbody>
+  {funcionarios &&
+    funcionarios
+      .filter((func) => {
+        const nomeValido = func.nome?.toLowerCase().includes(filtroNome.toLowerCase());
+        const cpfFunc = func.cpf ?? "";
+        const cpfFiltro = filtroCpf ?? "";
+        const cpfValido = cpfFunc.replace(/\D/g, "").includes(cpfFiltro.replace(/\D/g, ""));
+        return nomeValido && cpfValido;
+      })
+      .map((funcionario) => (
+        <tr key={funcionario.id}>
+          <th scope="row">{funcionario.id}</th>
+          <td>{funcionario.nome}</td>
+          <td>{funcionario.email}</td>
+          <td>{funcionario.fone}</td>
+          <td>{funcionario.endereco}</td>
+          <td>
+            {funcionario.dataNascimento
+              ? new Date(funcionario.dataNascimento).toLocaleDateString("pt-BR")
+              : ""}
+          </td>
+          <td>{funcionario.sexo}</td>
+          <td>{funcionario.cpf}</td>
+          <td>
+            <Link to={`/funcionarios/editar/${funcionario.id}`}>
+              <Button size="sm" className="label theme-bg text-white f-12">
+                <FaEdit />
+              </Button>
+            </Link>
+            <Button
+              size="sm"
+              className="label theme-bg2 text-white f-12"
+              onClick={() => handleAbrirModalExcluir(funcionario)}
+            >
+              <FaRegTrashAlt />
+            </Button>
+          </td>
+        </tr>
+      ))}
+</tbody>
+
               </Table>
             </Card.Body>
           </Card>

@@ -1,25 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Card, Col, Form, Row, Alert } from "react-bootstrap";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const QuitarDespesa = () => {
-  const { id } = useParams(); // id da despesa na URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("site");
 
+  // Função para pegar data atual no formato YYYY-MM-DD
+  const getDataAtualFormatada = () => {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0"); // mês começa do 0
+    const dia = String(hoje.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+  };
+
+  // Inicializa o estado com data atual no campo dataQuitacao
   const [formData, setFormData] = useState({
-    dataQuitacao: "",
+    dataQuitacao: getDataAtualFormatada(),
     pagamentoTotal: ""
   });
 
   const [errosValidacao, setErrosValidacao] = useState({});
   const [erroServidor, setErroServidor] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrosValidacao(prev => ({ ...prev, [name]: null }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrosValidacao((prev) => ({ ...prev, [name]: null }));
   };
 
   const validarCampos = () => {
@@ -44,6 +55,8 @@ const QuitarDespesa = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await fetch(`http://localhost:8080/despesas/quitar/${id}`, {
         method: "PUT",
@@ -64,6 +77,8 @@ const QuitarDespesa = () => {
     } catch (err) {
       console.error("Erro ao quitar:", err);
       setErroServidor("Erro de comunicação com o servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,13 +95,16 @@ const QuitarDespesa = () => {
               <Row>
                 <Col md={6}>
                   <Form.Group controlId="dataQuitacao" className="mb-3">
-                    <Form.Label>Data da Quitação <span style={{ color: "red" }}>*</span></Form.Label>
+                    <Form.Label>
+                      Data da Quitação <span style={{ color: "red" }}>*</span>
+                    </Form.Label>
                     <Form.Control
                       type="date"
                       name="dataQuitacao"
                       value={formData.dataQuitacao}
                       onChange={handleChange}
                       isInvalid={!!errosValidacao.dataQuitacao}
+                      disabled={loading}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errosValidacao.dataQuitacao}
@@ -96,13 +114,16 @@ const QuitarDespesa = () => {
 
                 <Col md={6}>
                   <Form.Group controlId="pagamentoTotal" className="mb-3">
-                    <Form.Label>Valor Pago <span style={{ color: "red" }}>*</span></Form.Label>
+                    <Form.Label>
+                      Valor Pago <span style={{ color: "red" }}>*</span>
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       name="pagamentoTotal"
                       value={formData.pagamentoTotal}
                       onChange={handleChange}
                       isInvalid={!!errosValidacao.pagamentoTotal}
+                      disabled={loading}
                     />
                     <Form.Control.Feedback type="invalid">
                       {errosValidacao.pagamentoTotal}
@@ -112,12 +133,12 @@ const QuitarDespesa = () => {
 
                 <Col md={12}>
                   <Link to="/despesas">
-                    <Button variant="secondary" className="me-2">
+                    <Button variant="secondary" className="me-2" disabled={loading}>
                       Cancelar
                     </Button>
                   </Link>
-                  <Button variant="primary" type="submit">
-                    Quitar
+                  <Button variant="primary" type="submit" disabled={loading}>
+                    {loading ? "Processando..." : "Quitar"}
                   </Button>
                 </Col>
               </Row>

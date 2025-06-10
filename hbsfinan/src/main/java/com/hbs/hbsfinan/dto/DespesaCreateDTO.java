@@ -1,31 +1,25 @@
 package com.hbs.hbsfinan.dto;
 
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 
 public class DespesaCreateDTO {
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "A data de lançamento é obrigatória")
     private LocalDate dataLancamento;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "A data de vencimento é obrigatória")
     private LocalDate dataVencimento;
 
     @NotBlank(message = "A descrição é obrigatória")
-    private String Desc;
-
-//    @NotNull(message = "O valor total é obrigatório")
-//    private Double pagamentoTotal; //valor se pagou com multa ou desconto
+    private String descricao;
 
     @NotNull(message = "O valor é obrigatório")
     private Double valor;
-
-//    @NotNull(message = "A data de quitação é obrigatória")
-//    private LocalDate dataQuitacao;
-
 
     public LocalDate getDataLancamento() {
         return dataLancamento;
@@ -43,21 +37,13 @@ public class DespesaCreateDTO {
         this.dataVencimento = dataVencimento;
     }
 
-    public String getDesc() {
-        return Desc;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public void setDesc(String desc) {
-        Desc = desc;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
-
-//    public Double getPagamentoTotal() {
-//        return pagamentoTotal;
-//    }
-//
-//    public void setPagamentoTotal(Double pagamentoTotal) {
-//        this.pagamentoTotal = pagamentoTotal;
-//    }
 
     public Double getValor() {
         return valor;
@@ -67,12 +53,6 @@ public class DespesaCreateDTO {
         this.valor = valor;
     }
 
-//    public LocalDate getDataQuitacao() {
-//        return dataQuitacao;
-//    }
-//
-//    public void setDataQuitacao(LocalDate dataQuitacao) {
-//        this.dataQuitacao = dataQuitacao;
-//    }
-}
 
+
+}

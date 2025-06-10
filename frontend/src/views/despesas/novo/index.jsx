@@ -1,84 +1,115 @@
-import React, { useState } from "react";
-import { Button, Card, Col, Form, Row, Alert } from "react-bootstrap";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Card, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 
 const NovaDespesa = () => {
-  const { idCaixa } = useParams(); // recebe o idCaixa pela URL
+  const { idCaixa } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("site");
 
-  const [formData, setFormData] = useState({
-    dataLancamento: '',
-    dataVencimento: '',
-    descricao: '',
-    valor: ''
-  });
+  const [descricao, setDescricao] = useState('');
+  const [valor, setValor] = useState('');
+  const [dataVencimento, setDataVencimento] = useState('');
 
-  const [erroServidor, setErroServidor] = useState("");
-  const [errosValidacao, setErrosValidacao] = useState({});
+  // Estados para validação visual
+  const [isDescricaoValid, setIsDescricaoValid] = useState(null);
+  const [isValorValid, setIsValorValid] = useState(null);
+  const [isDataVencimentoValid, setIsDataVencimentoValid] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrosValidacao(prev => ({ ...prev, [name]: null }));
+  const [mensagemErro, setMensagemErro] = useState('');
+  const [mensagemSucesso, setMensagemSucesso] = useState('');
+
+  const dataLancamento = new Date().toISOString().split('T')[0];
+
+  // Validações
+  const validarDescricao = (valor) => {
+    const valido = valor.trim().length > 0;
+    setIsDescricaoValid(valido);
+    return valido;
   };
 
-  const validarCampos = () => {
-    const erros = {};
-    const dataLanc = new Date(formData.dataLancamento);
-    const dataVenc = new Date(formData.dataVencimento);
-
-    if (!formData.dataLancamento) erros.dataLancamento = "Data de lançamento é obrigatória.";
-    if (!formData.dataVencimento) erros.dataVencimento = "Data de vencimento é obrigatória.";
-    if (!formData.descricao) erros.descricao = "Descrição é obrigatória.";
-    if (!formData.valor) {
-      erros.valor = "Valor é obrigatório.";
-    } else if (isNaN(Number(formData.valor)) || Number(formData.valor) < 0) {
-      erros.valor = "Valor deve ser um número positivo.";
-    }
-
-    if (formData.dataLancamento && formData.dataVencimento && dataLanc > dataVenc) {
-      erros.dataVencimento = "Data de vencimento deve ser igual ou posterior à data de lançamento.";
-    }
-
-    return erros;
+  const validarValor = (valor) => {
+    const numero = parseFloat(valor);
+    const valido = !isNaN(numero) && numero > 0;
+    setIsValorValid(valido);
+    return valido;
   };
 
-  const handleSubmit = async (e) => {
+  const validarDataVencimento = (data) => {
+    if (!data) {
+      setIsDataVencimentoValid(false);
+      return false;
+    }
+    const hoje = new Date();
+    const dataInformada = new Date(data + 'T00:00:00');
+    const valido = dataInformada >= new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    setIsDataVencimentoValid(valido);
+    return valido;
+  };
+
+  // Handlers para mudanças nos inputs
+  const handleDescricaoChange = (e) => {
+    setDescricao(e.target.value);
+    validarDescricao(e.target.value);
+  };
+
+  const handleValorChange = (e) => {
+    setValor(e.target.value);
+    validarValor(e.target.value);
+  };
+
+  const handleDataVencimentoChange = (e) => {
+    setDataVencimento(e.target.value);
+    validarDataVencimento(e.target.value);
+  };
+
+  // Submit do form
+  const handleSalvar = async (e) => {
     e.preventDefault();
-    setErroServidor("");
-    const erros = validarCampos();
-    if (Object.keys(erros).length > 0) {
-      setErrosValidacao(erros);
+
+    const descValida = validarDescricao(descricao);
+    const valValido = validarValor(valor);
+    const dataValida = validarDataVencimento(dataVencimento);
+
+    if (!idCaixa) {
+      setMensagemErro('ID do caixa não informado na URL.');
+      setMensagemSucesso('');
       return;
     }
 
-    try {
-      console.log(token)
-      console.log("Token:", token);
-console.log("URL:", `http://localhost:8080/despesas/editar/${idDespesa}`);
+    const novaDespesa = {
+      descricao,
+      valor: parseFloat(valor),
+      dataLancamento,
+      dataVencimento
+    };
 
-      const response = await fetch(`http://localhost:8080/despesas/caixa/${idCaixa}`, {
-        method: 'POST',
+    try {
+      await axios.post(`http://localhost:8080/despesas/caixa/${idCaixa}`, novaDespesa, {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
-          
-        },
-        body: JSON.stringify(formData)
+        }
       });
 
-      if (response.ok) {
-        toast.success("Despesa lançada com sucesso!");
-        setTimeout(() => navigate('/despesas'), 1500);
-      } else {
-        const errorData = await response.json();
-        setErroServidor(errorData.message || "Erro ao salvar a despesa.");
-      }
+      setMensagemSucesso('Despesa criada com sucesso!');
+      setMensagemErro('');
+
+      // Resetar formulário e validações
+      setDescricao('');
+      setValor('');
+      setDataVencimento('');
+      setIsDescricaoValid(null);
+      setIsValorValid(null);
+      setIsDataVencimentoValid(null);
+
+      setTimeout(() => navigate('/despesas'), 1500);
+
     } catch (error) {
-      console.error("Erro na comunicação:", error);
-      setErroServidor('Erro na comunicação com o servidor.');
+      console.error(error);
+      setMensagemErro('Erro ao salvar despesa. Tente novamente mais tarde.');
+      setMensagemSucesso('');
     }
   };
 
@@ -87,81 +118,78 @@ console.log("URL:", `http://localhost:8080/despesas/editar/${idDespesa}`);
       <Col sm={12}>
         <Card>
           <Card.Header>
-            <Card.Title as="h5">Nova Despesa</Card.Title>
+            <Card.Title as="h5">Nova Despesa - Caixa {idCaixa}</Card.Title>
           </Card.Header>
           <Card.Body>
-            {erroServidor && <Alert variant="danger">{erroServidor}</Alert>}
-            <Form onSubmit={handleSubmit}>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3" controlId="dataLancamento">
-                    <Form.Label>Data de Lançamento <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="date"
-                      name="dataLancamento"
-                      value={formData.dataLancamento}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.dataLancamento}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.dataLancamento}
-                    </Form.Control.Feedback>
-                  </Form.Group>
+            {mensagemErro && <Alert variant="danger">{mensagemErro}</Alert>}
+            {mensagemSucesso && <Alert variant="success">{mensagemSucesso}</Alert>}
 
-                  <Form.Group className="mb-3" controlId="dataVencimento">
-                    <Form.Label>Data de Vencimento <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="date"
-                      name="dataVencimento"
-                      value={formData.dataVencimento}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.dataVencimento}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.dataVencimento}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
+            <Form noValidate onSubmit={handleSalvar}>
+              <Form.Group className="mb-3" controlId="descricao">
+                <Form.Label>Descrição</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={descricao}
+                  onChange={handleDescricaoChange}
+                  isInvalid={isDescricaoValid === false}
+                  isValid={isDescricaoValid === true}
+                  placeholder="Digite a descrição da despesa"
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  A descrição é obrigatória.
+                </Form.Control.Feedback>
+                <Form.Control.Feedback type="valid">
+                  Descrição válida.
+                </Form.Control.Feedback>
+              </Form.Group>
 
-                <Col md={6}>
-                  <Form.Group className="mb-3" controlId="valor">
-                    <Form.Label>Valor <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      name="valor"
-                      value={formData.valor}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.valor}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.valor}
-                    </Form.Control.Feedback>
-                  </Form.Group>
+              <Form.Group className="mb-3" controlId="valor">
+                <Form.Label>Valor (R$)</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  value={valor}
+                  onChange={handleValorChange}
+                  isInvalid={isValorValid === false}
+                  isValid={isValorValid === true}
+                  placeholder="Informe o valor da despesa"
+                  required
+                  min="0.01"
+                />
+                <Form.Control.Feedback type="invalid">
+                  Informe um valor maior que zero.
+                </Form.Control.Feedback>
+                <Form.Control.Feedback type="valid">
+                  Valor válido.
+                </Form.Control.Feedback>
+              </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="descricao">
-                    <Form.Label>Descrição <span style={{ color: 'red' }}>*</span></Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="descricao"
-                      value={formData.descricao}
-                      onChange={handleChange}
-                      isInvalid={!!errosValidacao.descricao}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errosValidacao.descricao}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
+              <Form.Group className="mb-3" controlId="dataVencimento">
+                <Form.Label>Data de Vencimento</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={dataVencimento}
+                  onChange={handleDataVencimentoChange}
+                  isInvalid={isDataVencimentoValid === false}
+                  isValid={isDataVencimentoValid === true}
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Data inválida. Não pode ser anterior à data atual.
+                </Form.Control.Feedback>
+                <Form.Control.Feedback type="valid">
+                  Data válida.
+                </Form.Control.Feedback>
+              </Form.Group>
 
-                <Col md={12}>
-                  <Link to="/despesas">
-                    <Button variant="secondary" className="me-2">Cancelar</Button>
-                  </Link>
-                  <Button variant="primary" type="submit">Cadastrar</Button>
-                </Col>
-              </Row>
+              <Button variant="secondary" onClick={() => navigate('/despesas')} className="me-2">
+                Cancelar
+              </Button>
+              <Button variant="primary" type="submit">
+                Salvar Despesa
+              </Button>
             </Form>
           </Card.Body>
         </Card>
