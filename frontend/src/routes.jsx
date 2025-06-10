@@ -159,10 +159,20 @@
           path: '/doacao/alimenticia',
           element: lazy(() => import('./views/doacoes/alimenticia'))
         },
+         {
+          exact: 'true',
+          path: '/doacao/alimenticia/novo',
+          element: lazy(() => import('./views/doacoes/alimenticia/novo'))
+        },
         {
           exact: 'true',
           path: '/doacao/material',
           element: lazy(() => import('./views/doacoes/material'))
+        },
+        {
+          exact: 'true',
+          path: '/doacao/material/novo',
+          element: lazy(() => import('./views/doacoes/material/novo'))
         },
         {
           exact: 'true',
@@ -219,6 +229,17 @@
           path: '/apoiador',
           element: lazy(() => import('./views/apoiador'))
         },
+                {
+          exact: 'true',
+          path: '/apoiador/novo',
+          element: lazy(() => import('./views/apoiador/novo'))
+        },
+{
+  exact: 'true',
+  path: '/apoiador/editar/:id',
+  element: lazy(() => import('./views/apoiador/editar'))
+},
+
         {
           exact: 'true',
           path: '/parametrizacao',
