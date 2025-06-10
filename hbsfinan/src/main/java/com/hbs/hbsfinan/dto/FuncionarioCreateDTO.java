@@ -39,6 +39,16 @@ public class FuncionarioCreateDTO {
     @NotBlank(message = "O CPF é obrigatório")
     private String cpf;
 
+    private UsuarioCreateDTO usuario;
+
+    public UsuarioCreateDTO getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(UsuarioCreateDTO usuario) {
+        this.usuario = usuario;
+    }
+
     public String getNome() {
         return nome;
     }

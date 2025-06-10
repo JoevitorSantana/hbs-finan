@@ -8,6 +8,7 @@ import java.util.Date;
 @Entity
 public class Funcionario {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nome;
     private String email;
@@ -21,6 +22,7 @@ public class Funcionario {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+
     private Usuario usuario;
 
     public Usuario getUsuario() {

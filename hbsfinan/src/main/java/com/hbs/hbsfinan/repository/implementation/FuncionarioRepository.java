@@ -2,13 +2,16 @@ package com.hbs.hbsfinan.repository.implementation;
 
 import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Funcionario;
+import com.hbs.hbsfinan.repository.interfaces.IFuncionarioRepository;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FuncionarioRepository {
+@Repository
+public class FuncionarioRepository implements IFuncionarioRepository {
 
     private Conexao conexao;
 

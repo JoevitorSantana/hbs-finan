@@ -5,6 +5,7 @@ import com.hbs.hbsfinan.exceptions.FuncionarioNotFoundException;
 import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.Funcionario;
 import com.hbs.hbsfinan.repository.implementation.FuncionarioRepository;
+import com.hbs.hbsfinan.repository.implementation.UsuarioRepository;
 import com.hbs.hbsfinan.service.FuncionarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,10 @@ public class FuncionarioController {
     public FuncionarioController() {
         Conexao conexao = Conexao.getInstance();
         FuncionarioRepository funcionarioRepository = new FuncionarioRepository(conexao);
-        this.funcionarioService = new FuncionarioService(funcionarioRepository);
+        UsuarioRepository usuarioRepository = new UsuarioRepository(conexao);
+        this.funcionarioService = new FuncionarioService(funcionarioRepository, usuarioRepository);
     }
+
 
     @PostMapping("/novo")
     public ResponseEntity<?> save(@Valid @RequestBody FuncionarioCreateDTO funcionariodto) {
