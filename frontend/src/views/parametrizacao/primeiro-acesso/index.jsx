@@ -209,7 +209,7 @@ const PrimeiroAcessoParametrizacao = () => {
 
         // Inserindo Parametrização
         try {
-            const response = await fetch("http://localhost:8080/api/parametrizacao", {
+            const response = await fetch("http://localhost:8080/parametrizacao/novo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

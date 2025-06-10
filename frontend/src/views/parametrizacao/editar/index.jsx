@@ -145,7 +145,7 @@ const EditarParametrizacao = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/parametrizacao", {
+      const response = await fetch("http://localhost:8080/parametrizacao/editar", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
