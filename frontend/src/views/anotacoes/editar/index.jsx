@@ -21,7 +21,8 @@ const EditarAnotacao = () => {
         if (anotacao) {
             setFormData({
                 anotacao: anotacao.anotacao || '',
-                data: anotacao.data || '',
+                // Format the date correctly for the date input
+                data: anotacao.data ? new Date(anotacao.data).toISOString().split('T')[0] : '',
             });
         }
     }, [anotacao]);
@@ -29,7 +30,23 @@ const EditarAnotacao = () => {
     const validateFields = () => {
         const newErrors = {};
         if (!formData.anotacao) newErrors.anotacao = 'Anotação é obrigatória.';
-        if (!formData.data) newErrors.data = 'Data é obrigatória.';
+        
+        // --- INÍCIO DA VALIDAÇÃO DA DATA ---
+        if (!formData.data) {
+            newErrors.data = 'Data é obrigatória.';
+        } else {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0); // Zera o tempo para comparar apenas as datas
+
+            // Adiciona o fuso horário local para evitar problemas de um dia a menos
+            const dataSelecionada = new Date(formData.data + 'T00:00:00');
+
+            if (dataSelecionada < hoje) {
+                newErrors.data = 'A data deve ser hoje ou uma data futura.';
+            }
+        }
+        // --- FIM DA VALIDAÇÃO DA DATA ---
+
         return newErrors;
     };
 
@@ -40,6 +57,7 @@ const EditarAnotacao = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrors({}); // Limpa os erros antigos antes de validar novamente
 
         const validationErrors = validateFields();
         if (Object.keys(validationErrors).length > 0) {
