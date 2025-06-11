@@ -19,6 +19,13 @@ public class DoacaoInstituicaoRepository implements IDoacaoInstituicaoRepository
 
     @Override
     public void save(DoacaoInstituicaoCreateDTO dto) {
+
+        System.out.println("Recebido no back:");
+        System.out.println("Nome: " + dto.getNome());
+        System.out.println("CNPJ: " + dto.getCnpj());
+        System.out.println("Data: " + dto.getData());
+        System.out.println("Valor: " + dto.getValor());
+        System.out.println("Caixa: " + dto.getIdCaixa());
         String dataFormatada = new SimpleDateFormat("yyyy-MM-dd").format(dto.getData());
         String sql = "INSERT INTO doacao_instituicao (nome, cnpj, data, valor, id_caixa) " +
                 "VALUES ('#1', '#2', '#3', #4, #5)";
