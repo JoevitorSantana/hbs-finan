@@ -12,21 +12,24 @@ const EditarProduto = () => {
     const [formData, setFormData] = useState({
         nome: '',
         qtd: '',
-        dataValidade: '' // adicionando o campo data
+        dataValidade: ''
     });
-useEffect(() => {
-    if (produto != null) {
-        let dataFormatada = '';
-        if (produto.dataValidade) {
-            dataFormatada = produto.dataValidade.split('T')[0]; // Ajusta para 'yyyy-MM-dd'
+    const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        if (produto != null) {
+            let dataFormatada = '';
+            if (produto.dataValidade) {
+                dataFormatada = produto.dataValidade.split('T')[0]; // yyyy-MM-dd
+            }
+            setFormData({
+                nome: produto.nome,
+                qtd: produto.qtd,
+                dataValidade: dataFormatada
+            });
         }
-        setFormData({
-            nome: produto.nome,
-            qtd: produto.qtd,
-            dataValidade: dataFormatada
-        });
-    }
-}, [produto]);
+    }, [produto]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
@@ -35,41 +38,54 @@ useEffect(() => {
         }));
     };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const dataParaEnviar = formData.dataValidade === '' ? null : formData.dataValidade;
-
-    const corpo = {
-        nome: formData.nome,
-        qtd: formData.qtd,
-        dataValidade: dataParaEnviar
+    const validate = () => {
+        const newErrors = {};
+        if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório.";
+        if (formData.qtd === '' || isNaN(formData.qtd) || Number(formData.qtd) < 0)
+            newErrors.qtd = "Quantidade deve ser um número positivo.";
+        return newErrors;
     };
 
-    console.log('Enviando dados:', corpo);
-
-    try {
-        const response = await fetch(`http://localhost:8080/produtos/editar/${idProduto}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify(corpo)
-        });
-
-        if (response.status === 200) {
-            alert('Produto alterado com sucesso!');
-            navigate('/produtos');
-        } else {
-            const errorData = await response.json();
-            alert('Erro ao alterar produto: ' + (errorData.message || 'Erro desconhecido'));
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
         }
-    } catch (error) {
-        console.error('Erro ao alterar produto:', error);
-        alert('Erro na comunicação com o servidor.');
-    }
-};
+        setErrors({});
+
+        const dataParaEnviar = formData.dataValidade === '' ? null : formData.dataValidade;
+        const corpo = {
+            nome: formData.nome,
+            qtd: formData.qtd,
+            dataValidade: dataParaEnviar
+        };
+
+        console.log('Enviando dados:', corpo);
+
+        try {
+            const response = await fetch(`http://localhost:8080/produtos/editar/${idProduto}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify(corpo)
+            });
+
+            if (response.status === 200) {
+                alert('Produto alterado com sucesso!');
+                navigate('/produtos');
+            } else {
+                const errorData = await response.json();
+                alert('Erro ao alterar produto: ' + (errorData.message || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            console.error('Erro ao alterar produto:', error);
+            alert('Erro na comunicação com o servidor.');
+        }
+    };
 
     return (
         <React.Fragment>
@@ -91,7 +107,11 @@ useEffect(() => {
                                                 value={formData.nome}
                                                 placeholder="Nome"
                                                 onChange={handleChange}
+                                                isInvalid={!!errors.nome}
                                             />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.nome}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
                                     <Col md={4}>
@@ -103,18 +123,22 @@ useEffect(() => {
                                                 placeholder="Quantidade"
                                                 value={formData.qtd}
                                                 onChange={handleChange}
+                                                isInvalid={!!errors.qtd}
                                             />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.qtd}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
                                     <Col md={4}>
-                                        <Form.Group className="mb-3" controlId="data">
+                                        <Form.Group className="mb-3" controlId="dataValidade">
                                             <Form.Label>Data</Form.Label>
-                                           <Form.Control
-                                            type="date"
-                                            name="dataValidade" // ✅ alterado
-                                            value={formData.dataValidade}
-                                            onChange={handleChange}
-                                        />
+                                            <Form.Control
+                                                type="date"
+                                                name="dataValidade"
+                                                value={formData.dataValidade}
+                                                onChange={handleChange}
+                                            />
                                         </Form.Group>
                                     </Col>
                                 </Row>

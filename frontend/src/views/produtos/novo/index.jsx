@@ -8,8 +8,9 @@ const NovoProduto = () => {
     const [formData, setFormData] = useState({
         nome: '',
         qtd: '',
-        dataValidade: '' // campo correto alinhado com backend
+        dataValidade: ''
     });
+    const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -19,15 +20,29 @@ const NovoProduto = () => {
         }));
     };
 
+    const validate = () => {
+        const newErrors = {};
+        if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório.";
+        if (formData.qtd === '' || isNaN(formData.qtd) || Number(formData.qtd) < 0)
+            newErrors.qtd = "Quantidade deve ser um número positivo.";
+        return newErrors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        setErrors({});
 
         try {
             const response = await fetch('http://localhost:8080/produtos/novo', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization' : 'Bearer ' + token
+                    'Authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify(formData)
             });
@@ -43,7 +58,7 @@ const NovoProduto = () => {
             console.error('Erro ao cadastrar produto:', error);
             alert('Erro na comunicação com o servidor.');
         }
-    }
+    };
 
     return (
         <React.Fragment>
@@ -65,7 +80,11 @@ const NovoProduto = () => {
                                                 value={formData.nome}
                                                 placeholder="Nome"
                                                 onChange={handleChange}
+                                                isInvalid={!!errors.nome}
                                             />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.nome}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
                                     <Col md={4}>
@@ -77,7 +96,11 @@ const NovoProduto = () => {
                                                 placeholder="Quantidade"
                                                 value={formData.qtd}
                                                 onChange={handleChange}
+                                                isInvalid={!!errors.qtd}
                                             />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.qtd}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
                                     </Col>
                                     <Col md={4}>
@@ -104,6 +127,6 @@ const NovoProduto = () => {
             </Row>
         </React.Fragment>
     );
-}
+};
 
 export default NovoProduto;
