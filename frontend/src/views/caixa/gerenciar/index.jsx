@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { GiPayMoney, GiReceiveMoney } from "react-icons/gi";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { color } from "d3";
+import { format, isValid } from "date-fns"; // Importa 'isValid' para checar a data
 
 
 function toLocalDateTimeString() {
@@ -64,16 +65,16 @@ const GerenciarCaixa = () => {
       );
       const dataMonetaria = await respMonetaria.json();
 
-      const movMonetarias = dataMonetaria?.map((d) => {
-        // const apoiadorEncontrado = apoiadores.find((a) => a.id === d.apoiador.id);
-        return {
-          id: d.id,
-          data: d.data,
-          apoiador: d.apoiador ? d.apoiador.nome : "Apoiador desconhecido",
-          valor: parseFloat(d.valor),
-          tipo: "DM",
-        };
-      }) || [];
+     const movMonetarias = dataMonetaria?.map((d) => ({
+      id: d.id,
+      data: new Date(d.data), // <- manter como objeto Date
+      dataFormatada: isValid(new Date(d.data)) 
+        ? format(new Date(d.data), "dd/MM/yyyy HH:mm:ss") 
+        : "Data inválida",
+      apoiador: d.apoiador ? d.apoiador.nome : "Apoiador desconhecido",
+      valor: parseFloat(d.valor),
+      tipo: "DM",
+    })) || [];
 
       const respInstituicao = await fetch(
         `http://localhost:8080/doacao-instituicao/caixa/${idCaixa}`,
@@ -82,12 +83,15 @@ const GerenciarCaixa = () => {
       const dataInstituicao = await respInstituicao.json();
 
       const movInstituicao = dataInstituicao?.map((d) => ({
-        id: d.id,
-        data: d.data,
-        nome: d.nome || "Instituição desconhecida",
-        valor: parseFloat(d.valor),
-        tipo: "DI",
-      })) || [];
+      id: d.id,
+      data: new Date(d.data),
+      dataFormatada: isValid(new Date(d.data)) 
+        ? format(new Date(d.data), "dd/MM/yyyy HH:mm:ss") 
+        : "Data inválida",
+      nome: d.nome || "Instituição desconhecida",
+      valor: parseFloat(d.valor),
+      tipo: "DI",
+    })) || [];
 
       const todasMovimentacoes = [...movMonetarias, ...movInstituicao];
       todasMovimentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
