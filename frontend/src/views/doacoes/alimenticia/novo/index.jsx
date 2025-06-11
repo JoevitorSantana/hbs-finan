@@ -16,6 +16,7 @@ const NovaDoacaoProduto = () => {
   const [formData, setFormData] = useState({
     funcionarioId: "",
     tipoDoacao: "",
+    observacao: "",
     produtos: [{ produtoId: "", quantidade: "", tipoMovimentacao: "" }],
   });
 
@@ -60,13 +61,6 @@ const NovaDoacaoProduto = () => {
 
     fetchDados();
   }, [token]);
-
-  const tiposDoacao = [
-    { value: "ENTRADA_DOACAO_ALIMENTICIA", label: "Entrada por Doação Alimentícia" },
-    { value: "SAIDA_DOACAO_ALIMENTICIA", label: "Saída por Doação Alimentícia" },
-    { value: "ENTRADA_DOACAO_MATERIAL", label: "Entrada por Doação de Material" },
-    { value: "SAIDA_DOACAO_MATERIAL", label: "Saída por Doação de Material" },
-  ];
 
   const tiposMovimentacao = [
     { value: "ENTRADA_DOACAO_ALIMENTICIA", label: "Entrada por Doação Alimentícia" },
@@ -155,6 +149,7 @@ const NovaDoacaoProduto = () => {
     const dataToSend = {
       funcionarioId: Number(formData.funcionarioId),
       tipoDoacao: formData.tipoDoacao,
+      observacao: formData.observacao.trim() || null,
       movimentacoes: formData.produtos.map((p) => ({
         produtoId: Number(p.produtoId),
         quantidadeMovimentada: Number(p.quantidade),
@@ -163,7 +158,7 @@ const NovaDoacaoProduto = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/estoque/movimentarMultiplos", {
+      const response = await fetch("http://localhost:8080/api/estoque/movimentar", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -237,12 +232,24 @@ const NovaDoacaoProduto = () => {
                     isInvalid={errors.tipoDoacao}
                   >
                     <option value="">-- Selecione --</option>
-                    {tiposDoacao.map((tipo) => (
+                    {tiposMovimentacao.map((tipo) => (
                       <option key={tipo.value} value={tipo.value}>
                         {tipo.label}
                       </option>
                     ))}
                   </Form.Select>
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="observacao">
+                  <Form.Label>Observação</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="observacao"
+                    value={formData.observacao}
+                    onChange={handleChange}
+                    placeholder="Digite uma observação (opcional)"
+                  />
                 </Form.Group>
 
                 {formData.produtos.map((produto, index) => (
@@ -297,10 +304,10 @@ const NovaDoacaoProduto = () => {
                           </Form.Select>
                         </Form.Group>
                       </Col>
-                      <Col md={1} className="d-flex align-items-center">
-                        {index > 0 && (
-                          <Button variant="danger" onClick={() => removerProduto(index)} title="Remover Produto">
-                            &times;
+                      <Col md={2} className="d-flex align-items-end">
+                        {formData.produtos.length > 1 && (
+                          <Button variant="danger" onClick={() => removerProduto(index)}>
+                            Remover
                           </Button>
                         )}
                       </Col>
@@ -308,16 +315,13 @@ const NovaDoacaoProduto = () => {
                   </div>
                 ))}
 
-                <Button variant="secondary" onClick={adicionarProduto} className="mb-3">
-                  + Adicionar Produto
+                <Button variant="secondary" onClick={adicionarProduto}>
+                  Adicionar Produto
                 </Button>
 
-                <div>
-                  <Button type="submit" variant="primary">
+                <div className="mt-4 d-flex justify-content-end">
+                  <Button variant="primary" type="submit">
                     Salvar
-                  </Button>
-                  <Button variant="outline-secondary" className="ms-2" onClick={() => navigate("/doacao")}>
-                    Cancelar
                   </Button>
                 </div>
               </Form>
