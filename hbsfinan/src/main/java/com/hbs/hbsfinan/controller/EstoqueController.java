@@ -1,18 +1,19 @@
 package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.MovimentacaoEstoqueRequestDTO;
-import com.hbs.hbsfinan.dto.ProdutoEstoqueDTO;
 import com.hbs.hbsfinan.dto.RestResponseMessage;
+import com.hbs.hbsfinan.exceptions.ProdutoNotFoundException;
+import com.hbs.hbsfinan.exceptions.FuncionarioNotFoundException;
+import com.hbs.hbsfinan.exceptions.EstoqueInsuficienteException;
+import com.hbs.hbsfinan.exceptions.MovimentacaoEstoqueNotFoundException;
+import com.hbs.hbsfinan.exceptions.DoacaoInvalidaException;
+
 import com.hbs.hbsfinan.infra.db.Conexao;
 import com.hbs.hbsfinan.model.MovimentacaoEstoque;
 import com.hbs.hbsfinan.service.EstoqueService;
 import jakarta.validation.Valid;
-// Não precisa mais de @Autowired aqui se o controller não tiver outras dependências Spring
-// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// Não precisa de JdbcTemplate aqui se o EstoqueService não o recebe mais
-// import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,67 +27,88 @@ public class EstoqueController {
 
     public EstoqueController() {
         this.dbConnFactory = Conexao.getInstance();
+        if (this.dbConnFactory == null || !this.dbConnFactory.getEstadoConexao()) {
+            throw new RuntimeException("Falha na inicialização da Conexao no EstoqueController.");
+        }
         this.estoqueService = new EstoqueService(this.dbConnFactory);
     }
 
     @PostMapping("/movimentar")
-    public ResponseEntity<RestResponseMessage> registrarNovaMovimentacao(@Valid @RequestBody MovimentacaoEstoqueRequestDTO dto) {
+    public ResponseEntity<RestResponseMessage> registrarMovimentacoes(@Valid @RequestBody List<MovimentacaoEstoqueRequestDTO> movimentacoes) {
         try {
-            estoqueService.registrarMovimentacao(dto);
+            List<MovimentacaoEstoque> movimentacoesSalvas = estoqueService.registrarMovimentacoes(movimentacoes);
+
+            String msg = movimentacoesSalvas.size() + " movimentação(ões) de estoque registrada(s) com sucesso.";
+            if (!movimentacoesSalvas.isEmpty()) {
+                msg += " IDs dos produtos: " + movimentacoesSalvas.stream().map(m -> m.getProduto().getId()).toList();
+            }
+
             RestResponseMessage mensagemSucesso = new RestResponseMessage(
                     HttpStatus.CREATED,
-                    "Movimentação de estoque registrada com sucesso!"
+                    msg
             );
             return new ResponseEntity<>(mensagemSucesso, HttpStatus.CREATED);
 
-        } catch (IllegalArgumentException e) {
-            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.BAD_REQUEST, e.getMessage());
-            return new ResponseEntity<>(mensagemErro, HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
+        } catch (ProdutoNotFoundException | FuncionarioNotFoundException e) {
+            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(mensagemErro, HttpStatus.NOT_FOUND);
+        } catch (EstoqueInsuficienteException | IllegalArgumentException | DoacaoInvalidaException e) {
             RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<>(mensagemErro, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             e.printStackTrace();
             RestResponseMessage mensagemErro = new RestResponseMessage(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Ocorreu um erro inesperado ao processar a movimentação de estoque."
+                    "Ocorreu um erro inesperado ao processar as movimentações de estoque: " + e.getMessage()
             );
             return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-//    @GetMapping("/saldos")
-//    public ResponseEntity<?> visualizarSaldosEstoque() {
-//        try {
-//            List<ProdutoEstoqueDTO> saldos = estoqueService.listarProdutosComEstoque();
-//            if (saldos == null || saldos.isEmpty()) {
-//                return new ResponseEntity<>(saldos, HttpStatus.OK);
-//            }
-//            return ResponseEntity.ok(saldos);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            RestResponseMessage mensagemErro = new RestResponseMessage(
-//                    HttpStatus.INTERNAL_SERVER_ERROR,
-//                    "Ocorreu um erro inesperado ao buscar os saldos do estoque."
-//            );
-//            return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-    @GetMapping("/saldos")
-    public ResponseEntity<?> visualizarMovimentacoesEstoque() { // Nome do método atualizado para clareza
+    @GetMapping("/listar")
+    public ResponseEntity<List<MovimentacaoEstoque>> visualizarMovimentacoesEstoque() {
         try {
             List<MovimentacaoEstoque> movimentacoes = estoqueService.listarTodasMovimentacoes();
-            if (movimentacoes == null || movimentacoes.isEmpty()) {
-                return new ResponseEntity<>(movimentacoes, HttpStatus.OK);
-            }
             return ResponseEntity.ok(movimentacoes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao buscar as movimentações do estoque.", e);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MovimentacaoEstoque> buscarMovimentacaoPorId(@PathVariable Long id) {
+        try {
+            MovimentacaoEstoque movimentacao = estoqueService.findMovimentacaoById(id);
+            return ResponseEntity.ok(movimentacao);
+        } catch (MovimentacaoEstoqueNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao buscar a movimentação de estoque por ID.", e);
+        }
+    }
+
+    @DeleteMapping("/excluir/{id}")
+    public ResponseEntity<RestResponseMessage> excluirMovimentacao(@PathVariable Long id) {
+        try {
+            estoqueService.excluirMovimentacao(id);
+            RestResponseMessage mensagemSucesso = new RestResponseMessage(
+                    HttpStatus.OK,
+                    "Movimentação de estoque excluída com sucesso!"
+            );
+            return new ResponseEntity<>(mensagemSucesso, HttpStatus.OK);
+        } catch (MovimentacaoEstoqueNotFoundException e) {
+            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(mensagemErro, HttpStatus.NOT_FOUND);
+        } catch (EstoqueInsuficienteException e) {
+            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<>(mensagemErro, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             e.printStackTrace();
             RestResponseMessage mensagemErro = new RestResponseMessage(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    // Mensagem de erro mais específica
-                    "Ocorreu um erro inesperado ao buscar as movimentações do estoque."
+                    "Ocorreu um erro inesperado ao excluir a movimentação de estoque: " + e.getMessage()
             );
             return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
         }
