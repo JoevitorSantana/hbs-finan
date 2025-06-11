@@ -108,11 +108,20 @@ const EditarParametrizacao = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let formattedValue = value;
+
+    if (name === "telefone") formattedValue = formatTelefone(value);
+    else if (name === "celular") formattedValue = formatCelular(value);
+    else if (name === "cnpj") formattedValue = formatCNPJ(value);
+    else if (name === "enderecoCep") formattedValue = formatCEP(value);
+
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: false }));
     }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
