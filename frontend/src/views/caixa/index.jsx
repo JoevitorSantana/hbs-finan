@@ -114,6 +114,7 @@ const Caixas = () => {
                                     <th>#</th>
                                     <th>Data Abertura</th>
                                     <th>Valor Inicial</th>
+                                    <th>Status</th>
                                     {/*<th>Responsável</th>*/}
                                     <th>Ações</th>
                                 </tr>
@@ -124,6 +125,7 @@ const Caixas = () => {
                                         <th scope="row">{caixa.id}</th>
                                         <td>{caixa.dataAberturaCaixa && new Date(caixa.dataAberturaCaixa).toLocaleString("pt-BR", {day: "2-digit", month: "2-digit", year: "numeric"})}</td>
                                         <td>R$ {caixa.valorInicial.toFixed(2)}</td>
+                                        <td>{caixa.dataFechamentoCaixa ? "Fechado" : "Aberto"}</td>
                                         {/*<td>{caixa.nomeUsuario}</td>*/}
                                         <td>
                                             <Link to={`/caixa/gerenciar/${caixa.id}`}>

@@ -1,5 +1,6 @@
 package com.hbs.hbsfinan.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -15,16 +16,17 @@ public class DoacaoMonetaria {
 
     private long valor;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date data;
 
     @ManyToOne
     @JoinColumn(name = "id_ap")//ver se esta certo
-    @JsonIgnore
+    // @JsonIgnore
     private Apoiador apoiador;
 
     @ManyToOne
     @JoinColumn(name = "id_caixa")//ver se esta certo
-    @JsonIgnore
+ //   @JsonIgnore
     private Caixa caixa;
 
     public DoacaoMonetaria() {
@@ -62,7 +64,7 @@ public class DoacaoMonetaria {
         this.data = data;
     }
 
-    @JsonIgnore
+    // @JsonIgnore
     public Apoiador getApoiador() {
         return apoiador;
     }
