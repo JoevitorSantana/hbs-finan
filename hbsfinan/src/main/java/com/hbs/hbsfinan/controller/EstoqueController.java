@@ -1,25 +1,17 @@
 package com.hbs.hbsfinan.controller;
 
-import com.hbs.hbsfinan.dto.MovimentacaoEstoqueRequestDTO;
-import com.hbs.hbsfinan.dto.RestResponseMessage;
-import com.hbs.hbsfinan.exceptions.ProdutoNotFoundException;
-import com.hbs.hbsfinan.exceptions.FuncionarioNotFoundException;
-import com.hbs.hbsfinan.exceptions.EstoqueInsuficienteException;
-import com.hbs.hbsfinan.exceptions.MovimentacaoEstoqueNotFoundException;
-import com.hbs.hbsfinan.exceptions.DoacaoInvalidaException;
-
-import com.hbs.hbsfinan.infra.db.Conexao;
-import com.hbs.hbsfinan.model.MovimentacaoEstoque;
+import com.hbs.hbsfinan.model.Produtos;
 import com.hbs.hbsfinan.service.EstoqueService;
-import jakarta.validation.Valid;
+import com.hbs.hbsfinan.infra.db.Conexao;
+import com.hbs.hbsfinan.dto.EstoqueAtualizacaoDTO;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/estoque")
+@RequestMapping("/estoque")
 public class EstoqueController {
 
     private Conexao dbConnFactory;
@@ -27,90 +19,34 @@ public class EstoqueController {
 
     public EstoqueController() {
         this.dbConnFactory = Conexao.getInstance();
-        if (this.dbConnFactory == null || !this.dbConnFactory.getEstadoConexao()) {
-            throw new RuntimeException("Falha na inicialização da Conexao no EstoqueController.");
-        }
-        this.estoqueService = new EstoqueService(this.dbConnFactory);
+        this.estoqueService = new EstoqueService(dbConnFactory);
     }
 
-    @PostMapping("/movimentar")
-    public ResponseEntity<RestResponseMessage> registrarMovimentacoes(@Valid @RequestBody List<MovimentacaoEstoqueRequestDTO> movimentacoes) {
+    /** Endpoint para atualizar a quantidade de estoque de um produto. */
+    @PostMapping("/atualizar")
+    public ResponseEntity<?> atualizarEstoque(
+            @Valid @RequestBody EstoqueAtualizacaoDTO requestDTO // <<-- Mudança aqui!
+    ) {
+        Produtos produtoAtualizado;
         try {
-            List<MovimentacaoEstoque> movimentacoesSalvas = estoqueService.registrarMovimentacoes(movimentacoes);
+            // A lógica if/else para o tipo agora é desnecessária aqui,
+            // pois o TipoMovimentacao já é um enum no DTO e será validado pelo Spring.
+            // O service já espera o enum.
+            produtoAtualizado = estoqueService.atualizarQuantidadeEstoque(
+                    requestDTO.getProdutoId(),
+                    requestDTO.getTipo(),
+                    requestDTO.getQuantidade()
+            );
 
-            String msg = movimentacoesSalvas.size() + " movimentação(ões) de estoque registrada(s) com sucesso.";
-            if (!movimentacoesSalvas.isEmpty()) {
-                msg += " IDs dos produtos: " + movimentacoesSalvas.stream().map(m -> m.getProduto().getId()).toList();
+            return ResponseEntity.ok(produtoAtualizado);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("não encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             }
-
-            RestResponseMessage mensagemSucesso = new RestResponseMessage(
-                    HttpStatus.CREATED,
-                    msg
-            );
-            return new ResponseEntity<>(mensagemSucesso, HttpStatus.CREATED);
-
-        } catch (ProdutoNotFoundException | FuncionarioNotFoundException e) {
-            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
-            return new ResponseEntity<>(mensagemErro, HttpStatus.NOT_FOUND);
-        } catch (EstoqueInsuficienteException | IllegalArgumentException | DoacaoInvalidaException e) {
-            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.BAD_REQUEST, e.getMessage());
-            return new ResponseEntity<>(mensagemErro, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            e.printStackTrace();
-            RestResponseMessage mensagemErro = new RestResponseMessage(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Ocorreu um erro inesperado ao processar as movimentações de estoque: " + e.getMessage()
-            );
-            return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/listar")
-    public ResponseEntity<List<MovimentacaoEstoque>> visualizarMovimentacoesEstoque() {
-        try {
-            List<MovimentacaoEstoque> movimentacoes = estoqueService.listarTodasMovimentacoes();
-            return ResponseEntity.ok(movimentacoes);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Erro ao buscar as movimentações do estoque.", e);
-        }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<MovimentacaoEstoque> buscarMovimentacaoPorId(@PathVariable Long id) {
-        try {
-            MovimentacaoEstoque movimentacao = estoqueService.findMovimentacaoById(id);
-            return ResponseEntity.ok(movimentacao);
-        } catch (MovimentacaoEstoqueNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Erro ao buscar a movimentação de estoque por ID.", e);
-        }
-    }
-
-    @DeleteMapping("/excluir/{id}")
-    public ResponseEntity<RestResponseMessage> excluirMovimentacao(@PathVariable Long id) {
-        try {
-            estoqueService.excluirMovimentacao(id);
-            RestResponseMessage mensagemSucesso = new RestResponseMessage(
-                    HttpStatus.OK,
-                    "Movimentação de estoque excluída com sucesso!"
-            );
-            return new ResponseEntity<>(mensagemSucesso, HttpStatus.OK);
-        } catch (MovimentacaoEstoqueNotFoundException e) {
-            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
-            return new ResponseEntity<>(mensagemErro, HttpStatus.NOT_FOUND);
-        } catch (EstoqueInsuficienteException e) {
-            RestResponseMessage mensagemErro = new RestResponseMessage(HttpStatus.BAD_REQUEST, e.getMessage());
-            return new ResponseEntity<>(mensagemErro, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            e.printStackTrace();
-            RestResponseMessage mensagemErro = new RestResponseMessage(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Ocorreu um erro inesperado ao excluir a movimentação de estoque: " + e.getMessage()
-            );
-            return new ResponseEntity<>(mensagemErro, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno ao processar a atualização de estoque: " + e.getMessage());
         }
     }
 }
