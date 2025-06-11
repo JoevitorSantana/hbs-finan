@@ -2,12 +2,16 @@ package com.hbs.hbsfinan.controller;
 
 import com.hbs.hbsfinan.dto.RestResponseMessage;
 import com.hbs.hbsfinan.exceptions.InscricaoEventoNotFoundException;
+import com.hbs.hbsfinan.exceptions.ApoiadorNotFoundException; // Importar exceções de validação
+import com.hbs.hbsfinan.exceptions.EventoNotFoundException;   // Importar exceções de validação
 import com.hbs.hbsfinan.infra.db.Conexao;
-import com.hbs.hbsfinan.infra.db.SingletonDB;
+// import com.hbs.hbsfinan.infra.db.SingletonDB; // Não é mais necessário, já que usamos Conexao.getInstance()
 import com.hbs.hbsfinan.model.InscricaoEvento;
+import com.hbs.hbsfinan.repository.implementation.ApoiadorRepository; // Necessário para instanciar a Service
+import com.hbs.hbsfinan.repository.implementation.EventoRepository;     // Necessário para instanciar a Service
+import com.hbs.hbsfinan.repository.implementation.InscricaoEventoRepository; // Necessário para instanciar a Service
 import com.hbs.hbsfinan.service.InscricaoEventoService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +21,33 @@ import java.util.List;
 @RestController
 @RequestMapping("/inscricoes-evento")
 public class InscricaoEventoController {
-    @Autowired
+    private Conexao dbConnFactory;
     private InscricaoEventoService inscricaoEventoService;
 
+    public InscricaoEventoController() {
+        this.dbConnFactory = Conexao.getInstance();
+        if (dbConnFactory == null || !dbConnFactory.getEstadoConexao()) {
+            throw new RuntimeException("Falha na inicialização da Conexao no InscricaoEventoController.");
+        }
+        this.inscricaoEventoService = new InscricaoEventoService(dbConnFactory);
+    }
+
     @PostMapping("/nova")
-    public ResponseEntity save(@Valid @RequestBody InscricaoEvento inscricaoEvento) {
+    public ResponseEntity<RestResponseMessage> save(@Valid @RequestBody InscricaoEvento inscricaoEvento) {
         try {
             inscricaoEventoService.save(inscricaoEvento);
             RestResponseMessage message = new RestResponseMessage(HttpStatus.CREATED, "Inscrição realizada com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.CREATED);
+        } catch (ApoiadorNotFoundException e) {
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        } catch (EventoNotFoundException e) {
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         } catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+            e.printStackTrace();
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao realizar inscrição: " + e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -37,26 +57,30 @@ public class InscricaoEventoController {
             return ResponseEntity.ok(inscricaoEventoService.findAll());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity update(@PathVariable Long id, @RequestBody InscricaoEvento inscricaoEvento) {
+    public ResponseEntity<RestResponseMessage> update(@PathVariable Long id, @RequestBody InscricaoEvento inscricaoEvento) {
         try {
-            InscricaoEvento oldInscricao = inscricaoEventoService.findById(id);
-
-            // Atualiza apenas se vier valor novo (você pode expandir para mais campos)
-            if (inscricaoEvento.getApoiador() != null)
-                oldInscricao.setApoiador(inscricaoEvento.getApoiador());
-            if (inscricaoEvento.getEvento() != null)
-                oldInscricao.setEvento(inscricaoEvento.getEvento());
-
-            inscricaoEventoService.update(oldInscricao);
+            inscricaoEvento.setId(id);
+            inscricaoEventoService.update(inscricaoEvento);
             RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Inscrição atualizada com sucesso!");
             return new ResponseEntity<>(message, HttpStatus.OK);
         } catch (InscricaoEventoNotFoundException e) {
-            throw new InscricaoEventoNotFoundException(e.getMessage());
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        } catch (ApoiadorNotFoundException e) {
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        } catch (EventoNotFoundException e) {
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao atualizar inscrição: " + e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,16 +90,26 @@ public class InscricaoEventoController {
             InscricaoEvento inscricaoEvento = inscricaoEventoService.findById(id);
             return ResponseEntity.ok(inscricaoEvento);
         } catch (InscricaoEventoNotFoundException e) {
-            throw new InscricaoEventoNotFoundException(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @DeleteMapping("/excluir/{id}")
-    public ResponseEntity delete(@PathVariable Long id) {
-        inscricaoEventoService.findById(id);
-        inscricaoEventoService.delete(id);
-        RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Inscrição excluída com sucesso!");
-        return new ResponseEntity<>(message, HttpStatus.OK);
+    public ResponseEntity<RestResponseMessage> delete(@PathVariable Long id) {
+        try {
+            inscricaoEventoService.delete(id);
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.OK, "Inscrição excluída com sucesso!");
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (InscricaoEventoNotFoundException e) {
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            RestResponseMessage message = new RestResponseMessage(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao excluir inscrição: " + e.getMessage());
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
-
