@@ -1,3 +1,4 @@
+
 package com.hbs.hbsfinan.repository.implementation;
 
 import com.hbs.hbsfinan.infra.db.Conexao;
@@ -129,3 +130,4 @@ public class FuncionarioRepository implements IFuncionarioRepository {
     }
 
 }
+
