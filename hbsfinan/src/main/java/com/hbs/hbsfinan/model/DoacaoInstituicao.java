@@ -22,7 +22,7 @@ public class DoacaoInstituicao {
 
     @ManyToOne
     @JoinColumn(name = "id_caixa")//ver se esta certo
-    @JsonIgnore
+ //   @JsonIgnore
     private Caixa caixa;
 
 

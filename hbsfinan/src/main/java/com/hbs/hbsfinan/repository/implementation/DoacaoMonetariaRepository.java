@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,29 +21,23 @@ public class DoacaoMonetariaRepository implements IDoacaoMonetariaRepository {
     //@Autowired
     private Conexao dbConn = Conexao.getInstance();
 
-    private RowMapper<DoacaoMonetaria> rowMapper = (rs, rowNum) ->
-    {
-        DoacaoMonetaria doacaoMonetaria = new DoacaoMonetaria();
-        doacaoMonetaria.setId(rs.getInt("id"));
-        doacaoMonetaria.setValor(rs.getLong("valor"));
-        doacaoMonetaria.setData(rs.getDate("data"));
 
-
-        //ver se esta certo
-        Apoiador apoiador = new Apoiador();
-        apoiador.setId(rs.getLong("id_ap"));
-        doacaoMonetaria.setApoiador(apoiador);
-
-        return doacaoMonetaria;
-    };
 
     @Override
     public void save(DoacaoMonetariaCreateDTO doacaoMonetaria) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+        String dataFormatada = sdf.format(doacaoMonetaria.getData());
+
+
         String sql = "INSERT INTO doacao_monetaria (valor, data, id_ap, id_caixa) values(#1, '#2', #3, #4)";
         sql = sql.replace("#1", "" + doacaoMonetaria.getValor());
-        sql = sql.replace("#2", doacaoMonetaria.getData().toString());
+        sql = sql.replace("#2", dataFormatada);
         sql = sql.replace("#3", "" + doacaoMonetaria.getIdApoiador());
         sql = sql.replace("#4", "" + doacaoMonetaria.getIdCaixa());
+
         dbConn.update(sql);
     }
 
