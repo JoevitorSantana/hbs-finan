@@ -18,7 +18,7 @@ public class DoacaoProduto {
 
     private LocalDate data;
 
-    @OneToMany(mappedBy = "doacaoProduto", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "doacaoProduto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemDoacao> itens;
 
     public Long getId() {

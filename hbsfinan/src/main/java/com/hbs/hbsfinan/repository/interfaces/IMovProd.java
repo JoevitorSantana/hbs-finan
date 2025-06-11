@@ -1,6 +1,6 @@
 package com.hbs.hbsfinan.repository.interfaces; // Seguindo sua estrutura
 
-import com.hbs.hbsfinan.model.MovimentacaoEstoque;
+
 import com.hbs.hbsfinan.model.MovimentacaoProd;
 
 import java.util.List;

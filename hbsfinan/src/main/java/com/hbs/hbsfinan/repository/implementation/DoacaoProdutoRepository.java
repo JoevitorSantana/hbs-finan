@@ -174,14 +174,30 @@ public class DoacaoProdutoRepository implements IDoacaoAlimenticia {
 
     @Override
     public void delete(int id) {
-        String sql = "DELETE FROM doacao_produto WHERE id = ?";
+        String sqlDeleteItens = "DELETE FROM item_doacao WHERE doacao_produto_id = ?";
+        String sqlDeleteDoacao = "DELETE FROM doacao_produto WHERE id = ?";
 
-        try (Connection conn = dbConn.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dbConn.getConnection()) {
+            conn.setAutoCommit(false);  // começa a transação
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
+            try (PreparedStatement psItens = conn.prepareStatement(sqlDeleteItens);
+                 PreparedStatement psDoacao = conn.prepareStatement(sqlDeleteDoacao)) {
 
+                // Deleta os itens
+                psItens.setInt(1, id);
+                psItens.executeUpdate();
+
+                // Deleta a doação
+                psDoacao.setInt(1, id);
+                psDoacao.executeUpdate();
+
+                conn.commit(); // confirma a transação
+            } catch (SQLException e) {
+                conn.rollback(); // desfaz em caso de erro
+                throw e;
+            } finally {
+                conn.setAutoCommit(true); // volta ao padrão
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao deletar doação", e);
         }
