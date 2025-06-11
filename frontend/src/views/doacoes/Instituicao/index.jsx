@@ -73,12 +73,12 @@ const DoacoesInstituicao = () => {
                                 </Link>
                             </div>
                             <Form.Control
-                                type="text"
-                                placeholder="Buscar por instituição ou valor..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="mt-3"
-                            />
+                            type="text"
+                            placeholder="Buscar por instituição..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="mt-3"
+                        />
                         </Card.Header>
                         <Card.Body>
                             <Table responsive hover>
