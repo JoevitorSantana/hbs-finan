@@ -206,6 +206,21 @@
         },
         {
           exact: 'true',
+          path: '/anotacoes',
+          element: lazy(() => import('./views/anotacoes'))
+        },
+        {
+          exact: 'true',
+          path: '/anotacoes/novo',
+          element: lazy(() => import('./views/anotacoes/novo'))
+        },
+        {
+          exact: 'true',
+          path: '/anotacoes/editar/*',
+          element: lazy(() => import('./views/anotacoes/editar'))
+        },
+        {
+          exact: 'true',
           path: '/funcionarios',
           element: lazy(() => import('./views/funcionarios'))
         },
