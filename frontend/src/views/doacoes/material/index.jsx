@@ -1,15 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Card, Col, Row, Table, Form } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { IoPersonAdd } from "react-icons/io5";
 import { useDoacoes, formatarData } from "hooks/useDoacaoPM";
+import { Link } from 'react-router-dom';
 
 const DoacoesMateriais = () => {
   const { doacoes } = useDoacoes();
   const token = localStorage.getItem("site");
+
+  const [listaDoacoes, setListaDoacoes] = useState([]);
+
+  useEffect(() => {
+    setListaDoacoes(doacoes);
+  }, [doacoes]);
 
   const [filtroData, setFiltroData] = useState("");
   const [filtroFuncionarioId, setFiltroFuncionarioId] = useState("");
@@ -25,7 +31,7 @@ const DoacoesMateriais = () => {
               variant="danger"
               onClick={async () => {
                 try {
-                  const response = await fetch(`http://localhost:8080/doacao/excluir/${id}`, {
+                  const response = await fetch(`http://localhost:8080/api/doacoesmaterial/${id}`, {
                     method: 'DELETE',
                     headers: {
                       'Content-Type': 'application/json',
@@ -34,6 +40,7 @@ const DoacoesMateriais = () => {
                   });
 
                   if (response.ok) {
+                    setListaDoacoes(prev => prev.filter(doacao => doacao.id !== id));
                     toast.success("Doação excluída com sucesso!");
                     setTimeout(() => window.location.reload(), 1500);
                   } else {
@@ -58,27 +65,27 @@ const DoacoesMateriais = () => {
     );
   };
 
-  const doacoesFiltradas = doacoes.filter((doacao) => {
-    const dataFormatada = formatarData(doacao.dataHoraMovimentacao);
-    const funcionarioId = String(doacao.funcionario.id);
+  const doacoesFiltradas = listaDoacoes.filter((doacao) => {
+    const dataFormatada = formatarData(doacao.data);
+    const funcionarioId = String(doacao.funcionario?.id || '');
 
-    return (
-      dataFormatada.includes(filtroData) &&
-      funcionarioId.includes(filtroFuncionarioId)
-    );
+    const filtroDataValida = filtroData === "" || dataFormatada.includes(filtroData);
+    const filtroFuncionarioValido = filtroFuncionarioId === "" || funcionarioId.includes(filtroFuncionarioId);
+
+    return filtroDataValida && filtroFuncionarioValido;
   });
 
   return (
-    <React.Fragment>
+    <>
       <Row>
         <Col sm={12}>
           <Card>
             <Card.Header>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                 <Card.Title as="h5">Doações de Materiais</Card.Title>
-                <Link to="/doacao/material/novo">
-                  <Button variant="primary"><IoPersonAdd /> Nova Doação</Button>
-                </Link>
+                <Button as={Link} to="/doacao/material/novo" variant="primary">
+                  <IoPersonAdd /> Nova Doação
+                </Button>
               </div>
               <div style={{ marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <Form.Control
@@ -113,44 +120,48 @@ const DoacoesMateriais = () => {
                   <tr>
                     <th>#</th>
                     <th>ID Funcionário</th>
-                    <th>Materiais</th>
-                    <th>Quantidade</th>
+                    <th>Produtos (Nome e Quantidade)</th>
+                    <th>Quantidade Total</th>
                     <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Observação</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {doacoesFiltradas.length > 0 ? (
-                    doacoesFiltradas.map((doacao) => (
-                      <tr key={doacao.id}>
-                        <th scope="row">{doacao.id}</th>
-                        <td>{doacao.funcionario.id}</td>
-                        <td>
-                          {Array.isArray(doacao.produtos)
-                            ? doacao.produtos.map(produto => produto.nome || produto.id).join(', ')
-                            : doacao.produto?.nome || doacao.produto?.id || '—'}
-                        </td>
-                        <td>{doacao.quantidadeMovimentada}</td>
-                        <td>{formatarData(doacao.dataHoraMovimentacao)}</td>
-                        <td>{doacao.tipo}</td>
-                        <td>{doacao.observacao}</td>
-                        <td>
-                          <Button
-                            size="sm"
-                            className="label theme-bg2 text-white f-12"
-                            title="Excluir"
-                            onClick={() => handleDeleteDoacao(doacao.id)}
-                          >
-                            <FaRegTrashAlt />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))
+                    doacoesFiltradas.map((doacao) => {
+                      const materiaisTexto = Array.isArray(doacao.itens) && doacao.itens.length > 0
+                        ? doacao.itens
+                            .map(item => `${item.produto?.nome || '—'} (${item.quantidade || 0})`)
+                            .join(', ')
+                        : '—';
+
+                      const quantidadeTotal = Array.isArray(doacao.itens) && doacao.itens.length > 0
+                        ? doacao.itens.reduce((acc, item) => acc + (item.quantidade || 0), 0)
+                        : 0;
+
+                      return (
+                        <tr key={doacao.id}>
+                          <th scope="row">{doacao.id}</th>
+                          <td>{doacao.funcionario?.id || '—'}</td>
+                          <td>{materiaisTexto}</td>
+                          <td>{quantidadeTotal}</td>
+                          <td>{formatarData(doacao.data)}</td>
+                          <td>
+                            <Button
+                              size="sm"
+                              className="label theme-bg2 text-white f-12"
+                              title="Excluir"
+                              onClick={() => handleDeleteDoacao(doacao.id)}
+                            >
+                              <FaRegTrashAlt />
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
-                      <td colSpan={8} className="text-center">Nenhuma doação encontrada.</td>
+                      <td colSpan={6} className="text-center">Nenhuma doação encontrada.</td>
                     </tr>
                   )}
                 </tbody>
@@ -159,7 +170,7 @@ const DoacoesMateriais = () => {
           </Card>
         </Col>
       </Row>
-    </React.Fragment>
+    </>
   );
 };
 

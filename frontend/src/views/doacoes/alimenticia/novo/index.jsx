@@ -15,15 +15,17 @@ const NovaDoacaoProduto = () => {
 
   const [formData, setFormData] = useState({
     funcionarioId: "",
-    tipoDoacao: "",
-    observacao: "",
-    produtos: [{ produtoId: "", quantidade: "", tipoMovimentacao: "" }],
+    tipoDoacao: "", // você pode até retirar se não for usar
+    observacao: "", // pode remover também se não usar no backend
+    produtos: [{ produtoId: "", quantidade: "" }],
   });
+
+  const initialProdutoErrors = { produtoId: false, quantidade: false };
 
   const [errors, setErrors] = useState({
     funcionarioId: false,
     tipoDoacao: false,
-    produtos: [],
+    produtos: [initialProdutoErrors],
   });
 
   useEffect(() => {
@@ -62,6 +64,7 @@ const NovaDoacaoProduto = () => {
     fetchDados();
   }, [token]);
 
+  // Caso não precise dos tipos de movimentação, pode retirar o uso deles
   const tiposMovimentacao = [
     { value: "ENTRADA_DOACAO_ALIMENTICIA", label: "Entrada por Doação Alimentícia" },
     { value: "SAIDA_DOACAO_ALIMENTICIA", label: "Saída por Doação Alimentícia" },
@@ -86,7 +89,11 @@ const NovaDoacaoProduto = () => {
     produtos[index][field] = value;
     setFormData({ ...formData, produtos });
 
-    if (errors.produtos[index]?.[field]) {
+    if (
+      errors.produtos &&
+      errors.produtos[index] &&
+      errors.produtos[index][field]
+    ) {
       const novosErrosProdutos = [...errors.produtos];
       novosErrosProdutos[index][field] = false;
       setErrors((prev) => ({ ...prev, produtos: novosErrosProdutos }));
@@ -96,11 +103,11 @@ const NovaDoacaoProduto = () => {
   const adicionarProduto = () => {
     setFormData((prev) => ({
       ...prev,
-      produtos: [...prev.produtos, { produtoId: "", quantidade: "", tipoMovimentacao: "" }],
+      produtos: [...prev.produtos, { produtoId: "", quantidade: "" }],
     }));
     setErrors((prev) => ({
       ...prev,
-      produtos: [...prev.produtos, { produtoId: false, quantidade: false, tipoMovimentacao: false }],
+      produtos: [...(prev.produtos || []), initialProdutoErrors],
     }));
   };
 
@@ -119,18 +126,18 @@ const NovaDoacaoProduto = () => {
       valido = false;
     }
 
-    if (!formData.tipoDoacao) {
-      setErrors((prev) => ({ ...prev, tipoDoacao: true }));
-      valido = false;
-    }
+    // Se não usar tipoDoacao, pode tirar essa validação
+    // if (!formData.tipoDoacao) {
+    //   setErrors((prev) => ({ ...prev, tipoDoacao: true }));
+    //   valido = false;
+    // }
 
     const novosErrosProdutos = formData.produtos.map((p) => ({
       produtoId: !p.produtoId,
       quantidade: !p.quantidade || Number(p.quantidade) <= 0,
-      tipoMovimentacao: !p.tipoMovimentacao,
     }));
 
-    if (novosErrosProdutos.some((e) => e.produtoId || e.quantidade || e.tipoMovimentacao)) {
+    if (novosErrosProdutos.some((e) => e.produtoId || e.quantidade)) {
       setErrors((prev) => ({ ...prev, produtos: novosErrosProdutos }));
       valido = false;
     }
@@ -146,19 +153,30 @@ const NovaDoacaoProduto = () => {
       return;
     }
 
+    const dataHoje = new Date().toISOString().slice(0, 10);
+
+    const itens = formData.produtos.map((p) => {
+      const produtoCompleto = produtosDisponiveis.find(
+        (prod) => prod.id === Number(p.produtoId)
+      );
+
+      return {
+        produto: { id: Number(p.produtoId) },
+        quantidade: Number(p.quantidade),
+        dataValidade: produtoCompleto ? produtoCompleto.dataValidade : null,
+      };
+    });
+
     const dataToSend = {
-      funcionarioId: Number(formData.funcionarioId),
-      tipoDoacao: formData.tipoDoacao,
-      observacao: formData.observacao.trim() || null,
-      movimentacoes: formData.produtos.map((p) => ({
-        produtoId: Number(p.produtoId),
-        quantidadeMovimentada: Number(p.quantidade),
-        tipo: p.tipoMovimentacao,
-      })),
+      funcionario: { id: Number(formData.funcionarioId) },
+      data: dataHoje,
+      itens,
     };
 
+    console.log("Dados enviados para o backend:", JSON.stringify(dataToSend, null, 2));
+
     try {
-      const response = await fetch("http://localhost:8080/api/estoque/movimentar", {
+      const response = await fetch("http://localhost:8080/api/doacoes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -169,7 +187,7 @@ const NovaDoacaoProduto = () => {
 
       if (response.ok) {
         toast.success("Doação cadastrada com sucesso!");
-        setTimeout(() => navigate("/doacao"), 1500);
+        setTimeout(() => navigate("/doacao/alimenticia"), 1500);
       } else {
         const errorData = await response.json();
         setErroServidor(errorData.message || "Erro desconhecido.");
@@ -197,7 +215,10 @@ const NovaDoacaoProduto = () => {
           <Card.Body>
             <ToastContainer position="top-right" autoClose={3000} />
             {loading ? (
-              <div className="d-flex justify-content-center align-items-center" style={{ height: "150px" }}>
+              <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: "150px" }}
+              >
                 <Spinner animation="border" variant="primary" />
               </div>
             ) : erroServidor ? (
@@ -222,6 +243,8 @@ const NovaDoacaoProduto = () => {
                   </Form.Select>
                 </Form.Group>
 
+                {/*
+                Se não quiser mostrar tipoDoacao ou observação, pode remover esse bloco
                 <Form.Group className="mb-3" controlId="tipoDoacao">
                   <LabelObrigatorio>Tipo da Doação</LabelObrigatorio>
                   <Form.Select
@@ -251,16 +274,19 @@ const NovaDoacaoProduto = () => {
                     placeholder="Digite uma observação (opcional)"
                   />
                 </Form.Group>
+                */}
 
                 {formData.produtos.map((produto, index) => (
                   <div key={index} className="border rounded p-3 mb-3">
                     <Row>
-                      <Col md={4}>
+                      <Col md={6}>
                         <Form.Group>
                           <LabelObrigatorio>Produto</LabelObrigatorio>
                           <Form.Select
                             value={produto.produtoId}
-                            onChange={(e) => handleProdutoChange(index, "produtoId", e.target.value)}
+                            onChange={(e) =>
+                              handleProdutoChange(index, "produtoId", e.target.value)
+                            }
                             style={errors.produtos[index]?.produtoId ? bordaErro : {}}
                             isInvalid={errors.produtos[index]?.produtoId}
                           >
@@ -273,43 +299,29 @@ const NovaDoacaoProduto = () => {
                           </Form.Select>
                         </Form.Group>
                       </Col>
-                      <Col md={2}>
+                      <Col md={4}>
                         <Form.Group>
                           <LabelObrigatorio>Quantidade</LabelObrigatorio>
                           <Form.Control
                             type="number"
                             min="1"
                             value={produto.quantidade}
-                            onChange={(e) => handleProdutoChange(index, "quantidade", e.target.value)}
+                            onChange={(e) =>
+                              handleProdutoChange(index, "quantidade", e.target.value)
+                            }
                             style={errors.produtos[index]?.quantidade ? bordaErro : {}}
                             isInvalid={errors.produtos[index]?.quantidade}
                           />
                         </Form.Group>
                       </Col>
-                      <Col md={4}>
-                        <Form.Group>
-                          <LabelObrigatorio>Tipo de Movimentação</LabelObrigatorio>
-                          <Form.Select
-                            value={produto.tipoMovimentacao}
-                            onChange={(e) => handleProdutoChange(index, "tipoMovimentacao", e.target.value)}
-                            style={errors.produtos[index]?.tipoMovimentacao ? bordaErro : {}}
-                            isInvalid={errors.produtos[index]?.tipoMovimentacao}
-                          >
-                            <option value="">-- Selecione --</option>
-                            {tiposMovimentacao.map((tipo) => (
-                              <option key={tipo.value} value={tipo.value}>
-                                {tipo.label}
-                              </option>
-                            ))}
-                          </Form.Select>
-                        </Form.Group>
-                      </Col>
                       <Col md={2} className="d-flex align-items-end">
-                        {formData.produtos.length > 1 && (
-                          <Button variant="danger" onClick={() => removerProduto(index)}>
-                            Remover
-                          </Button>
-                        )}
+                        <Button
+                          variant="danger"
+                          onClick={() => removerProduto(index)}
+                          disabled={formData.produtos.length === 1}
+                        >
+                          Remover
+                        </Button>
                       </Col>
                     </Row>
                   </div>
@@ -319,9 +331,9 @@ const NovaDoacaoProduto = () => {
                   Adicionar Produto
                 </Button>
 
-                <div className="mt-4 d-flex justify-content-end">
+                <div className="mt-4">
                   <Button variant="primary" type="submit">
-                    Salvar
+                    Cadastrar Doação
                   </Button>
                 </div>
               </Form>
