@@ -21,6 +21,17 @@ public class DespesaCreateDTO {
     @NotNull(message = "O valor é obrigatório")
     private Double valor;
 
+//    @NotNull(message = "O caixa é obrigatório")
+//    private Integer idCaixa;
+//
+//    public Integer getIdCaixa() {
+//        return idCaixa;
+//    }
+//
+//    public void setIdCaixa(Integer idCaixa) {
+//        this.idCaixa = idCaixa;
+//    }
+
     public LocalDate getDataLancamento() {
         return dataLancamento;
     }

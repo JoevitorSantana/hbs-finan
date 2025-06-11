@@ -4,6 +4,7 @@ import com.hbs.hbsfinan.model.Caixa;
 import com.hbs.hbsfinan.model.Despesa;
 import com.hbs.hbsfinan.exceptions.DespesaNotFoundException;
 import com.hbs.hbsfinan.infra.db.Conexao;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
+@Repository
 public class DespesaRepository {
 
     private final Conexao conexao;
@@ -20,6 +21,7 @@ public class DespesaRepository {
     public DespesaRepository(Conexao conexao) {
         this.conexao = conexao;
     }
+
 
     public Despesa save(Despesa despesa) {
         String sql = "INSERT INTO despesa (data_lancamento, data_vencimento, descricao, valor, caixa_id, pagamento_total) VALUES (?, ?, ?, ?, ?, ?)";
@@ -135,25 +137,25 @@ public class DespesaRepository {
         despesa.setValor(rs.getDouble("valor"));
         despesa.setPagamentoTotal(rs.getDouble("pagamento_total"));
 
-        try {
-            int idCaixa = rs.getInt("id");
-            if (!rs.wasNull()) {
-                Caixa caixa = caixaRepository.findById(idCaixa);
-                if (caixa != null) {
-                    despesa.setCaixa(caixa);
-                } else {
-                    System.out.println("Caixa não encontrado para id: " + idCaixa);
-                    // Por enquanto, seta um Caixa dummy só pra teste
-                    Caixa caixaDummy = new Caixa();
-                    caixaDummy.setId(idCaixa);
-                    caixaDummy.setValorInicial(0);
-                    caixaDummy.setValorFinal(0);
-                    despesa.setCaixa(caixaDummy);
-                }
-            }
+        // Pega o id do caixa correto:
+        int idCaixa = rs.getInt("caixa_id");  // <-- CORREÇÃO AQUI
 
-        } catch (Exception e) {
-            System.err.println("⚠️ Erro ao buscar caixa: " + e.getMessage());
+        if (!rs.wasNull()) {
+            if (caixaRepository == null) {
+                // Inicializar caixaRepository se ainda não estiver inicializado
+                caixaRepository = new CaixaRepository(conexao);
+            }
+            Caixa caixa = caixaRepository.findById(idCaixa);
+            if (caixa != null) {
+                despesa.setCaixa(caixa);
+            } else {
+                System.out.println("Caixa não encontrado para id: " + idCaixa);
+                Caixa caixaDummy = new Caixa();
+                caixaDummy.setId(idCaixa);
+                caixaDummy.setValorInicial(0);
+                caixaDummy.setValorFinal(0);
+                despesa.setCaixa(caixaDummy);
+            }
         }
 
         return despesa;
