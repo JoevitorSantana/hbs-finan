@@ -65,11 +65,11 @@ const GerenciarCaixa = () => {
       const dataMonetaria = await respMonetaria.json();
 
       const movMonetarias = dataMonetaria?.map((d) => {
-        const apoiadorEncontrado = apoiadores.find((a) => a.id === d.idApoiador);
+        // const apoiadorEncontrado = apoiadores.find((a) => a.id === d.apoiador.id);
         return {
           id: d.id,
           data: d.data,
-          apoiador: apoiadorEncontrado ? apoiadorEncontrado.nome : "Apoiador desconhecido",
+          apoiador: d.apoiador ? d.apoiador.nome : "Apoiador desconhecido",
           valor: parseFloat(d.valor),
           tipo: "DM",
         };
@@ -84,7 +84,7 @@ const GerenciarCaixa = () => {
       const movInstituicao = dataInstituicao?.map((d) => ({
         id: d.id,
         data: d.data,
-        nome: d.nomeInstituicao || "Instituição desconhecida",
+        nome: d.nome || "Instituição desconhecida",
         valor: parseFloat(d.valor),
         tipo: "DI",
       })) || [];

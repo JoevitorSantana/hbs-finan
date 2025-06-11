@@ -96,7 +96,7 @@ public class DoacaoMonetariaRepository implements IDoacaoMonetariaRepository {
     @Override
     public List<DoacaoMonetaria> findByCaixa(int id) {
         List<DoacaoMonetaria> listDoacaoMonetaria = new ArrayList<>();
-        String sql = "SELECT * FROM doacao_monetaria WHERE id_caixa = #1";
+        String sql = "SELECT * FROM doacao_monetaria dm INNER JOIN apoiador ap ON dm.id_ap = ap.id WHERE id_caixa = #1";
         sql = sql.replace("#1", "" + id);
         try {
             ResultSet rs = dbConn.query(sql);
@@ -107,6 +107,7 @@ public class DoacaoMonetariaRepository implements IDoacaoMonetariaRepository {
                 doacaoMonetaria.setData(rs.getDate("data"));
                 Apoiador apoiador = new Apoiador();
                 apoiador.setId(rs.getLong("id_ap"));
+                apoiador.setNome(rs.getString("nome"));
                 doacaoMonetaria.setApoiador(apoiador);
                 listDoacaoMonetaria.add(doacaoMonetaria);
             }

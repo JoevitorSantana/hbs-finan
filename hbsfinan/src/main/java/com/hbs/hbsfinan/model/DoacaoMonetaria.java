@@ -19,7 +19,7 @@ public class DoacaoMonetaria {
 
     @ManyToOne
     @JoinColumn(name = "id_ap")//ver se esta certo
-    @JsonIgnore
+    // @JsonIgnore
     private Apoiador apoiador;
 
     @ManyToOne
@@ -62,7 +62,7 @@ public class DoacaoMonetaria {
         this.data = data;
     }
 
-    @JsonIgnore
+    // @JsonIgnore
     public Apoiador getApoiador() {
         return apoiador;
     }
